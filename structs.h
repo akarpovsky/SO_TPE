@@ -2,39 +2,7 @@
 #define FALSE 0
 
 
-typedef boolean int;
-
-typedef struct user_t{
-	
-	char * username;
-	char * password;
-	League * leagues;
-	
-	} user_t;
-	
-typedef User *user_t;
-		
-typedef struct league_t{
-	
-	int ID;
-	char * name;
-	Team * teams;
-	Player * players;
-	Trade * trades;
-	
-	} league_t;
-
-	typedef League *league_t;
-	
-typedef struct team_t{
-	
-	int ID;
-	User owner;
-	Player * players;
-	
-	}team_t;
-	
-typedef Team *team_t;
+typedef int boolean;
 
 typedef struct player_t{
 	
@@ -44,7 +12,16 @@ typedef struct player_t{
 	
 	}player_t;
 	
-typedef Player *player_t;
+typedef  player_t * Player;
+
+typedef struct team_t{
+	
+	int ID;
+	Player * players;
+	
+	}team_t;
+	
+typedef team_t * Team;
 
 typedef struct trade_t{
 	
@@ -56,4 +33,27 @@ typedef struct trade_t{
 	Team tTo;
 	
 	}trade_t;
-	typedef Trade *trade_t;
+
+typedef trade_t * Trade;
+
+typedef struct league_t{
+	
+	int ID;
+	char * name;
+	Team * teams;
+	Player * players;
+	Trade * trades;
+	
+	} league_t;
+
+typedef league_t * League;
+
+typedef struct user_t{
+	
+	char * username;
+	char * password;
+	League * leagues;
+	
+	} user_t;
+	
+typedef user_t * User;
