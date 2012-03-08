@@ -1,8 +1,8 @@
-## Sistemas Operativos
-=====================
+Sistemas Operativos
+===================
 
-### Instituto Tecnológico de Buenos Aires (ITBA) - #### Cuatrimestre 1 - 2012
-
+### Instituto Tecnológico de Buenos Aires (ITBA)
+#### Cuatrimestre 1 - 2012
 
 Filesystems, IPCs y Servidores Concurrentes
 -------------------------------------------
