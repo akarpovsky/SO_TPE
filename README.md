@@ -4,6 +4,9 @@ Sistemas Operativos
 ### Instituto Tecnológico de Buenos Aires (ITBA)
 #### Cuatrimestre 1 - 2012
 
+________________________________________________
+________________________________________________
+
 Filesystems, IPCs y Servidores Concurrentes
 -------------------------------------------
 
