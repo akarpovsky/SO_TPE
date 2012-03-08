@@ -34,6 +34,7 @@ Los partidos se cargarán copiando el archivo correspondiente a la carpeta de pa
 ## Actividades
 
 #### Simulación
+---------------
 
 Implemente la simulación utilizando procesos y threads y haga cuatro versiones del sistema, usando las siguientes primitivas de IPC:
 
@@ -43,11 +44,12 @@ Implemente la simulación utilizando procesos y threads y haga cuatro versiones 
 * Sockets - TCP o de dominio Unix
 
 #### Criterios de Implementación
-________________________________
 
 Los programas correrán en ambiente Linux. En su realización se requiere:
 Buena modularización Buen estilo de programación Documentación adecuada Makefile para la construcción.
 Estos factores se toman en cuenta para la evaluación. Los trabajos podrán hacerse en grupos de no más de cuatro integrantes.
+
+________________________________
 
 ### Material a entregar
 Cada grupo deberá entregar todos los fuentes del trabajo debidamente comentados, junto a un makefile para compilarlos en un ambiente linux. Además deberán entregar un informe impreso detallando las decisiones respecto a los items que quedaron a elección del grupo, problemas presentados y solución de los mismos durante la realización del trabajo
