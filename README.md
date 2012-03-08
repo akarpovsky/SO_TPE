@@ -33,14 +33,17 @@ Los partidos se cargarán copiando el archivo correspondiente a la carpeta de pa
 
 ## Actividades
 
-1) Implemente la simulación utilizando procesos y threads y haga cuatro versiones del sistema, usando las siguientes primitivas de IPC:
+#### Simulación
+
+Implemente la simulación utilizando procesos y threads y haga cuatro versiones del sistema, usando las siguientes primitivas de IPC:
 
 * Pipes o FIFOs
 * Colas de mensajes - System V o POSIX
 * Memoria compartida - System V o mmap(). Semáforos - System V o POSIX
 * Sockets - TCP o de dominio Unix
 
-2) Criterios de Implementación
+#### Criterios de Implementación
+________________________________
 
 Los programas correrán en ambiente Linux. En su realización se requiere:
 Buena modularización Buen estilo de programación Documentación adecuada Makefile para la construcción.
