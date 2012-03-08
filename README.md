@@ -58,7 +58,7 @@ Cada grupo deberá entregar todos los fuentes del trabajo debidamente comentados
 
 ### Consideraciones
 
-Todo punto no expl ́ıcito en este documento podrá ser interpretado a convenieniencia del alumno, siempre dentro de los márgenes del sentido comu ́n. Ante la duda, consultar a los docentes o enviar un mail a la cátedra.
+Todo punto no explícito en este documento podrá ser interpretado a convenieniencia del alumno, siempre dentro de los márgenes del sentido común. Ante la duda, consultar a los docentes o enviar un mail a la cátedra.
 
 ### Fecha de entrega
 La fecha de entrega del trabajo práctico es el Lunes 9 de Abril a las 16:00.
