@@ -1,7 +1,7 @@
-ó# Sistemas Operativos
+## Sistemas Operativos
 =====================
 
-### ITBA Cuatrimestre 1 - 2012
+### Instituto Tecnológico de Buenos Aires (ITBA) - #### Cuatrimestre 1 - 2012
 
 
 Filesystems, IPCs y Servidores Concurrentes
@@ -34,7 +34,6 @@ Los partidos se cargarán copiando el archivo correspondiente a la carpeta de pa
 ## Actividades
 
 #### Simulación
----------------
 
 Implemente la simulación utilizando procesos y threads y haga cuatro versiones del sistema, usando las siguientes primitivas de IPC:
 
