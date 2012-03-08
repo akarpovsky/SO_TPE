@@ -5,9 +5,9 @@
 
 
 Filesystems, IPCs y Servidores Concurrentes
-===========================================
+-------------------------------------------
 
-### Objetivo
+## Objetivo
 
 El objetivo de este trabajo es familiarizarse con el uso de sistemas cliente- servidor concurrentes, implementando el servidor mediante la creaci ́on de proce- sos hijos utilizando fork() y mediante la creaci ́on de threads. Al mismo tiempo, ejercitar el uso de los distintos tipos de primitivas de sincronizaci ́on y comuni- caci ́on de procesos (IPC) y manejar con autoridad el filesystem de Linux desde el lado usuario.
 
@@ -18,11 +18,10 @@ La simulaci ́on tendr ́a un archivo de configuraci ́on con la lista de jugado
 
 El servidor deber ́a soportar los siguientes comandos: 
 
-* [register (user, password)] --  Crea una cuenta para acceder a la liga.
-* [login (user, password)] --  Accede a su cuenta. *[list [leagues—teams—trades]: Accede a la lista de ligas, equipos o trades.
-1
-* [league show (leagueId) Muestra la tabla de posiciones de una liga y los puntajes individuales de los jugadores drafteados por esa liga
-* [team show (teamId)] --  Muestra informaci ́on sobre el equipo, la liga a la que pertenece, los jugadores que drafte ́o, el puntaje individual de cada uno y su puntaje total.
+* `register (user, password)` --  Crea una cuenta para acceder a la liga.
+* `login (user, password)` --  Accede a su cuenta. *[list [leagues—teams—trades]: Accede a la lista de ligas, equipos o trades.
+* `league show (leagueId)` -- Muestra la tabla de posiciones de una liga y los puntajes individuales de los jugadores drafteados por esa liga
+* `team show (teamId)` --  Muestra informaci ́on sobre el equipo, la liga a la que pertenece, los jugadores que drafte ́o, el puntaje individual de cada uno y su puntaje total.
 * [trade show (tradeId)] --  Muestra informaci ́on sobre el trade, de que equipo a que equipo es, y qu ́e jugadores interactu ́an en el intercambio.
 * [trade (teamId)] --  Genera un trade con ese equipo (solo en caso de tener un equipo en la misma liga que el equipo con quien se tradea)
 * [trade withdraw (tradeId)] --  Cancela un trade creado por uno mismo
@@ -31,7 +30,7 @@ El servidor deber ́a soportar los siguientes comandos:
 
 Los partidos se cargar ́an copiando el archivo correspondiente a la carpeta de partidos. El servidor deber ́a estar monitoreando el directorio constantemente para detectar nuevos partidos.
 
-### Actividades
+## Actividades
 
 1) Implemente la simulaci ́on utilizando procesos y threads y haga cuatro ver- siones del sistema, usando las siguientes primitivas de IPC:
 
