@@ -17,7 +17,7 @@
 /* MAIN MENU */
 
 #define REGISTER 1
-#define LOGIN 2
+#define LOG_IN 2
 #define EXIT 3
 
 /*  STATUSES */

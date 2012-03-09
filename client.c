@@ -7,7 +7,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "getnum.h"
+#include "communication_c.h"
+
 #include "defines.h"
+#include "structs.h"
+
+
+//TODO: Sacar
+#include "server.h"
 
 int register_f(void){
 	int ret = 0;
@@ -57,9 +64,9 @@ int login_f(void){
 //TODO: Revisar espacios dentro del username y errores scanf
 
 
-		printf("\n\t\t*********************************\n");
-		printf("\t\t************ LOG IN *************\n");
-		printf("\t\t*********************************\n\n");
+	printf("\n\t\t*********************************\n");
+	printf("\t\t************ LOG IN *************\n");
+	printf("\t\t*********************************\n\n");
 
 	printf("Enter your username: \n");
 	scanf("%ms", &username);
@@ -68,16 +75,17 @@ int login_f(void){
 	scanf("%ms", &password);
 
 	printf("User: %s, Pass: %s\n", username, password);	
-	ret = register_c(username, password);
+	ret = login_c(username, password);
 
 	return ret;
 }
 
 
 
+
 int login_c(char * username, char * password){
+	communicate(LOG_IN, username, password); 
 	return 1;
-//	return communicate(PIPES, LOGIN, username, pass); 
 }
 
 int show_main_menu(void){
@@ -105,7 +113,9 @@ int show_main_menu(void){
 }
 
 int main(void){
-
+	
+	
+	
 	int option = 0;
 	int register_ret = 0;
 	int login_ret = 0;
@@ -129,7 +139,7 @@ int main(void){
 
 				break;
 
-			case LOGIN:
+			case LOG_IN:
 
 				login_ret = 0;
 

@@ -5,30 +5,41 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
-int communicate(int COMM_TYPE, int action, ...){
+#include "defines.h"
+#include "structs.h"
 
-/*
-	switch(COMM_TYPE){
-	
-		case 'PIPES':
-			communicate_pipes(action, ...);
-		break;
 
-		case 'POSIX':
-		break;
+void * communicate(int ACTION_TYPE, ...){
+  
+	switch(ACTION_TYPE){
+		
+		case REGISTER:
+		{	
+			break;
+		}
+		
+		case LOG_IN:
+		{
+			// For variable arguments usage
+			va_list argumentList;
+			va_start( argumentList, ACTION_TYPE );
 
-		case 'SHARED_MEMORY':
-		break;
+			char * username = va_arg( argumentList, char * );
+			char * password = va_arg( argumentList, char * );
 
-		case 'SOCKETS':
-		break;
-
+			va_end( argumentList );
+			
+			User usr = login_s(username, password);
+			
+			return usr;
+		 }   				
 		default:
-
+		{
+			break;
+		}
 	}
-
-*/
 
 
 }

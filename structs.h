@@ -1,3 +1,10 @@
+/**
+	structs.h
+	General purpose structures and defines
+
+**/
+
+
 #define TRUE 1
 #define FALSE 0
 
