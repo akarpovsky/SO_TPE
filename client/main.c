@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include "../includes/parse.h"
 
-/* ARREGLAR CONTROL D */
-
 void readPrompt(char * s, int size);
 
 int main(void){
@@ -10,7 +8,7 @@ int main(void){
 	char input[100];
 
 	while(1){
-		printf("leagueGame:/$ ");
+		printf("client:/$ ");
 		readPrompt(input,sizeof(input));
 		if(input[0] != 0){
 			parseCommand(input);

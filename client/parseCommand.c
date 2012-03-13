@@ -44,24 +44,20 @@ void parseCommand(char * cmd){
 	}else if(strcmp(commandName,"list") == 0){
 		list(param);
 	}else{
-		id = atoi(param);
-		if(id <= 0){
-			printf("Incorrect ID \n");
-			return;
-		}else if (strcmp(commandName,"leagueShow") == 0){
-			// SEND leagueShow(id);
+		if (strcmp(commandName,"leagueShow") == 0){
+			// SEND leagueShow(param);
 		}else if(strcmp(commandName,"teamShow") == 0){
-			// SEND teamShow(id);
+			// SEND teamShow(param);
 		}else if(strcmp(commandName,"tradeShow") == 0){
-			// SEND tradeShow(id);
+			// SEND tradeShow(param);
 		}else if(strcmp(commandName,"trade") == 0){
-			// SEND trade(id);
+			// SEND trade(param);
 		}else if(strcmp(commandName,"tradeWithdraw") == 0){
-			// SEND tradeWithdraw(id);		
+			// SEND tradeWithdraw(param);		
 		}else if(strcmp(commandName,"tradeAccept") == 0){
-			// SEND tradeAccept(id);
+			// SEND tradeAccept(param);
 		}else if(strcmp(commandName,"tradeNegotiate") == 0){
-			// SEND tradeNegotiate(id);
+			// SEND tradeNegotiate(param);
 		}else{
 			printf("Command not found \n");
 		}
