@@ -27,8 +27,13 @@ void readPrompt(char * s, int size){
 	int input = 0;
 
 	while(--size && (input = getchar()) != EOF && input != '\n'){
+		
 		*s = input;
 		s++;
+	}
+	
+	if(input == EOF){
+		printf("\n");
 	}
 	
 	*s = 0;
