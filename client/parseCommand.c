@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-
-void parseCommand(char * cmd);
-void list(char * param);
+#include "../includes/parse.h"
 
 void parseCommand(char * cmd){
 	
@@ -13,40 +11,27 @@ void parseCommand(char * cmd){
 	int id;
 	
 	if ((commandName = strtok(cmd,"[")) == NULL){
-		printf("Command {%s} not found \n", cmd);
+		printf("Command not found \n");
 		return;
 	}
 	
 	if((strcmp(commandName,"login") != 0) && (strcmp(commandName,"register") != 0)){
-		if((param = strtok(NULL,"\n")) == NULL){
-			printf("Command {%s} not found \n", cmd);
+		if((param = strtok(NULL,"]")) == NULL){
+			printf("Command not found \n");
 			return;
 		}
-		if( (param[strlen(param) -1 ]) != ']'){
-			printf("Command {%s} not found \n", cmd);
-			return;
-		}
-		
-		param[strlen(param)-1] = 0;
 
 	}else{
 
 		if((user = strtok(NULL,",")) == NULL){
-			printf("Command {%s} not found \n", cmd);
+			printf("Command not found \n");
 			return;
 		}
 
-		if((pass = strtok(NULL,"\n")) == NULL){
-			printf("Command {%s} not found \n", cmd);
+		if((pass = strtok(NULL,"]")) == NULL){
+			printf("Command not found \n");
 			return;
 		}
-
-		if( (pass[strlen(pass) -1 ]) != ']'){
-			printf("Command {%s} not found \n", cmd);
-			return;
-		}
-		
-		pass[strlen(pass)-1] = 0;
 	}
 	
 	/* Ahora en commandName hay un string con el nombre del comando
@@ -78,7 +63,7 @@ void parseCommand(char * cmd){
 		}else if(strcmp(commandName,"tradeNegotiate") == 0){
 			// SEND tradeNegotiate(id);
 		}else{
-			printf("Command {%s} not found \n", cmd);
+			printf("Command not found \n");
 		}
 	}
 
@@ -95,7 +80,7 @@ void list(char * param){
 	}else if(strcmp(param,"trades") == 0){
 	//SEND	listTrades();
 	}else{
-		printf("Command {list[%s]} not found \n",param);
+		printf("Command not found \n");
 	}
 	
 }
