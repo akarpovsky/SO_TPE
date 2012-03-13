@@ -4,13 +4,6 @@
 void parseCommand(char * cmd);
 void list(char * param);
 
-int main(void){
-	char comando[] = "leagueShow[1234]";
-	parseCommand(comando);
-
-	return 0;	
-}
-
 void parseCommand(char * cmd){
 	
 	char * commandName;
