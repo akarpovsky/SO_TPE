@@ -6,11 +6,11 @@
 
 /* lee un entero */
 int 
-getint(const char mensaje[], ... )
+	getint(const char mensaje[], ... )
 {
 	int n, salir = 0;
 	va_list ap;
-		
+
 	do	
 	{
 		va_start(ap, mensaje);
@@ -31,12 +31,12 @@ getint(const char mensaje[], ... )
 
 /* lee un float */
 float 
-getfloat(const char mensaje[], ...)
+	getfloat(const char mensaje[], ...)
 {
 	float n;
 	int salir = 0;
 	va_list ap;
-		
+
 	do	
 	{
 		va_start(ap, mensaje);
@@ -57,12 +57,12 @@ getfloat(const char mensaje[], ...)
 
 /* lee un double */
 double 
-getdouble(const char mensaje[], ...)
+	getdouble(const char mensaje[], ...)
 {
 	double n;
 	int salir = 0;
 	va_list ap;
-		
+
 	do	
 	{
 		va_start(ap, mensaje);
@@ -83,12 +83,12 @@ getdouble(const char mensaje[], ...)
 
 /* lee S,s,N, o n  */
 int 
-yesNo(const char mensaje[], ...)
+	yesNo(const char mensaje[], ...)
 {
 	int op;
 	int salir = 0;
 	va_list ap;
-		
+
 	do	
 	{
 		va_start(ap, mensaje);
