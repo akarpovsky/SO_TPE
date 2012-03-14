@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+
 #include "../includes/marshalling.h"
+#include "../includes/parseCommand.h"
 
 
 void parseCommand(char * cmd){
@@ -35,11 +37,12 @@ void parseCommand(char * cmd){
 	
 	/* Cargo param2 */
 	if((strcmp(commandName,"login") == 0) || (strcmp(commandName,"register") == 0)){
-	
+
 		if((param2 = strtok(NULL,"]")) == NULL){
 			printf("Command not found \n");
 			return;
 		}
+
 	}else{
 		if((strcmp(commandName,"trade") == 0 ) || (strcmp(commandName,"tradeNegotiate") == 0)){
 			if((param2 = strtok(NULL,",")) == NULL){
@@ -59,36 +62,36 @@ void parseCommand(char * cmd){
 	* y en param 1, 2 y 3 hay user, pass, id, player from, player to, etc...*/
 	
 	if(strcmp(commandName,"register") == 0){
-		register(param1,param2);
+		register_c(param1,param2);
 	}else if(strcmp(commandName,"login") == 0){
-		login(param1,param2);
+		login_c(param1,param2);
 	}else if(strcmp(commandName,"list") == 0){
 	
 		if(strcmp(param1,"leagues") == 0){
-			list(LIST_LEAGUES);
+			list_c(LIST_LEAGUES);
 		}else if(strcmp(param1,"teams") == 0){
-			list(LIST_TEAMS);
+			list_c(LIST_TEAMS);
 		}else if(strcmp(param1,"trades") == 0){
-			list(LIST_TRADES);
+			list_c(LIST_TRADES);
 		}else{
 			printf("Command not found \n");
 			return;
 		}
 		
 	}else if (strcmp(commandName,"leagueShow") == 0){
-		leagueShow(param1);
+		leagueShow_c(param1);
 	}else if(strcmp(commandName,"teamShow") == 0){
-		teamShow(param1);
+		teamShow_c(param1);
 	}else if(strcmp(commandName,"tradeShow") == 0){
-		tradeShow(param1);
+		tradeShow_c(param1);
 	}else if(strcmp(commandName,"trade") == 0){
-		trade(param1,param2,param3);
+		trade_c(param1,param2,param3);
 	}else if(strcmp(commandName,"tradeWithdraw") == 0){
-		tradeWithdraw(param1);		
+		tradeWithdraw_c(param1);		
 	}else if(strcmp(commandName,"tradeAccept") == 0){
-		tradeAccept(param1);
+		tradeAccept_c(param1);
 	}else if(strcmp(commandName,"tradeNegotiate") == 0){
-		tradeNegotiate(param1,param2,param3);
+		tradeNegotiate_c(param1,param2,param3);
 	}else{
 		printf("Command not found \n");
 		return;
