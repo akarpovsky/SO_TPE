@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../includes/parse.h"
+#include "../includes/parseCommand.h"
 
 void readPrompt(char * s, int size);
 

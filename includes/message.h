@@ -2,33 +2,25 @@
 typedef struct msg_t{
 	
 	int type;
-	union{
+	union data{
 		int ping;
 		struct register_t{
 			char * user;
 			char * pass;
-		};
+		}register_t;
 		struct login_t{
 			char * user;
 			char * pass;
-		};
-		int listType; 
+		}login_t;
 		struct show_t{
-			int showType;
-			union{
-				char * leagueID;
-				int teamID;
-				int tradeID;
-			};
-		};
-		struct trade{
-			int type;
-			int tradeID;
-			int *fPlayerID;
-			int *tPlayerId;
-		};
-		
-	};
-	
-	
-}
+			char * ID; /* league, team o trade */
+		}show_t;
+				
+		struct trade_t{
+			char * from;
+			char * to;
+			char * teamID;
+			char * tradeID;
+		}trade_t;
+	}data;
+}msg_t;
