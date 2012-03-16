@@ -1,12 +1,11 @@
 
+
+
 typedef struct game{
 	
 	int users; /* usuarios conectados */
 	/* Lista de usuarios  user*  */
-	
-	int trade;
-	/* LISTA DE TRADES trade */
-	
+
 	int leagues;
 	/* LISTA DE LIGAS  league*   */
 	
@@ -67,8 +66,16 @@ typedef struct trade{
 	int ID;
 	league * league;
 	int state;
-	user * userFrom;
-	user * userTo;
-	player * playerFrom;
-	player * playerTo;
+	char * userFrom;
+	char * userTo;
+	char * playerFrom;
+	char * playerTo;
 	}trade;
+
+
+typedef user * User;
+typedef game * Game;
+typedef league * League;
+typedef team * Team;
+typedef player * Player;
+typedef trade * Trade;
