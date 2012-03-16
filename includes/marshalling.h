@@ -11,13 +11,13 @@
 #define TRADE_ACCEPT 11
 #define TRADE_NEGOTIATE 12
 
-void register(char * user, char * pass);
-void login(char * user, char * pass);
-void list(int toList);
-void leagueShow(char * id);
-void teamShow(char * id);
-void tradeShow(char * id);
-void trade(char * id, char * from, char * to);
-void tradeWithdraw(char * id);
-void tradeAccept(char * id);
-void tradeNegotiate(char * id, char * from, char * to);
+void register_c(char * user, char * pass);
+void login_c(char * user, char * pass);
+void list_c(int toList);
+void leagueShow_c(char * id);
+void teamShow_c(char * id);
+void tradeShow_c(char * id);
+void trade_c(char * id, char * from, char * to);
+void tradeWithdraw_c(char * id);
+void tradeAccept_c(char * id);
+void tradeNegotiate_c(char * id, char * from, char * to);
