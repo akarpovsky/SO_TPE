@@ -19,7 +19,7 @@ User loadUser(char * path){
 	auxUser = malloc(sizeof(user));
 	
 	if(auxUser == NULL){
-		perror("Insuficient memory\n");
+		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -33,30 +33,29 @@ User loadUser(char * path){
 	/* CARGO USER */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxString  =  malloc(sizeof(dim + 1) );
+	auxString  =  malloc(sizeof(dim));
 	if(auxString == NULL){
-		perror("Insuficient memory\n");
+		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
 	auxUser -> user = auxString;
-	for(i = 0; i < dim ; i++){
-		(auxUser->user)[i] = aux[i];
-	}
-	(auxUser->user)[dim] = 0;
+	strcpy(auxUser->user,aux);
+	auxUser->user[dim-1] = '\0';
+//	printf("%s\n",auxUser->user);
+	
 	
 	/* CARGO PASSWORD */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxString =  malloc(sizeof(dim + 1) );
+	printf("%d\n",dim);
+	auxString  =  malloc(sizeof(dim));
 	if(auxString == NULL){
-		perror("Insuficient memory\n");
+		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
 	auxUser -> pass = auxString;
-	for(i = 0; i < dim ; i++){
-		(auxUser->pass)[i] = aux[i];
-	}
-	(auxUser->pass)[dim] = 0;
+	strcpy(auxUser->pass,aux);
+	auxUser->pass[dim-1] = '\0';
 	
 	
 	/* CARGO CANT DE LEAGUES */
@@ -66,7 +65,7 @@ User loadUser(char * path){
 	
 	auxInt= malloc(sizeof(num) / sizeof(int));
 	if(auxInt == NULL){
-		perror("Insuficient memory\n");
+		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
 	auxUser->leagueIDs = auxInt;
@@ -78,12 +77,15 @@ User loadUser(char * path){
 		(auxUser->leagueIDs)[i] = auxNum;
 	}
 	
+	
 	return auxUser;
 }
 
 int main(void){
 	
 	User vicky = loadUser("../res/users/Vicky.user");
-	printf("Cargue al usuario %s que tiene password %s\n", vicky->user, vicky->pass);
+	printf("%s\n",vicky->user);
+	
+	printf("<LOG - io.c>\n\tCargue al usuario: %s\n\tTene password: %s\n\tCantidad de ligas: %d\n<end>\n", vicky->user, vicky->pass, vicky->leagues);
 	return 0;
 }
