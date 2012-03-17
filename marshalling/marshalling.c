@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../includes/marshalling.h"
 
+#include "../includes/marshalling.h"
 #include "../includes/message.h"
 
-void register(char * user, char * pass){
+void register_c(char * user, char * pass){
 
 	int status;
 	msg_t msg;
@@ -18,13 +18,13 @@ void register(char * user, char * pass){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void login(char * user, char * pass){
+void login_c(char * user, char * pass){
 	
 	int status;
 	msg_t msg;
 	
 	msg.type = LOGIN;
-	
+
 	msg.data.login_t.user = user;
 	msg.data.login_t.pass = pass;
 
@@ -33,7 +33,7 @@ void login(char * user, char * pass){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void list(int toList){
+void list_c(int toList){
 	
 	int status;
 	msg_t msg;
@@ -45,7 +45,7 @@ void list(int toList){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */	
 }
 
-void leagueShow(char * id){
+void leagueShow_c(char * id){
 	int status;
 	msg_t msg;
 	
@@ -57,7 +57,7 @@ void leagueShow(char * id){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void teamShow(char * id){
+void teamShow_c(char * id){
 	int status;
 	msg_t msg;
 	
@@ -69,7 +69,7 @@ void teamShow(char * id){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void tradeShow(char * id){
+void tradeShow_c(char * id){
 	
 	int status;
 	msg_t msg;
@@ -82,7 +82,7 @@ void tradeShow(char * id){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void trade(char * id, char * from, char * to){
+void trade_c(char * id, char * from, char * to){
 	int status;
 	msg_t msg;
 	
@@ -96,7 +96,7 @@ void trade(char * id, char * from, char * to){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void tradeWithdraw(char * id){
+void tradeWithdraw_c(char * id){
 	int status;
 	msg_t msg;
 	
@@ -108,7 +108,7 @@ void tradeWithdraw(char * id){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void tradeAccept(char * id){
+void tradeAccept_c(char * id){
 	int status;
 	msg_t msg;
 	
@@ -120,7 +120,7 @@ void tradeAccept(char * id){
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
 
-void tradeNegotiate(char * id, char * from, char * to){
+void tradeNegotiate_c(char * id, char * from, char * to){
 	int status;
 	msg_t msg;
 	

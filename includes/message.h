@@ -33,3 +33,7 @@ typedef struct msg_t{
 		}trade_t;
 	}data;
 }msg_t;
+
+typedef struct msg_s {
+
+}msg_s;

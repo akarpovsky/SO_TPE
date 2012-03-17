@@ -69,7 +69,7 @@ int sendmessage(msg_t * msg)
 	case LOG_OUT:
 		msgSize = sizeof(int);
 		msgstr = malloc(msgSize);
-		memcpy(msgstr, &)
+		memcpy(msgstr, &(msg->type), sizeof(int));
 		break;
 	case LIST:
 		break;
