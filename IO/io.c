@@ -6,6 +6,11 @@
 
 #define BUFFER_SIZE 100
 
+#define USER_OBJ 1
+#define LEAGUE_OBJ 2
+#define TEAM_OBJ 3
+#define TRADE_OBJ 4
+
 /*
 * function loadUser
 *
@@ -37,7 +42,7 @@ User loadUser(char * path){
 		exit(EXIT_FAILURE);
 	}
 	
-	/* CARGO USER */
+	/* Load username */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
 	auxUser->user  = (char *) malloc(sizeof(dim));
@@ -49,7 +54,7 @@ User loadUser(char * path){
 	auxUser->user[dim-1] = '\0';
 	
 	
-	/* CARGO PASSWORD */
+	/* Load password */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
 	auxUser->pass  = (char *)  malloc(sizeof(dim));
@@ -61,7 +66,7 @@ User loadUser(char * path){
 	auxUser->pass[dim-1] = '\0';
 	
 	
-	/* CARGO CANT DE LEAGUES */
+	/* Load number of Leagues */
 	fgets(aux,BUFFER_SIZE,file);
 	num = atoi(aux);
 	auxUser->leagues = num;
@@ -83,9 +88,50 @@ User loadUser(char * path){
 	return auxUser;
 }
 
+/*
+* function objToFile
+*
+* Given an object type (i.e. "User"), builds
+* the string that will be saved in the hard drive
+* for persisting that kind of object.
+*
+* @path: Path of the saved user file 
+*/
+char * objToFile(int OBJ_TYPE, void * obj){
+	User auxUser;
+	switch(OBJ_TYPE){
+		case USER_OBJ:
+		
+			auxUser = (User) obj;
+			printf("%s\n\n", auxUser->user);
+		
+		break;
+		
+		case LEAGUE_OBJ:
+		
+		break;
+		
+		case TRADE_OBJ:
+		
+		break;
+		
+		case TEAM_OBJ:
+		
+		break;
+		
+		default:
+			printf("<LOG - io.c>\n\tUnrecognized data type.\n<end>\n");
+		break;
+	}
+	
+	
+}
+
 int main(void){
 	
 	User vicky = loadUser("../res/users/Vicky.user");	
 	printf("<LOG - io.c>\n\tCargue al usuario: %s\n\tTene password: %s\n\tCantidad de ligas: %d\n<end>\n", vicky->user, vicky->pass, vicky->leagues);
+	objToFile(USER_OBJ, vicky);
+//	printf("Prueba obkToFile: %s)
 	return 0;
 }
