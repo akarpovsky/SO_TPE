@@ -2,9 +2,6 @@
 #define LinkedList_h
 #endif
 
-#define FOR_EACH(item_ptr, list) \
-     for (ListEl = myList.pFirst; ListEl != NULL; ListEl=ListEl->next)
-
 
 
 //Generic list lelement
@@ -25,6 +22,11 @@ typedef struct llist {
 } llist;
 
 typedef llist * List;
+
+#define FOR_EACH(item_ptr, myList) \
+     for (item_ptr = myList->pFirst; item_ptr != NULL; item_ptr=item_ptr->next)
+
+
 
 void CreateList(List list);
 Element AddToList(void *item, List list);

@@ -32,4 +32,4 @@ Team loadTeam(char * path);
 #define DIR_TYPE 2
 #define UNKNOWN_TYPE -1
 
-
+char * createFilePath(char * path, char * file);

@@ -6,10 +6,11 @@
 #include <sys/types.h>
 #include <sys/dir.h>
 
-#include <sys/param.h>
 
 
 #include "./io.h"
+#include "../utils/LinkedList.h"
+
 
 /*
 * function loadUser
@@ -286,14 +287,9 @@ int dismissWrongFiles(struct dirent * entry){
 * @file: File/folder name
 */
 
-int fileType(char * path, char * file){
+int fileType(char * filePath){
 	int status;
 	struct stat st_buf;
-	
-	char * filePath = (char *) calloc(BUFFER_SIZE, sizeof(char));
-	
-	strcat(filePath, path);
-	strcat(filePath, file);
 
 	// Get the status of the file system object.
 
@@ -305,19 +301,32 @@ int fileType(char * path, char * file){
 	
 	
 	if (S_ISREG (st_buf.st_mode)) {
-		free(filePath);
 		return FILE_TYPE;
 	}
 	
 	if (S_ISDIR (st_buf.st_mode)) {
-		free(filePath);
 		return DIR_TYPE;
 	}
 	
 	return UNKNOWN_TYPE;
 }
 
-User loadUsers(char * path){
+char * createFilePath(char * path, char * file){
+	char * filePath = (char *) calloc(BUFFER_SIZE, sizeof(char));
+	
+	strcat(filePath, path);
+	strcat(filePath, file);
+	
+	return filePath;
+	
+}
+
+List loadUsers(char * path){
+	
+	List usersList = (List *) malloc(sizeof(llist));
+	CreateList(usersList);
+//	AddToList((void *) 5, usersList);
+//	printf("%d\n", usersList->pFirst);
 
     DIR * d;
     char * dir_name = path;
@@ -338,11 +347,17 @@ User loadUsers(char * path){
             break;
         }else{
 			if(dismissWrongFiles(entry)){
-				int type = fileType(path, entry->d_name);
-				if( type == FILE_TYPE)
-					printf ("Archivo: %s\n", entry->d_name);
+				char * filePath = createFilePath(path, entry->d_name);
+				int type = fileType(filePath);
+				if( type == FILE_TYPE){
+					printf("<LOG - io.c> Cargando usuario: %s <end>\n", entry->d_name);
+					
+					AddToList((void *) loadUser(filePath), usersList);
+										
+				}	
 				else if(type == DIR_TYPE)
 					printf ("Carpeta: %s\n", entry->d_name);
+				
 			}
         }	
     }
@@ -351,6 +366,8 @@ User loadUsers(char * path){
         perror("Could not close directory\n");
         exit (EXIT_FAILURE);
     }
+
+	return usersList;
 }
 
 
@@ -394,19 +411,20 @@ char * objToFile(int OBJ_TYPE, void * obj){
 }
 
 int main(void){
-/*	
-	int i;
+
+	printf("<LOG - io.c> Comenzando carga de usuarios en el directorio ../res/users/ <end>\n");
+	List usersList = loadUsers("../res/users/");
+	printf("<LOG - io.c> Carga finalizada <end>\n\n");
 	
-	Team vicky = loadTeam("../res/leagues/1/teams/alan.team");	
-	printf("<LOG - io.c>\n\t teamID: %d \n\t teamPoints: %d \n\tcantPlayers: %d\n<LOG>",vicky->ID,vicky->points,vicky->cantPlayers);
 	
-	for(i = 0; i < vicky->cantPlayers; i++){
-		
-		printf("jugador: %s \n\t puntos: %d \n\t", vicky->players[i]->name,vicky->players[i]->points);
+	printf("<LOG - io.c> Cantidad de usuarios cargados: %d <end>\n", usersList->NumEl);
+	Element item_ptr;	
+	FOR_EACH(item_ptr, usersList){
+		printf("\n--- Usuario ---\n", ((User) item_ptr->data)->user);
+		printf("\tNombre: %s\n", ((User) item_ptr->data)->user);
+		printf("\tPassword: %s\n", ((User) item_ptr->data)->pass);
+		printf("\tCantidad de ligas: %d\n", ((User) item_ptr->data)->leagues);
 	}
-*/	
-//	objToFile(USER_OBJ, vicky);
-	loadUsers("./");
-//	printf("Prueba obkToFile: %s)
+
 	return 0;
 }

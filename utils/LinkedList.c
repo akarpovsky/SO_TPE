@@ -37,13 +37,3 @@ Element AddToList(void *item, List list)
     list->pLast = NewEl;
     return NewEl;
 }
-
-int main(void){
-	
-	List myList = (List *) malloc(sizeof(llist));
-	CreateList(myList);
-	AddToList((void *) 5, myList);
-	printf("%d\n", myList->pFirst);
-
-	return 0;
-}
