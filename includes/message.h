@@ -1,3 +1,12 @@
+#define REGISTER 1
+#define LOG_IN 2
+#define LOG_OUT 3
+#define LIST 4
+#define JOIN 5
+#define CREATE 6
+#define PICK 7
+#define SHOW 8
+#define TRADE 9
 
 typedef struct msg_t{
 	
@@ -24,3 +33,7 @@ typedef struct msg_t{
 		}trade_t;
 	}data;
 }msg_t;
+
+typedef struct msg_s {
+
+}msg_s;
