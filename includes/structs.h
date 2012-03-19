@@ -1,65 +1,90 @@
-/**
-	structs.h
-	General purpose structures and defines
 
-**/
+ #if !defined( structs_h )
+#define structs_h
+#endif
 
+#define MAX_PLAYERS 5
 
-#define TRUE 1
-#define FALSE 0
-
-typedef int boolean;
-
-typedef struct player_t{
+typedef struct trade{
 	
 	int ID;
+	int state;
+	char * userFrom;
+	char * userTo;
+	char * playerFrom;
+	char * playerTo;
+	}trade;
+
+typedef trade * Trade;
+
+
+
+typedef struct player{
+
 	char * name;
 	int points;
 	
-	}player_t;
-	
-typedef  player_t * Player;
+}player;
 
-typedef struct team_t{
-	
-	int ID;
-	Player * players;
-	
-	}team_t;
-	
-typedef team_t * Team;
+typedef player * Player;
 
-typedef struct trade_t{
+
+
+typedef struct user{
+		char * user;
+		char * pass;
+		int leagues;
+		int * leagueIDs;
+}user;
+
+typedef user * User;
+
+
+
+typedef struct team{
+	
+	int ID; /* ID del Team */
+	int points;	
+	int cantPlayers;
+	Player players[MAX_PLAYERS];
+
+}team;
+
+typedef team * Team;
+
+
+
+typedef struct league{
 	
 	int ID;
 	int status;
-	Player pFrom;
-	Player pTo;
-	Team tFrom;
-	Team tTo;
-	
-	}trade_t;
+	int availablePlayers;
 
-typedef trade_t * Trade;
+	
+	/* LISTA DE TRADES  trade * */
+	
+	
+	int teams;
+	/* LISTA DE punteros a TEAMS (cada team va a tener de nombre al user al cual pertenece) team* */
+	
+}league;
 
-typedef struct league_t{
-	
-	int ID;
-	char * name;
-	Team * teams;
-	Player * players;
-	Trade * trades;
-	
-	} league_t;
+typedef league * League;
 
-typedef league_t * League;
 
-typedef struct user_t{
+
+typedef struct game{
 	
-	char * username;
-	char * password;
-	League * leagues;
+	int users; /* usuarios conectados */
+	/* Lista de usuarios  user*  */
+
+	int leagues;
+	/* LISTA DE LIGAS  league*   */
 	
-	} user_t;
+	int teams;
 	
-typedef user_t * User;
+	/* lista de Team team*/
+	}game;
+
+typedef game * Game;
+

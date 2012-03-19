@@ -2,22 +2,34 @@
 	IO.h
 */
 
-//#include "../includes/estructuras.h"
+#if !defined( io_h )
+#define io_h
+#endif
 
-typedef struct user{
 
-		char * user;
-		char * pass;
-		int leagues;
-		int * leagueIDs;
+#include "../includes/structs.h"
 
-		/* Alan, leagueIDs[0] = "AMIGOS ITBA" */
+#define BUFFER_SIZE 100
 
-		/* LISTA DE LIGAS a las q pertenece league*   */
+/* Object types for saving */
 
-}user;
+#define USER_OBJ 1
+#define LEAGUE_OBJ 2
+#define TEAM_OBJ 3
+#define TRADE_OBJ 4
 
-typedef user * User;
+/* Functions for loading */
 
 User loadUser(char * path);
+League loadTLeague(char * path);
+Trade loadTrade(char * path);
+Team loadTeam(char * path);
 
+
+/* File types */
+
+#define FILE_TYPE 1
+#define DIR_TYPE 2
+#define UNKNOWN_TYPE -1
+
+char * createFilePath(char * path, char * file);

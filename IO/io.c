@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "io.h"
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/dir.h>
 
 
-#define BUFFER_SIZE 100
+
+#include "./io.h"
+#include "../utils/LinkedList.h"
+
 
 /*
 * function loadUser
@@ -26,48 +32,48 @@ User loadUser(char * path){
 	auxUser = malloc(sizeof(user));
 	
 	if(auxUser == NULL){
-		perror("Insufficient memory\n");
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
 	
 	file = fopen(path,"r");
 	
 	if(file == NULL){
-		perror("File not found\n");
+		printf("<LOG - io.c>\n\tFile not found.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	/* CARGO USER */
+	/* Load username */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
 	auxUser->user  = (char *) malloc(sizeof(dim));
 	if(auxUser->user == NULL){
-		perror("Insufficient memory\n");
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
 	strcpy(auxUser->user,aux);
 	auxUser->user[dim-1] = '\0';
 	
 	
-	/* CARGO PASSWORD */
+	/* Load password */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
 	auxUser->pass  = (char *)  malloc(sizeof(dim));
 	if(auxUser->pass == NULL){
-		perror("Insufficient memory\n");
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
 	strcpy(auxUser->pass,aux);
 	auxUser->pass[dim-1] = '\0';
 	
 	
-	/* CARGO CANT DE LEAGUES */
+	/* Load number of Leagues */
 	fgets(aux,BUFFER_SIZE,file);
 	num = atoi(aux);
 	auxUser->leagues = num;
-	auxUser->leagueIDs = malloc((num-1) * sizeof(int));
+	auxUser->leagueIDs = malloc((num) * sizeof(int));
 	if(auxUser->leagueIDs == NULL){
-		perror("Insufficient memory\n");
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -83,9 +89,342 @@ User loadUser(char * path){
 	return auxUser;
 }
 
-int main(void){
+
+/*
+* function loadTrade
+*
+* Alloc memory for a trade and Loads a specific trade
+* given the path of the saved one.
+*
+* @path: Path of the saved trade file 
+*/
+
+Trade loadTrade(char * path){
+
+	FILE * file;
 	
-	User vicky = loadUser("../res/users/Vicky.user");	
-	printf("<LOG - io.c>\n\tCargue al usuario: %s\n\tTene password: %s\n\tCantidad de ligas: %d\n<end>\n", vicky->user, vicky->pass, vicky->leagues);
+	Trade auxTrade; // Will store the loaded trade
+	char aux[BUFFER_SIZE]; // For reading the file line by line
+	int dim, num;
+		
+	auxTrade = malloc(sizeof(trade));
+	
+	if(auxTrade == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}	
+	
+	file = fopen(path,"r");
+	
+	if(file == NULL){
+		perror("File not found\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	/* Load id */
+	fgets(aux,BUFFER_SIZE,file);
+	num = atoi(aux);
+	auxTrade->ID = num;
+
+	/* Load state */
+	fgets(aux,BUFFER_SIZE,file);
+	num = atoi(aux);
+	auxTrade->state = num;
+	
+	/* Load userFrom */
+	fgets(aux,BUFFER_SIZE,file);
+	dim = strlen(aux);
+	auxTrade->userFrom  = (char *) malloc(sizeof(dim));
+	if(auxTrade->userFrom == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(auxTrade->userFrom,aux);
+	auxTrade->userFrom[dim-1] = '\0';
+	
+	/* Load userTo */
+	fgets(aux,BUFFER_SIZE,file);
+	dim = strlen(aux);
+	auxTrade->userTo  = (char *) malloc(sizeof(dim));
+	if(auxTrade->userTo == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(auxTrade->userTo,aux);
+	auxTrade->userTo[dim-1] = '\0';
+	
+	/* Load playerFrom */
+	fgets(aux,BUFFER_SIZE,file);
+	dim = strlen(aux);
+	auxTrade->playerFrom  = (char *) malloc(sizeof(dim));
+	if(auxTrade->playerFrom == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(auxTrade->playerFrom,aux);
+	auxTrade->playerFrom[dim-1] = '\0';
+	
+	/* Load playerTo */
+	fgets(aux,BUFFER_SIZE,file);
+	dim = strlen(aux);
+	auxTrade->playerTo  = (char *) malloc(sizeof(dim));
+	if(auxTrade->playerTo == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(auxTrade->playerTo,aux);
+	auxTrade->playerTo[dim-1] = '\0';
+	
+	return auxTrade;
+}
+
+
+/*
+* function loadTeam
+*
+* Alloc memory for a team and Loads a specific team
+* given the path of the saved one.
+*
+* @path: Path of the saved trade file 
+*/
+Team loadTeam(char * path){
+	
+	FILE * file;
+
+	Team auxTeam; // Will store the loaded team
+	Player auxPlayer;
+	char aux[BUFFER_SIZE]; // For reading the file line by line
+	int dim, num, i;
+	
+	auxTeam = malloc(sizeof(team));
+	
+	if(auxTeam == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}	
+	
+	file = fopen(path,"r");
+	
+	if(file == NULL){
+		perror("File not found\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Load id */
+	fgets(aux,BUFFER_SIZE,file);
+	num = atoi(aux);
+	auxTeam->ID = num;
+	
+	/* Load points */
+	fgets(aux,BUFFER_SIZE,file);
+	num = atoi(aux);
+	auxTeam->points = num;
+	
+	/* Load players */
+	fgets(aux,BUFFER_SIZE,file);
+	num = atoi(aux);
+	if(num > MAX_PLAYERS){
+		printf("<LOG - io.c>\n\tInvalid file, too much players\n<end>\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	auxTeam->cantPlayers = num;
+	
+
+	
+	for(i = 0; i < auxTeam->cantPlayers; i++){
+
+		auxPlayer = malloc(sizeof(player));
+		if(auxPlayer == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+
+		fgets(aux,BUFFER_SIZE,file);
+		dim = strlen(aux);
+		auxPlayer->name  = (char *) malloc(sizeof(dim));
+		if(auxPlayer->name == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(auxPlayer->name,aux);
+		auxPlayer->name[dim-1] = '\0';
+
+		/* Load points */
+		fgets(aux,BUFFER_SIZE,file);
+		num = atoi(aux);
+		auxPlayer->points = num;	
+		
+		(auxTeam->players)[i] = auxPlayer;
+	}
+	return auxTeam;
+}
+
+
+/*
+* function dismissWrongFiles
+*
+* Dismiss "." and ".." files
+*
+* @entry: Dirent entry 
+*/
+
+int dismissWrongFiles(struct dirent * entry){
+	if (entry->d_name[0] == '.'){
+			return 0;			
+		}
+	else
+		return 1;
+}
+
+/*
+*
+* function fileType
+*
+* Returns the type (regular file or folder);
+*
+* @path: Path to the file
+* @file: File/folder name
+*/
+
+int fileType(char * filePath){
+	int status;
+	struct stat st_buf;
+
+	// Get the status of the file system object.
+
+	status = stat(filePath, &st_buf);
+	if (status != 0) {
+		perror("<LOG - io.c>\n\tError loading stat.\n<end>\n");
+		return -1;
+	}
+	
+	
+	if (S_ISREG (st_buf.st_mode)) {
+		return FILE_TYPE;
+	}
+	
+	if (S_ISDIR (st_buf.st_mode)) {
+		return DIR_TYPE;
+	}
+	
+	return UNKNOWN_TYPE;
+}
+
+char * createFilePath(char * path, char * file){
+	char * filePath = (char *) calloc(BUFFER_SIZE, sizeof(char));
+	
+	strcat(filePath, path);
+	strcat(filePath, file);
+	
+	return filePath;
+	
+}
+
+List loadUsers(char * path){
+	
+	List usersList = (List *) malloc(sizeof(llist));
+	CreateList(usersList);
+//	AddToList((void *) 5, usersList);
+//	printf("%d\n", usersList->pFirst);
+
+    DIR * d;
+    char * dir_name = path;
+    struct dirent * entry;
+
+    /* Open the current directory. */
+    d = opendir(dir_name);
+
+    if(!d) {
+        printf("Cannot open directory '%s'\n",dir_name);
+        exit(EXIT_FAILURE);
+    }
+
+    while(1){
+        entry = readdir(d);
+        
+		if (!entry) {
+            break;
+        }else{
+			if(dismissWrongFiles(entry)){
+				char * filePath = createFilePath(path, entry->d_name);
+				int type = fileType(filePath);
+				if( type == FILE_TYPE){
+					printf("<LOG - io.c> Cargando usuario: %s <end>\n", entry->d_name);
+					
+					AddToList((void *) loadUser(filePath), usersList);
+										
+				}	
+				else if(type == DIR_TYPE)
+					printf ("Carpeta: %s\n", entry->d_name);
+				
+			}
+        }	
+    }
+    /* Close the directory. */
+    if (closedir(d)) {
+        perror("Could not close directory\n");
+        exit (EXIT_FAILURE);
+    }
+
+	return usersList;
+}
+
+
+
+/*
+* function objToFile
+*
+* Given an object type (i.e. "User"), builds
+* the string that will be saved in the hard drive
+* for persisting that kind of object.
+*
+* @path: Path of the saved user file 
+*/
+char * objToFile(int OBJ_TYPE, void * obj){
+	User auxUser;
+	switch(OBJ_TYPE){
+		case USER_OBJ:
+		
+			auxUser = (User) obj;
+			printf("%s\n\n", auxUser->user);
+		
+		break;
+		
+		case LEAGUE_OBJ:
+		
+		break;
+		
+		case TRADE_OBJ:
+		
+		break;
+		
+		case TEAM_OBJ:
+		
+		break;
+		
+		default:
+			printf("<LOG - io.c>\n\tUnrecognized data type.\n<end>\n");
+		break;
+	}
+		
+}
+
+int main(void){
+
+	printf("<LOG - io.c> Comenzando carga de usuarios en el directorio ../res/users/ <end>\n");
+	List usersList = loadUsers("../res/users/");
+	printf("<LOG - io.c> Carga finalizada <end>\n\n");
+	
+	
+	printf("<LOG - io.c> Cantidad de usuarios cargados: %d <end>\n", usersList->NumEl);
+	Element item_ptr;	
+	FOR_EACH(item_ptr, usersList){
+		printf("\n--- Usuario ---\n", ((User) item_ptr->data)->user);
+		printf("\tNombre: %s\n", ((User) item_ptr->data)->user);
+		printf("\tPassword: %s\n", ((User) item_ptr->data)->pass);
+		printf("\tCantidad de ligas: %d\n", ((User) item_ptr->data)->leagues);
+	}
+
 	return 0;
 }
