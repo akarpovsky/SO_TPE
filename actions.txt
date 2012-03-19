@@ -1,0 +1,13 @@
+client connects to server
+client sends server its output address
+client recieves new input address
+client changes input address
+communication starts
+;;;;;
+
+server recieves new input address
+server creates a new servlet for the new client
+servlet creates new output address
+servlet sends new output address to client
+communication awaits
+;;;;;
