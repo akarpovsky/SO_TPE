@@ -34,4 +34,37 @@ void uplink(void)
 
 }
 
+int sendmessage(msg_s * msg){
+	
+	int msgSize;
+	void * msgstr;
+	void * msgstraux;
+	
+	msgSize = sizeof(int) + strlen(msg->msg);
+	
+	
+	
+	
+	
+	
+	
+	int nwrite;
+	
+	if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
+	{
+		perror("Could not write message size");
+		return !SUCCESSFUL;
+	}
+	if((nwrite = write(fdOut, msgstr, msgSize)) == -1)
+	{
+		perror("Could not write message");
+		return !SUCCESSFUL;
+	}
+
+
+	free(msgstr);
+	return SUCCESSFUL;
+	
+}
+
 

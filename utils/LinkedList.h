@@ -1,6 +1,5 @@
 #if !defined( LinkedList_h )
 #define LinkedList_h
-#endif
 
 
 
@@ -30,3 +29,5 @@ typedef llist * List;
 
 void CreateList(List list);
 Element AddToList(void *item, List list);
+
+#endif
