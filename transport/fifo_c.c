@@ -246,7 +246,7 @@ void connectToServer(void)
 		unlink(fifoIn);
 		exit(1);
 	}
-
+	//TODO: change to make it work with thread pool.
 	do{
 		int nread = 0;
 		if((nread = read(fdIn, &tempnamSize, sizeof(int))) == -1)

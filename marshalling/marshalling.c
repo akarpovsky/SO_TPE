@@ -13,7 +13,7 @@ void register_c(char * user, char * pass){
 	msg.data.register_t.user = user;
 	msg.data.register_t.pass = pass;
 
-//	status = comunicate(msg);
+//	status = comunicate(&msg);
 	
 	/* MANEJO DE ERRORES A PARTIR DE STATUS */
 }
