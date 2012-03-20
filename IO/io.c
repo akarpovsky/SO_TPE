@@ -9,7 +9,7 @@
 
 
 #include "./io.h"
-#include "../utils/LinkedList.h"
+
 
 
 /*
@@ -23,13 +23,14 @@
 User loadUser(char * path){
 	
 	FILE * file;
+	int * id;
 	
 
 	User auxUser; // Will store the loaded user
 	char aux[BUFFER_SIZE]; // For reading the file line by line
 	int dim, num, auxNum;
 	
-	auxUser = malloc(sizeof(user));
+	auxUser = calloc(sizeof(user),1);
 	
 	if(auxUser == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
@@ -46,7 +47,7 @@ User loadUser(char * path){
 	/* Load username */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxUser->user  = (char *) malloc(sizeof(dim));
+	auxUser->user  = (char *) malloc(dim);
 	if(auxUser->user == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
@@ -54,11 +55,10 @@ User loadUser(char * path){
 	strcpy(auxUser->user,aux);
 	auxUser->user[dim-1] = '\0';
 	
-	
 	/* Load password */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxUser->pass  = (char *)  malloc(sizeof(dim));
+	auxUser->pass  = (char *)  malloc(dim);
 	if(auxUser->pass == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
@@ -71,18 +71,22 @@ User loadUser(char * path){
 	fgets(aux,BUFFER_SIZE,file);
 	num = atoi(aux);
 	auxUser->leagues = num;
-	auxUser->leagueIDs = malloc((num) * sizeof(int));
-	if(auxUser->leagueIDs == NULL){
+	
+	auxUser->leaguesIDs = malloc(sizeof(llist));
+	if(auxUser->leaguesIDs == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
-
-	/* Cargo IDs en el vector de IDs anteriormente malloqueado */
+	
+	CreateList(auxUser->leaguesIDs);
+	
 	int i;
 	for(i = 0; i < num; i++){
 		fgets(aux,BUFFER_SIZE,file);
 		auxNum = atoi(aux);
-		(auxUser->leagueIDs)[i] = auxNum;
+		id = malloc(sizeof(int));
+		*id = auxNum;
+		AddToList(id,auxUser->leaguesIDs);
 	}
 	
 	
@@ -134,7 +138,7 @@ Trade loadTrade(char * path){
 	/* Load userFrom */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->userFrom  = (char *) malloc(sizeof(dim));
+	auxTrade->userFrom  = (char *) malloc(dim);
 	if(auxTrade->userFrom == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -145,7 +149,7 @@ Trade loadTrade(char * path){
 	/* Load userTo */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->userTo  = (char *) malloc(sizeof(dim));
+	auxTrade->userTo  = (char *) malloc(dim);
 	if(auxTrade->userTo == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -156,7 +160,7 @@ Trade loadTrade(char * path){
 	/* Load playerFrom */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->playerFrom  = (char *) malloc(sizeof(dim));
+	auxTrade->playerFrom  = (char *) malloc(dim);
 	if(auxTrade->playerFrom == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -167,7 +171,7 @@ Trade loadTrade(char * path){
 	/* Load playerTo */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->playerTo  = (char *) malloc(sizeof(dim));
+	auxTrade->playerTo  = (char *) malloc(dim);
 	if(auxTrade->playerTo == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -242,7 +246,7 @@ Team loadTeam(char * path){
 
 		fgets(aux,BUFFER_SIZE,file);
 		dim = strlen(aux);
-		auxPlayer->name  = (char *) malloc(sizeof(dim));
+		auxPlayer->name  = (char *) malloc(dim);
 		if(auxPlayer->name == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
@@ -370,6 +374,252 @@ List loadUsers(char * path){
 	return usersList;
 }
 
+int isExt(char * nameFile, char * ext){
+	
+	int dim = strlen(nameFile);
+	int i;
+	
+	for(i = strlen(ext); i >= 0; i--, dim--){
+		if(nameFile[dim] != ext[i]){
+			return 0;
+		}
+	}
+	
+	return 1;
+}
+
+int isTeamsFolder(char * nameFile){
+
+	return strcmp("teams",nameFile) == 0;
+}
+
+int isTradesFolder(char * nameFile){
+
+	return strcmp("teams",nameFile) == 0;
+}
+
+List loadTeams(char * path){
+	
+	
+		List teamsList = (List *) malloc(sizeof(llist));
+		if(teamsList == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+
+		CreateList(teamsList);
+
+	    DIR * d;
+	    char * dir_name = path;
+	    struct dirent * entry;
+
+	    /* Open the current directory. */
+	    d = opendir(dir_name);
+
+	    if(!d) {
+	        printf("Cannot open teams directory '%s'\n",dir_name);
+	        exit(EXIT_FAILURE);
+	    }
+
+	    while(1){
+	        entry = readdir(d);
+
+			if (!entry) {
+	            break;
+	        }else{
+				if(dismissWrongFiles(entry)){
+					char * filePath = createFilePath(path, entry->d_name);
+					int type = fileType(filePath);
+					if( type == FILE_TYPE && isExt(entry->d_name,"team")){
+						AddToList((void *) loadTeam(filePath), teamsList);
+					}	
+
+				}
+	        }	
+	    }
+	    /* Close the directory. */
+	    if (closedir(d)) {
+	        perror("Could not close directory\n");
+	        exit (EXIT_FAILURE);
+	    }
+
+		return teamsList;
+}
+
+List loadTrades(char * path){
+	
+	
+		List tradesList = (List *) malloc(sizeof(llist));
+		if(tradesList == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+
+		CreateList(tradesList);
+
+	    DIR * d;
+	    char * dir_name = path;
+	    struct dirent * entry;
+
+	    /* Open the current directory. */
+	    d = opendir(dir_name);
+
+	    if(!d) {
+	        printf("Cannot open trades directory '%s'\n",dir_name);
+	        exit(EXIT_FAILURE);
+	    }
+
+	    while(1){
+	        entry = readdir(d);
+
+			if (!entry) {
+	            break;
+	        }else{
+				if(dismissWrongFiles(entry)){
+					char * filePath = createFilePath(path, entry->d_name);
+					int type = fileType(filePath);
+					if( type == FILE_TYPE && isExt(entry->d_name,"trade")){
+						AddToList((void *) loadTrade(filePath), tradesList);
+					}	
+
+				}
+	        }	
+	    }
+	    /* Close the directory. */
+	    if (closedir(d)) {
+	        perror("Could not close directory\n");
+	        exit (EXIT_FAILURE);
+	    }
+
+		return tradesList;
+}
+
+League loadLeague(char * path){
+
+	DIR * d = NULL;
+	char * dir_name = path;
+	struct dirent * entry;
+	int num;
+
+	League auxLeague; // Will store the loaded team
+	auxLeague = malloc(sizeof(league));
+	
+	if(auxLeague == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}	
+	
+	/* Open the current directory. */
+	d = opendir(dir_name);
+	
+	if(!d){
+		printf("Cannot open directory '%s'\n",dir_name);
+		exit(EXIT_FAILURE);
+	}
+	while(1){
+		entry = readdir(d);
+		
+		if(!entry){
+			break;
+		}else{
+			if(dismissWrongFiles(entry)){
+				char * filePath = createFilePath(path,entry->d_name);
+				int type = fileType(filePath);
+				/* si es el archivo league */
+				if(type == FILE_TYPE && isExt(entry->d_name,"league")){
+					FILE * file;
+					char aux[BUFFER_SIZE]; // For reading the file line by line
+					file = fopen(filePath,"r");
+
+					if(file == NULL){
+						perror("File not found\n");
+						exit(EXIT_FAILURE);
+					}
+					/* Load ID */
+					fgets(aux,BUFFER_SIZE,file);
+					num = atoi(aux);
+					auxLeague->ID = num;
+					
+					/* Load status */
+					fgets(aux,BUFFER_SIZE,file);
+					num = atoi(aux);
+					auxLeague->status = num;
+					
+					/* Load available players */
+					fgets(aux,BUFFER_SIZE,file);
+					num = atoi(aux);
+					auxLeague->availablePlayers = num;
+					
+					fclose(file);
+				}else if(type == DIR_TYPE && isExt(entry->d_name,"teams")){
+					filePath = createFilePath(filePath,"/");
+					auxLeague->teams = loadTeams(filePath);
+					
+				}else if(type == DIR_TYPE && isExt(entry->d_name,"trades")){
+					filePath = createFilePath(filePath,"/");
+					auxLeague->trades = loadTrades(filePath);
+					
+				}
+			}
+		}
+	}
+	
+	if (closedir(d)) {
+        perror("Could not close directory\n");
+        exit (EXIT_FAILURE);
+    }
+	
+	return auxLeague;
+}
+
+List loadLeagues(char * path){	
+	
+		List leaguesList = (List *) malloc(sizeof(llist));
+		if(leaguesList == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+
+		CreateList(leaguesList);
+
+	    DIR * d;
+	    char * dir_name = path;
+	    struct dirent * entry;
+
+	    /* Open the current directory. */
+	    d = opendir(dir_name);
+
+	    if(!d) {
+	        printf("Cannot open directory '%s'\n",dir_name);
+	        exit(EXIT_FAILURE);
+	    }
+
+	    while(1){
+	        entry = readdir(d);
+
+			if (!entry) {
+	            break;
+	        }else{
+				if(dismissWrongFiles(entry)){
+					char * filePath = createFilePath(path, entry->d_name);
+					int type = fileType(filePath);
+					if( type == DIR_TYPE){
+						filePath = createFilePath(filePath,"/");
+						printf("path de LEAGUE %s\n", filePath);
+						AddToList((void *) loadLeague(filePath), leaguesList);
+					}
+				}
+	        }	
+	    }
+	    /* Close the directory. */
+	    if (closedir(d)) {
+	        perror("Could not close directory\n");
+	        exit (EXIT_FAILURE);
+	    }
+
+		return leaguesList;
+}
+
 
 
 /*
@@ -410,21 +660,52 @@ char * objToFile(int OBJ_TYPE, void * obj){
 		
 }
 
+Game loadGame(char * path){
+
+	Game game = (Game *)malloc(sizeof(game));
+	if(game == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	game->users = loadUsers("../res/users/");
+	game->leagues = loadLeagues("../res/legues/");
+	game->teams = (List *) malloc(sizeof(llist));
+	if(game->teams == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	CreateList(game->teams);
+	
+	Element league_ptr;
+	Element team_ptr;
+	
+	FOR_EACH(league_ptr, game->leagues){
+		FOR_EACH(team_ptr, ((League)league_ptr)->teams){
+			AddToList((void *) team_ptr, game->teams);
+		}
+	}
+	
+	return game;
+}
+
 int main(void){
 
-	printf("<LOG - io.c> Comenzando carga de usuarios en el directorio ../res/users/ <end>\n");
-	List usersList = loadUsers("../res/users/");
-	printf("<LOG - io.c> Carga finalizada <end>\n\n");
+	User user = loadUser("../res/users/Juan.user");
+
+	printf("User: %s\n",user->user);
+	printf("Pass: %s\n", user->pass);
+	printf("cant ligas %d\n", user->leagues);
 	
-	
-	printf("<LOG - io.c> Cantidad de usuarios cargados: %d <end>\n", usersList->NumEl);
-	Element item_ptr;	
-	FOR_EACH(item_ptr, usersList){
-		printf("\n--- Usuario ---\n", ((User) item_ptr->data)->user);
-		printf("\tNombre: %s\n", ((User) item_ptr->data)->user);
-		printf("\tPassword: %s\n", ((User) item_ptr->data)->pass);
-		printf("\tCantidad de ligas: %d\n", ((User) item_ptr->data)->leagues);
+	Element leagueID_ptr;
+
+	FOR_EACH(leagueID_ptr,user->leaguesIDs){
+		printf("league N_%d\n",*((int *)(leagueID_ptr->data)));
 	}
+	
+
 
 	return 0;
+	
 }

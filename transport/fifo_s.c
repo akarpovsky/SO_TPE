@@ -44,5 +44,36 @@ void uplink(void)
 void establishChannel(char * newChannel)
 {
 
-
 }
+
+int sendmessage(msg_s * msg){
+	
+	int msgSize;
+	void * msgstr;
+	void * msgstraux;
+	
+	msgSize = strlen(msg->msg);
+	msgstr = msgstraux = malloc(msgSize);
+	
+	memcpy(msgstraux,msg->msg, msgSize);
+	
+	
+	int nwrite;
+	
+	if((nwrite = write(fdOut, &msgSize, sizeof(int)) == -1))
+	{
+		perror("Could not write message size");
+		return !SUCCESSFUL;
+	}
+	if((nwrite = write(fdOut, msgstr, msgSize)) == -1)
+	{
+		perror("Could not write message");
+		return !SUCCESSFUL;
+	}
+
+
+	free(msgstr);
+	return SUCCESSFUL;
+	
+}
+

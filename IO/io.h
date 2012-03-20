@@ -2,12 +2,11 @@
 	IO.h
 */
 
-#if !defined( io_h )
-#define io_h
-#endif
-
+#if !defined( IO_H )
+#define IO_H
 
 #include "../includes/structs.h"
+#include "../utils/LinkedList.h"
 
 #define BUFFER_SIZE 100
 
@@ -21,10 +20,13 @@
 /* Functions for loading */
 
 User loadUser(char * path);
-League loadTLeague(char * path);
 Trade loadTrade(char * path);
 Team loadTeam(char * path);
-
+League loadLeague(char * path);
+List loadUsers(char * path);
+List loadTeams(char * path);
+List loadTrades(char * path);
+List loadLegaues(char * path);
 
 /* File types */
 
@@ -33,3 +35,8 @@ Team loadTeam(char * path);
 #define UNKNOWN_TYPE -1
 
 char * createFilePath(char * path, char * file);
+int isExt(char * nameFile, char * ext);
+int isTeamsFolder(char * nameFile);
+int isTradesFolder(char * nameFile);
+
+#endif

@@ -1,8 +1,8 @@
 
- #if !defined( structs_h )
-#define structs_h
-#endif
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
+#include "../utils/LinkedList.h"
 #define MAX_PLAYERS 5
 
 typedef struct trade{
@@ -34,7 +34,7 @@ typedef struct user{
 		char * user;
 		char * pass;
 		int leagues;
-		int * leagueIDs;
+		List leaguesIDs;
 }user;
 
 typedef user * User;
@@ -59,14 +59,8 @@ typedef struct league{
 	int ID;
 	int status;
 	int availablePlayers;
-
-	
-	/* LISTA DE TRADES  trade * */
-	
-	
-	int teams;
-	/* LISTA DE punteros a TEAMS (cada team va a tener de nombre al user al cual pertenece) team* */
-	
+	List teams;
+	List trades;
 }league;
 
 typedef league * League;
@@ -75,16 +69,12 @@ typedef league * League;
 
 typedef struct game{
 	
-	int users; /* usuarios conectados */
-	/* Lista de usuarios  user*  */
+	List users;
+	List leagues;
+	List teams;
 
-	int leagues;
-	/* LISTA DE LIGAS  league*   */
-	
-	int teams;
-	
-	/* lista de Team team*/
 	}game;
 
 typedef game * Game;
 
+#endif
