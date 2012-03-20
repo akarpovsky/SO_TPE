@@ -30,7 +30,7 @@ User loadUser(char * path){
 	char aux[BUFFER_SIZE]; // For reading the file line by line
 	int dim, num, auxNum;
 	
-	auxUser = malloc(sizeof(user));
+	auxUser = calloc(sizeof(user),1);
 	
 	if(auxUser == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
@@ -47,7 +47,7 @@ User loadUser(char * path){
 	/* Load username */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxUser->user  = (char *) malloc(sizeof(dim));
+	auxUser->user  = (char *) malloc(dim);
 	if(auxUser->user == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
@@ -55,11 +55,10 @@ User loadUser(char * path){
 	strcpy(auxUser->user,aux);
 	auxUser->user[dim-1] = '\0';
 	
-	
 	/* Load password */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxUser->pass  = (char *)  malloc(sizeof(dim));
+	auxUser->pass  = (char *)  malloc(dim);
 	if(auxUser->pass == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
@@ -139,7 +138,7 @@ Trade loadTrade(char * path){
 	/* Load userFrom */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->userFrom  = (char *) malloc(sizeof(dim));
+	auxTrade->userFrom  = (char *) malloc(dim);
 	if(auxTrade->userFrom == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -150,7 +149,7 @@ Trade loadTrade(char * path){
 	/* Load userTo */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->userTo  = (char *) malloc(sizeof(dim));
+	auxTrade->userTo  = (char *) malloc(dim);
 	if(auxTrade->userTo == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -161,7 +160,7 @@ Trade loadTrade(char * path){
 	/* Load playerFrom */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->playerFrom  = (char *) malloc(sizeof(dim));
+	auxTrade->playerFrom  = (char *) malloc(dim);
 	if(auxTrade->playerFrom == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -172,7 +171,7 @@ Trade loadTrade(char * path){
 	/* Load playerTo */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
-	auxTrade->playerTo  = (char *) malloc(sizeof(dim));
+	auxTrade->playerTo  = (char *) malloc(dim);
 	if(auxTrade->playerTo == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -247,7 +246,7 @@ Team loadTeam(char * path){
 
 		fgets(aux,BUFFER_SIZE,file);
 		dim = strlen(aux);
-		auxPlayer->name  = (char *) malloc(sizeof(dim));
+		auxPlayer->name  = (char *) malloc(dim);
 		if(auxPlayer->name == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
@@ -696,13 +695,13 @@ int main(void){
 	User user = loadUser("../res/users/Juan.user");
 
 	printf("User: %s\n",user->user);
-	printf("Pass %s\n", user->pass);
+	printf("Pass: %s\n", user->pass);
 	printf("cant ligas %d\n", user->leagues);
 	
 	Element leagueID_ptr;
-	
+
 	FOR_EACH(leagueID_ptr,user->leaguesIDs){
-		printf("league N_ %d\n",*((int *)(leagueID_ptr->data)));
+		printf("league N_%d\n",*((int *)(leagueID_ptr->data)));
 	}
 	
 
