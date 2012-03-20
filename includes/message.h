@@ -1,4 +1,4 @@
-
+#define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2
 #define LIST_LEAGUES 3
@@ -17,6 +17,7 @@ typedef struct msg_t{
 	
 	int type;
 	union data{
+		char * tempnam;
 		int ping;
 		struct register_t{
 			char * user;
