@@ -1,0 +1,2518 @@
+add_request: added request with id '0'
+Starting thread '1'
+Starting thread '2'
+add_request: added request with id '1'
+add_request: added request with id '2'
+thread '1' after pthread_mutex_lock
+thread '1', num_requests =  3
+add_request: added request with id '3'
+thread '2' after pthread_mutex_lock
+thread '2', num_requests =  3
+Thread '2' handled request '1'
+Starting thread '0'
+add_request: added request with id '4'
+thread '2', num_requests =  3
+Thread '2' handled request '2'
+add_request: added request with id '5'
+add_request: added request with id '6'
+add_request: added request with id '7'
+thread '2', num_requests =  5
+Thread '2' handled request '3'
+Thread '1' handled request '0'
+thread '0' after pthread_mutex_lock
+thread '0', num_requests =  4
+add_request: added request with id '8'
+add_request: added request with id '9'
+add_request: added request with id '10'
+add_request: added request with id '11'
+add_request: added request with id '12'
+add_request: added request with id '13'
+add_request: added request with id '14'
+thread '2', num_requests =  10
+Thread '2' handled request '5'
+thread '1', num_requests =  9
+Thread '1' handled request '6'
+add_request: added request with id '15'
+thread '2', num_requests =  9
+Thread '2' handled request '7'
+thread '1', num_requests =  8
+Thread '1' handled request '8'
+add_request: added request with id '16'
+add_request: added request with id '17'
+add_request: added request with id '18'
+add_request: added request with id '19'
+add_request: added request with id '20'
+add_request: added request with id '21'
+add_request: added request with id '22'
+add_request: added request with id '23'
+thread '2', num_requests =  15
+Thread '2' handled request '9'
+thread '1', num_requests =  14
+Thread '1' handled request '10'
+Thread '0' handled request '4'
+add_request: added request with id '24'
+add_request: added request with id '25'
+add_request: added request with id '26'
+add_request: added request with id '27'
+add_request: added request with id '28'
+thread '1', num_requests =  18
+Thread '1' handled request '11'
+thread '0', num_requests =  17
+Thread '0' handled request '12'
+thread '2', num_requests =  16
+Thread '2' handled request '13'
+add_request: added request with id '29'
+add_request: added request with id '30'
+add_request: added request with id '31'
+thread '2', num_requests =  18
+Thread '2' handled request '14'
+thread '1', num_requests =  17
+Thread '1' handled request '15'
+thread '0', num_requests =  16
+Thread '0' handled request '16'
+add_request: added request with id '32'
+add_request: added request with id '33'
+add_request: added request with id '34'
+add_request: added request with id '35'
+add_request: added request with id '36'
+thread '1', num_requests =  20
+Thread '1' handled request '17'
+thread '0', num_requests =  19
+Thread '0' handled request '18'
+thread '2', num_requests =  18
+Thread '2' handled request '19'
+add_request: added request with id '37'
+thread '1', num_requests =  18
+Thread '1' handled request '20'
+thread '0', num_requests =  17
+Thread '0' handled request '21'
+thread '2', num_requests =  16
+Thread '2' handled request '22'
+add_request: added request with id '38'
+add_request: added request with id '39'
+thread '0', num_requests =  17
+Thread '0' handled request '23'
+thread '2', num_requests =  16
+Thread '2' handled request '24'
+thread '1', num_requests =  15
+Thread '1' handled request '25'
+add_request: added request with id '40'
+add_request: added request with id '41'
+thread '2', num_requests =  16
+Thread '2' handled request '26'
+thread '1', num_requests =  15
+Thread '1' handled request '27'
+thread '0', num_requests =  14
+Thread '0' handled request '28'
+add_request: added request with id '42'
+add_request: added request with id '43'
+thread '1', num_requests =  15
+Thread '1' handled request '29'
+thread '0', num_requests =  14
+Thread '0' handled request '30'
+thread '2', num_requests =  13
+Thread '2' handled request '31'
+add_request: added request with id '44'
+add_request: added request with id '45'
+thread '0', num_requests =  14
+Thread '0' handled request '32'
+thread '2', num_requests =  13
+Thread '2' handled request '33'
+thread '1', num_requests =  12
+Thread '1' handled request '34'
+add_request: added request with id '46'
+thread '0', num_requests =  12
+Thread '0' handled request '35'
+thread '2', num_requests =  11
+Thread '2' handled request '36'
+thread '1', num_requests =  10
+Thread '1' handled request '37'
+add_request: added request with id '47'
+thread '0', num_requests =  10
+Thread '0' handled request '38'
+thread '2', num_requests =  9
+Thread '2' handled request '39'
+thread '1', num_requests =  8
+Thread '1' handled request '40'
+add_request: added request with id '48'
+add_request: added request with id '49'
+thread '2', num_requests =  9
+Thread '2' handled request '41'
+thread '1', num_requests =  8
+Thread '1' handled request '42'
+thread '0', num_requests =  7
+Thread '0' handled request '43'
+add_request: added request with id '50'
+add_request: added request with id '51'
+add_request: added request with id '52'
+add_request: added request with id '53'
+add_request: added request with id '54'
+thread '1', num_requests =  11
+Thread '1' handled request '44'
+thread '0', num_requests =  10
+Thread '0' handled request '45'
+thread '2', num_requests =  9
+Thread '2' handled request '46'
+add_request: added request with id '55'
+thread '1', num_requests =  9
+Thread '1' handled request '47'
+thread '0', num_requests =  8
+Thread '0' handled request '48'
+thread '2', num_requests =  7
+Thread '2' handled request '49'
+add_request: added request with id '56'
+thread '1', num_requests =  7
+Thread '1' handled request '50'
+thread '0', num_requests =  6
+Thread '0' handled request '51'
+thread '2', num_requests =  5
+Thread '2' handled request '52'
+add_request: added request with id '57'
+add_request: added request with id '58'
+add_request: added request with id '59'
+add_request: added request with id '60'
+thread '1', num_requests =  8
+Thread '1' handled request '53'
+thread '0', num_requests =  7
+Thread '0' handled request '54'
+thread '2', num_requests =  6
+Thread '2' handled request '55'
+add_request: added request with id '61'
+thread '1', num_requests =  6
+Thread '1' handled request '56'
+thread '0', num_requests =  5
+Thread '0' handled request '57'
+thread '2', num_requests =  4
+Thread '2' handled request '58'
+add_request: added request with id '62'
+thread '1', num_requests =  4
+Thread '1' handled request '59'
+thread '0', num_requests =  3
+Thread '0' handled request '60'
+thread '2', num_requests =  2
+Thread '2' handled request '61'
+add_request: added request with id '63'
+thread '1', num_requests =  2
+Thread '1' handled request '62'
+thread '0', num_requests =  1
+Thread '0' handled request '63'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '64'
+thread '1', num_requests =  1
+Thread '1' handled request '64'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '65'
+thread '1', num_requests =  1
+Thread '1' handled request '65'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '66'
+thread '1', num_requests =  1
+Thread '1' handled request '66'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '67'
+thread '1', num_requests =  1
+Thread '1' handled request '67'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '68'
+thread '1', num_requests =  1
+Thread '1' handled request '68'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '69'
+thread '1', num_requests =  1
+Thread '1' handled request '69'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '70'
+thread '1', num_requests =  1
+Thread '1' handled request '70'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '71'
+thread '1', num_requests =  1
+Thread '1' handled request '71'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '72'
+thread '1', num_requests =  1
+Thread '1' handled request '72'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '73'
+thread '1', num_requests =  1
+Thread '1' handled request '73'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '74'
+thread '1', num_requests =  1
+Thread '1' handled request '74'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '75'
+thread '1', num_requests =  1
+Thread '1' handled request '75'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '76'
+thread '1', num_requests =  1
+Thread '1' handled request '76'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '77'
+thread '1', num_requests =  1
+Thread '1' handled request '77'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '78'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '78'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '79'
+thread '2', num_requests =  1
+Thread '2' handled request '79'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '80'
+thread '2', num_requests =  1
+Thread '2' handled request '80'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '81'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '81'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '82'
+thread '0', num_requests =  1
+Thread '0' handled request '82'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '83'
+thread '0', num_requests =  1
+Thread '0' handled request '83'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '84'
+thread '0', num_requests =  1
+Thread '0' handled request '84'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '85'
+thread '0', num_requests =  1
+Thread '0' handled request '85'
+add_request: added request with id '86'
+add_request: added request with id '87'
+thread '0', num_requests =  2
+Thread '0' handled request '86'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '87'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '88'
+thread '0', num_requests =  1
+Thread '0' handled request '88'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '89'
+add_request: added request with id '90'
+thread '0', num_requests =  2
+Thread '0' handled request '89'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '90'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '91'
+add_request: added request with id '92'
+add_request: added request with id '93'
+thread '0', num_requests =  3
+Thread '0' handled request '91'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '92'
+thread '2', num_requests =  1
+Thread '2' handled request '93'
+add_request: added request with id '94'
+thread '0', num_requests =  1
+Thread '0' handled request '94'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '95'
+thread '0', num_requests =  1
+Thread '0' handled request '95'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '96'
+add_request: added request with id '97'
+thread '0', num_requests =  2
+Thread '0' handled request '96'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '97'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '98'
+add_request: added request with id '99'
+thread '2', num_requests =  2
+Thread '2' handled request '98'
+thread '0', num_requests =  1
+Thread '0' handled request '99'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '100'
+add_request: added request with id '101'
+thread '0', num_requests =  2
+Thread '0' handled request '100'
+thread '2', num_requests =  1
+Thread '2' handled request '101'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '102'
+thread '0', num_requests =  1
+Thread '0' handled request '102'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '103'
+thread '0', num_requests =  1
+Thread '0' handled request '103'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '104'
+add_request: added request with id '105'
+thread '0', num_requests =  2
+Thread '0' handled request '104'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '105'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '106'
+add_request: added request with id '107'
+add_request: added request with id '108'
+add_request: added request with id '109'
+add_request: added request with id '110'
+thread '1', num_requests =  5
+Thread '1' handled request '106'
+thread '0', num_requests =  4
+Thread '0' handled request '107'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '108'
+add_request: added request with id '111'
+add_request: added request with id '112'
+thread '0', num_requests =  4
+Thread '0' handled request '109'
+thread '2', num_requests =  3
+Thread '2' handled request '110'
+thread '1', num_requests =  2
+Thread '1' handled request '111'
+add_request: added request with id '113'
+thread '0', num_requests =  2
+Thread '0' handled request '112'
+thread '2', num_requests =  1
+Thread '2' handled request '113'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '114'
+add_request: added request with id '115'
+add_request: added request with id '116'
+thread '0', num_requests =  3
+Thread '0' handled request '114'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '115'
+thread '2', num_requests =  1
+Thread '2' handled request '116'
+add_request: added request with id '117'
+thread '0', num_requests =  1
+Thread '0' handled request '117'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '118'
+add_request: added request with id '119'
+thread '0', num_requests =  2
+Thread '0' handled request '118'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '119'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '120'
+add_request: added request with id '121'
+add_request: added request with id '122'
+thread '0', num_requests =  3
+Thread '0' handled request '120'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '121'
+thread '1', num_requests =  1
+Thread '1' handled request '122'
+add_request: added request with id '123'
+thread '0', num_requests =  1
+Thread '0' handled request '123'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '124'
+thread '0', num_requests =  1
+Thread '0' handled request '124'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '125'
+thread '0', num_requests =  1
+Thread '0' handled request '125'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '126'
+add_request: added request with id '127'
+add_request: added request with id '128'
+add_request: added request with id '129'
+thread '0', num_requests =  4
+Thread '0' handled request '126'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '127'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '128'
+add_request: added request with id '130'
+add_request: added request with id '131'
+add_request: added request with id '132'
+add_request: added request with id '133'
+thread '0', num_requests =  5
+Thread '0' handled request '129'
+thread '1', num_requests =  4
+Thread '1' handled request '130'
+thread '2', num_requests =  3
+Thread '2' handled request '131'
+add_request: added request with id '134'
+thread '0', num_requests =  3
+Thread '0' handled request '132'
+thread '1', num_requests =  2
+Thread '1' handled request '133'
+thread '2', num_requests =  1
+Thread '2' handled request '134'
+add_request: added request with id '135'
+thread '0', num_requests =  1
+Thread '0' handled request '135'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '136'
+add_request: added request with id '137'
+thread '0', num_requests =  2
+Thread '0' handled request '136'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '137'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '138'
+add_request: added request with id '139'
+add_request: added request with id '140'
+thread '0', num_requests =  3
+Thread '0' handled request '138'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '139'
+thread '1', num_requests =  1
+Thread '1' handled request '140'
+add_request: added request with id '141'
+thread '0', num_requests =  1
+Thread '0' handled request '141'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '142'
+add_request: added request with id '143'
+add_request: added request with id '144'
+add_request: added request with id '145'
+thread '0', num_requests =  4
+Thread '0' handled request '142'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '143'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '144'
+add_request: added request with id '146'
+thread '0', num_requests =  2
+Thread '0' handled request '145'
+thread '1', num_requests =  1
+Thread '1' handled request '146'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '147'
+add_request: added request with id '148'
+add_request: added request with id '149'
+thread '0', num_requests =  3
+Thread '0' handled request '147'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '148'
+thread '1', num_requests =  1
+Thread '1' handled request '149'
+add_request: added request with id '150'
+thread '0', num_requests =  1
+Thread '0' handled request '150'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '151'
+thread '0', num_requests =  1
+Thread '0' handled request '151'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '152'
+add_request: added request with id '153'
+add_request: added request with id '154'
+add_request: added request with id '155'
+thread '0', num_requests =  4
+Thread '0' handled request '152'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '153'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '154'
+add_request: added request with id '156'
+thread '0', num_requests =  2
+Thread '0' handled request '155'
+thread '2', num_requests =  1
+Thread '2' handled request '156'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '157'
+add_request: added request with id '158'
+add_request: added request with id '159'
+thread '0', num_requests =  3
+Thread '0' handled request '157'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '158'
+thread '2', num_requests =  1
+Thread '2' handled request '159'
+add_request: added request with id '160'
+thread '0', num_requests =  1
+Thread '0' handled request '160'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '161'
+thread '0', num_requests =  1
+Thread '0' handled request '161'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '162'
+add_request: added request with id '163'
+add_request: added request with id '164'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '162'
+thread '0', num_requests =  2
+Thread '0' handled request '163'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '164'
+add_request: added request with id '165'
+add_request: added request with id '166'
+thread '0', num_requests =  2
+Thread '0' handled request '165'
+thread '1', num_requests =  1
+Thread '1' handled request '166'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '167'
+add_request: added request with id '168'
+thread '1', num_requests =  2
+Thread '1' handled request '167'
+thread '0', num_requests =  1
+Thread '0' handled request '168'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '169'
+add_request: added request with id '170'
+thread '0', num_requests =  2
+Thread '0' handled request '169'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '170'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '171'
+add_request: added request with id '172'
+add_request: added request with id '173'
+thread '0', num_requests =  3
+Thread '0' handled request '171'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '172'
+thread '2', num_requests =  1
+Thread '2' handled request '173'
+add_request: added request with id '174'
+thread '0', num_requests =  1
+Thread '0' handled request '174'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '175'
+add_request: added request with id '176'
+thread '0', num_requests =  2
+Thread '0' handled request '175'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '176'
+add_request: added request with id '177'
+add_request: added request with id '178'
+thread '0', num_requests =  2
+Thread '0' handled request '177'
+thread '1', num_requests =  1
+Thread '1' handled request '178'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '179'
+thread '0', num_requests =  1
+Thread '0' handled request '179'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '180'
+add_request: added request with id '181'
+add_request: added request with id '182'
+add_request: added request with id '183'
+thread '0', num_requests =  4
+Thread '0' handled request '180'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '181'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '182'
+add_request: added request with id '184'
+thread '0', num_requests =  2
+Thread '0' handled request '183'
+thread '2', num_requests =  1
+Thread '2' handled request '184'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '185'
+thread '0', num_requests =  1
+Thread '0' handled request '185'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '186'
+add_request: added request with id '187'
+thread '0', num_requests =  2
+Thread '0' handled request '186'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '187'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '188'
+add_request: added request with id '189'
+thread '2', num_requests =  2
+thread '0', num_requests =  1
+Thread '0' handled request '189'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '190'
+add_request: added request with id '191'
+thread '0', num_requests =  2
+Thread '0' handled request '190'
+Thread '2' handled request '188'
+add_request: added request with id '192'
+add_request: added request with id '193'
+thread '0', num_requests =  3
+Thread '0' handled request '191'
+thread '2', num_requests =  2
+Thread '2' handled request '192'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '193'
+add_request: added request with id '194'
+add_request: added request with id '195'
+add_request: added request with id '196'
+thread '1', num_requests =  3
+thread '0', num_requests =  2
+Thread '0' handled request '195'
+thread '2', num_requests =  1
+Thread '2' handled request '196'
+Thread '1' handled request '194'
+add_request: added request with id '197'
+thread '0', num_requests =  1
+Thread '0' handled request '197'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '198'
+thread '0', num_requests =  1
+Thread '0' handled request '198'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '199'
+thread '0', num_requests =  1
+Thread '0' handled request '199'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '200'
+thread '0', num_requests =  1
+Thread '0' handled request '200'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '201'
+add_request: added request with id '202'
+thread '0', num_requests =  2
+Thread '0' handled request '201'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '202'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '203'
+thread '0', num_requests =  1
+Thread '0' handled request '203'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '204'
+add_request: added request with id '205'
+add_request: added request with id '206'
+add_request: added request with id '207'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '204'
+thread '0', num_requests =  3
+Thread '0' handled request '205'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '206'
+add_request: added request with id '208'
+thread '1', num_requests =  2
+Thread '1' handled request '207'
+thread '0', num_requests =  1
+Thread '0' handled request '208'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '209'
+add_request: added request with id '210'
+add_request: added request with id '211'
+add_request: added request with id '212'
+add_request: added request with id '213'
+thread '0', num_requests =  5
+Thread '0' handled request '209'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  4
+Thread '2' handled request '210'
+thread '1', num_requests =  3
+Thread '1' handled request '211'
+add_request: added request with id '214'
+add_request: added request with id '215'
+add_request: added request with id '216'
+add_request: added request with id '217'
+thread '0', num_requests =  6
+Thread '0' handled request '212'
+thread '2', num_requests =  5
+Thread '2' handled request '213'
+thread '1', num_requests =  4
+Thread '1' handled request '214'
+add_request: added request with id '218'
+thread '0', num_requests =  4
+Thread '0' handled request '215'
+thread '2', num_requests =  3
+Thread '2' handled request '216'
+thread '1', num_requests =  2
+Thread '1' handled request '217'
+add_request: added request with id '219'
+thread '0', num_requests =  2
+Thread '0' handled request '218'
+thread '2', num_requests =  1
+Thread '2' handled request '219'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '220'
+thread '0', num_requests =  1
+Thread '0' handled request '220'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '221'
+add_request: added request with id '222'
+thread '0', num_requests =  2
+Thread '0' handled request '221'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '222'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '223'
+thread '0', num_requests =  1
+Thread '0' handled request '223'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '224'
+add_request: added request with id '225'
+add_request: added request with id '226'
+add_request: added request with id '227'
+add_request: added request with id '228'
+thread '0', num_requests =  5
+Thread '0' handled request '224'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '225'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '226'
+add_request: added request with id '229'
+thread '0', num_requests =  3
+Thread '0' handled request '227'
+thread '1', num_requests =  2
+Thread '1' handled request '228'
+thread '2', num_requests =  1
+Thread '2' handled request '229'
+add_request: added request with id '230'
+thread '0', num_requests =  1
+Thread '0' handled request '230'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '231'
+add_request: added request with id '232'
+add_request: added request with id '233'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+thread '0', num_requests =  2
+Thread '0' handled request '232'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '233'
+Thread '1' handled request '231'
+add_request: added request with id '234'
+add_request: added request with id '235'
+add_request: added request with id '236'
+add_request: added request with id '237'
+thread '0', num_requests =  4
+Thread '0' handled request '234'
+thread '2', num_requests =  3
+Thread '2' handled request '235'
+thread '1', num_requests =  2
+Thread '1' handled request '236'
+add_request: added request with id '238'
+thread '0', num_requests =  2
+Thread '0' handled request '237'
+thread '2', num_requests =  1
+Thread '2' handled request '238'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '239'
+thread '0', num_requests =  1
+Thread '0' handled request '239'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '240'
+add_request: added request with id '241'
+thread '0', num_requests =  2
+Thread '0' handled request '240'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '241'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '242'
+thread '0', num_requests =  1
+Thread '0' handled request '242'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '243'
+add_request: added request with id '244'
+thread '0', num_requests =  2
+Thread '0' handled request '243'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '244'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '245'
+add_request: added request with id '246'
+add_request: added request with id '247'
+thread '0', num_requests =  3
+Thread '0' handled request '245'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '246'
+thread '2', num_requests =  1
+Thread '2' handled request '247'
+add_request: added request with id '248'
+thread '0', num_requests =  1
+Thread '0' handled request '248'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '249'
+add_request: added request with id '250'
+thread '0', num_requests =  2
+Thread '0' handled request '249'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '250'
+add_request: added request with id '251'
+add_request: added request with id '252'
+thread '0', num_requests =  2
+Thread '0' handled request '251'
+thread '1', num_requests =  1
+Thread '1' handled request '252'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '253'
+add_request: added request with id '254'
+add_request: added request with id '255'
+thread '0', num_requests =  3
+Thread '0' handled request '253'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '254'
+thread '1', num_requests =  1
+Thread '1' handled request '255'
+add_request: added request with id '256'
+thread '0', num_requests =  1
+Thread '0' handled request '256'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '257'
+add_request: added request with id '258'
+thread '0', num_requests =  2
+Thread '0' handled request '257'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '258'
+add_request: added request with id '259'
+add_request: added request with id '260'
+thread '0', num_requests =  2
+Thread '0' handled request '259'
+add_request: added request with id '261'
+add_request: added request with id '262'
+add_request: added request with id '263'
+thread '0', num_requests =  4
+Thread '0' handled request '260'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '261'
+thread '2', num_requests =  2
+Thread '2' handled request '262'
+add_request: added request with id '264'
+thread '0', num_requests =  2
+Thread '0' handled request '263'
+thread '1', num_requests =  1
+Thread '1' handled request '264'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '265'
+add_request: added request with id '266'
+add_request: added request with id '267'
+thread '0', num_requests =  3
+Thread '0' handled request '265'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '266'
+thread '1', num_requests =  1
+Thread '1' handled request '267'
+add_request: added request with id '268'
+thread '0', num_requests =  1
+Thread '0' handled request '268'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '269'
+add_request: added request with id '270'
+thread '0', num_requests =  2
+Thread '0' handled request '269'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '270'
+add_request: added request with id '271'
+add_request: added request with id '272'
+thread '0', num_requests =  2
+Thread '0' handled request '271'
+thread '2', num_requests =  1
+Thread '2' handled request '272'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '273'
+add_request: added request with id '274'
+add_request: added request with id '275'
+thread '0', num_requests =  3
+Thread '0' handled request '273'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '274'
+thread '2', num_requests =  1
+Thread '2' handled request '275'
+add_request: added request with id '276'
+thread '0', num_requests =  1
+Thread '0' handled request '276'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '277'
+add_request: added request with id '278'
+thread '0', num_requests =  2
+Thread '0' handled request '277'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '278'
+add_request: added request with id '279'
+add_request: added request with id '280'
+thread '0', num_requests =  2
+Thread '0' handled request '279'
+thread '1', num_requests =  1
+Thread '1' handled request '280'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '281'
+add_request: added request with id '282'
+thread '1', num_requests =  2
+thread '0', num_requests =  1
+Thread '0' handled request '282'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+Thread '1' handled request '281'
+add_request: added request with id '283'
+thread '0', num_requests =  1
+Thread '0' handled request '283'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '284'
+add_request: added request with id '285'
+thread '0', num_requests =  2
+Thread '0' handled request '284'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '285'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '286'
+thread '0', num_requests =  1
+Thread '0' handled request '286'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '287'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '288'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '288'
+add_request: added request with id '289'
+add_request: added request with id '290'
+add_request: added request with id '291'
+add_request: added request with id '292'
+add_request: added request with id '293'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  5
+Thread '2' handled request '289'
+thread '0', num_requests =  4
+Thread '0' handled request '290'
+Thread '1' handled request '287'
+add_request: added request with id '294'
+thread '2', num_requests =  4
+Thread '2' handled request '291'
+thread '0', num_requests =  3
+Thread '0' handled request '292'
+thread '1', num_requests =  2
+Thread '1' handled request '293'
+add_request: added request with id '295'
+thread '2', num_requests =  2
+Thread '2' handled request '294'
+thread '0', num_requests =  1
+Thread '0' handled request '295'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '296'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '296'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '297'
+add_request: added request with id '298'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  2
+Thread '0' handled request '297'
+thread '1', num_requests =  1
+Thread '1' handled request '298'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '299'
+add_request: added request with id '300'
+add_request: added request with id '301'
+thread '0', num_requests =  3
+Thread '0' handled request '299'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '300'
+thread '1', num_requests =  1
+Thread '1' handled request '301'
+add_request: added request with id '302'
+thread '0', num_requests =  1
+Thread '0' handled request '302'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '303'
+thread '0', num_requests =  1
+Thread '0' handled request '303'
+add_request: added request with id '304'
+add_request: added request with id '305'
+add_request: added request with id '306'
+add_request: added request with id '307'
+add_request: added request with id '308'
+thread '0', num_requests =  5
+Thread '0' handled request '304'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '305'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '306'
+add_request: added request with id '309'
+add_request: added request with id '310'
+add_request: added request with id '311'
+thread '2', num_requests =  5
+Thread '2' handled request '307'
+thread '0', num_requests =  4
+Thread '0' handled request '308'
+thread '1', num_requests =  3
+Thread '1' handled request '309'
+add_request: added request with id '312'
+add_request: added request with id '313'
+add_request: added request with id '314'
+add_request: added request with id '315'
+add_request: added request with id '316'
+thread '0', num_requests =  7
+Thread '0' handled request '310'
+thread '1', num_requests =  6
+Thread '1' handled request '311'
+thread '2', num_requests =  5
+Thread '2' handled request '312'
+add_request: added request with id '317'
+thread '0', num_requests =  5
+Thread '0' handled request '313'
+thread '1', num_requests =  4
+Thread '1' handled request '314'
+thread '2', num_requests =  3
+Thread '2' handled request '315'
+add_request: added request with id '318'
+add_request: added request with id '319'
+add_request: added request with id '320'
+thread '2', num_requests =  5
+Thread '2' handled request '316'
+thread '0', num_requests =  4
+Thread '0' handled request '317'
+thread '1', num_requests =  3
+Thread '1' handled request '318'
+add_request: added request with id '321'
+add_request: added request with id '322'
+thread '0', num_requests =  4
+Thread '0' handled request '319'
+thread '1', num_requests =  3
+Thread '1' handled request '320'
+thread '2', num_requests =  2
+Thread '2' handled request '321'
+add_request: added request with id '323'
+thread '0', num_requests =  2
+Thread '0' handled request '322'
+thread '1', num_requests =  1
+Thread '1' handled request '323'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '324'
+thread '0', num_requests =  1
+Thread '0' handled request '324'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '325'
+add_request: added request with id '326'
+thread '0', num_requests =  2
+Thread '0' handled request '325'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '326'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '327'
+add_request: added request with id '328'
+add_request: added request with id '329'
+thread '0', num_requests =  3
+Thread '0' handled request '327'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '328'
+thread '1', num_requests =  1
+Thread '1' handled request '329'
+add_request: added request with id '330'
+thread '0', num_requests =  1
+Thread '0' handled request '330'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '331'
+add_request: added request with id '332'
+thread '0', num_requests =  2
+Thread '0' handled request '331'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '332'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '333'
+thread '0', num_requests =  1
+Thread '0' handled request '333'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '334'
+add_request: added request with id '335'
+add_request: added request with id '336'
+add_request: added request with id '337'
+thread '0', num_requests =  4
+Thread '0' handled request '334'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '335'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '336'
+add_request: added request with id '338'
+add_request: added request with id '339'
+add_request: added request with id '340'
+add_request: added request with id '341'
+thread '0', num_requests =  5
+Thread '0' handled request '337'
+thread '1', num_requests =  4
+Thread '1' handled request '338'
+thread '2', num_requests =  3
+Thread '2' handled request '339'
+add_request: added request with id '342'
+thread '0', num_requests =  3
+Thread '0' handled request '340'
+thread '1', num_requests =  2
+Thread '1' handled request '341'
+thread '2', num_requests =  1
+Thread '2' handled request '342'
+add_request: added request with id '343'
+thread '0', num_requests =  1
+Thread '0' handled request '343'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '344'
+thread '0', num_requests =  1
+Thread '0' handled request '344'
+add_request: added request with id '345'
+add_request: added request with id '346'
+thread '0', num_requests =  2
+Thread '0' handled request '345'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '346'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '347'
+thread '0', num_requests =  1
+Thread '0' handled request '347'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '348'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '348'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '349'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '349'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '350'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '350'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '351'
+thread '0', num_requests =  1
+Thread '0' handled request '351'
+add_request: added request with id '352'
+add_request: added request with id '353'
+thread '0', num_requests =  2
+Thread '0' handled request '352'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '353'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '354'
+thread '0', num_requests =  1
+Thread '0' handled request '354'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '355'
+add_request: added request with id '356'
+thread '0', num_requests =  2
+Thread '0' handled request '355'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '356'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '357'
+thread '0', num_requests =  1
+Thread '0' handled request '357'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '358'
+add_request: added request with id '359'
+thread '0', num_requests =  2
+Thread '0' handled request '358'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '359'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '360'
+thread '0', num_requests =  1
+Thread '0' handled request '360'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '361'
+add_request: added request with id '362'
+thread '0', num_requests =  2
+Thread '0' handled request '361'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '362'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '363'
+thread '0', num_requests =  1
+Thread '0' handled request '363'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '364'
+add_request: added request with id '365'
+thread '0', num_requests =  2
+Thread '0' handled request '364'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '365'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '366'
+thread '0', num_requests =  1
+Thread '0' handled request '366'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '367'
+add_request: added request with id '368'
+thread '0', num_requests =  2
+Thread '0' handled request '367'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '368'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '369'
+thread '0', num_requests =  1
+Thread '0' handled request '369'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '370'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '370'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '371'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '371'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '372'
+add_request: added request with id '373'
+thread '0', num_requests =  2
+Thread '0' handled request '372'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '373'
+add_request: added request with id '374'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '374'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '375'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '375'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '376'
+add_request: added request with id '377'
+add_request: added request with id '378'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '376'
+thread '0', num_requests =  2
+Thread '0' handled request '377'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '378'
+add_request: added request with id '379'
+add_request: added request with id '380'
+add_request: added request with id '381'
+add_request: added request with id '382'
+thread '1', num_requests =  4
+Thread '1' handled request '379'
+thread '0', num_requests =  3
+Thread '0' handled request '380'
+thread '2', num_requests =  2
+Thread '2' handled request '381'
+add_request: added request with id '383'
+add_request: added request with id '384'
+thread '0', num_requests =  3
+Thread '0' handled request '382'
+thread '2', num_requests =  2
+Thread '2' handled request '383'
+thread '1', num_requests =  1
+Thread '1' handled request '384'
+add_request: added request with id '385'
+thread '0', num_requests =  1
+Thread '0' handled request '385'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '386'
+thread '0', num_requests =  1
+Thread '0' handled request '386'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '387'
+add_request: added request with id '388'
+add_request: added request with id '389'
+add_request: added request with id '390'
+thread '0', num_requests =  4
+Thread '0' handled request '387'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '388'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '389'
+add_request: added request with id '391'
+thread '0', num_requests =  2
+Thread '0' handled request '390'
+thread '2', num_requests =  1
+Thread '2' handled request '391'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '392'
+thread '0', num_requests =  1
+Thread '0' handled request '392'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '393'
+add_request: added request with id '394'
+add_request: added request with id '395'
+add_request: added request with id '396'
+thread '0', num_requests =  4
+Thread '0' handled request '393'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '394'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '395'
+add_request: added request with id '397'
+thread '0', num_requests =  2
+Thread '0' handled request '396'
+thread '1', num_requests =  1
+Thread '1' handled request '397'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '398'
+add_request: added request with id '399'
+add_request: added request with id '400'
+thread '0', num_requests =  3
+Thread '0' handled request '398'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '399'
+thread '1', num_requests =  1
+Thread '1' handled request '400'
+add_request: added request with id '401'
+thread '0', num_requests =  1
+Thread '0' handled request '401'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '402'
+thread '0', num_requests =  1
+Thread '0' handled request '402'
+add_request: added request with id '403'
+add_request: added request with id '404'
+thread '0', num_requests =  2
+Thread '0' handled request '403'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '404'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '405'
+add_request: added request with id '406'
+add_request: added request with id '407'
+thread '0', num_requests =  3
+Thread '0' handled request '405'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '406'
+thread '1', num_requests =  1
+Thread '1' handled request '407'
+add_request: added request with id '408'
+add_request: added request with id '409'
+add_request: added request with id '410'
+add_request: added request with id '411'
+thread '0', num_requests =  4
+Thread '0' handled request '408'
+thread '2', num_requests =  3
+Thread '2' handled request '409'
+thread '1', num_requests =  2
+Thread '1' handled request '410'
+add_request: added request with id '412'
+thread '0', num_requests =  2
+Thread '0' handled request '411'
+thread '2', num_requests =  1
+Thread '2' handled request '412'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '413'
+thread '0', num_requests =  1
+Thread '0' handled request '413'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '414'
+add_request: added request with id '415'
+thread '0', num_requests =  2
+Thread '0' handled request '414'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '415'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '416'
+add_request: added request with id '417'
+add_request: added request with id '418'
+thread '0', num_requests =  3
+Thread '0' handled request '416'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '417'
+thread '1', num_requests =  1
+Thread '1' handled request '418'
+add_request: added request with id '419'
+thread '0', num_requests =  1
+Thread '0' handled request '419'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '420'
+add_request: added request with id '421'
+thread '0', num_requests =  2
+Thread '0' handled request '420'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '421'
+add_request: added request with id '422'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '422'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '423'
+add_request: added request with id '424'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  2
+Thread '0' handled request '423'
+thread '1', num_requests =  1
+Thread '1' handled request '424'
+add_request: added request with id '425'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '425'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '426'
+add_request: added request with id '427'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '426'
+thread '2', num_requests =  1
+Thread '2' handled request '427'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '428'
+add_request: added request with id '429'
+add_request: added request with id '430'
+add_request: added request with id '431'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  4
+Thread '0' handled request '428'
+thread '2', num_requests =  3
+Thread '2' handled request '429'
+thread '1', num_requests =  2
+Thread '1' handled request '430'
+add_request: added request with id '432'
+add_request: added request with id '433'
+thread '2', num_requests =  3
+Thread '2' handled request '431'
+thread '1', num_requests =  2
+Thread '1' handled request '432'
+thread '0', num_requests =  1
+Thread '0' handled request '433'
+add_request: added request with id '434'
+add_request: added request with id '435'
+thread '1', num_requests =  2
+Thread '1' handled request '434'
+thread '0', num_requests =  1
+Thread '0' handled request '435'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '436'
+add_request: added request with id '437'
+add_request: added request with id '438'
+thread '1', num_requests =  3
+Thread '1' handled request '436'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '437'
+thread '0', num_requests =  1
+Thread '0' handled request '438'
+add_request: added request with id '439'
+thread '1', num_requests =  1
+Thread '1' handled request '439'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '440'
+thread '1', num_requests =  1
+Thread '1' handled request '440'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '441'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '441'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '442'
+add_request: added request with id '443'
+add_request: added request with id '444'
+add_request: added request with id '445'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '442'
+thread '0', num_requests =  3
+Thread '0' handled request '443'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '444'
+add_request: added request with id '446'
+add_request: added request with id '447'
+thread '0', num_requests =  3
+Thread '0' handled request '445'
+thread '2', num_requests =  2
+Thread '2' handled request '446'
+thread '1', num_requests =  1
+Thread '1' handled request '447'
+add_request: added request with id '448'
+thread '0', num_requests =  1
+Thread '0' handled request '448'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '449'
+add_request: added request with id '450'
+thread '0', num_requests =  2
+Thread '0' handled request '449'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '450'
+add_request: added request with id '451'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '451'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '452'
+add_request: added request with id '453'
+add_request: added request with id '454'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  3
+Thread '0' handled request '452'
+thread '1', num_requests =  2
+Thread '1' handled request '453'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '454'
+add_request: added request with id '455'
+add_request: added request with id '456'
+thread '1', num_requests =  2
+Thread '1' handled request '455'
+thread '2', num_requests =  1
+Thread '2' handled request '456'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '457'
+add_request: added request with id '458'
+add_request: added request with id '459'
+thread '1', num_requests =  3
+Thread '1' handled request '457'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  2
+Thread '0' handled request '458'
+thread '2', num_requests =  1
+Thread '2' handled request '459'
+add_request: added request with id '460'
+thread '1', num_requests =  1
+Thread '1' handled request '460'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '461'
+thread '1', num_requests =  1
+Thread '1' handled request '461'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '462'
+add_request: added request with id '463'
+add_request: added request with id '464'
+add_request: added request with id '465'
+thread '1', num_requests =  4
+Thread '1' handled request '462'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  3
+Thread '0' handled request '463'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '464'
+add_request: added request with id '466'
+thread '1', num_requests =  2
+Thread '1' handled request '465'
+thread '0', num_requests =  1
+Thread '0' handled request '466'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '467'
+thread '1', num_requests =  1
+Thread '1' handled request '467'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '468'
+add_request: added request with id '469'
+add_request: added request with id '470'
+add_request: added request with id '471'
+thread '1', num_requests =  4
+Thread '1' handled request '468'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '469'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  2
+Thread '0' handled request '470'
+add_request: added request with id '472'
+thread '1', num_requests =  2
+Thread '1' handled request '471'
+thread '2', num_requests =  1
+Thread '2' handled request '472'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '473'
+thread '1', num_requests =  1
+Thread '1' handled request '473'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '474'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '474'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '475'
+add_request: added request with id '476'
+add_request: added request with id '477'
+add_request: added request with id '478'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '475'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '476'
+thread '0', num_requests =  2
+Thread '0' handled request '477'
+add_request: added request with id '479'
+add_request: added request with id '480'
+add_request: added request with id '481'
+add_request: added request with id '482'
+thread '1', num_requests =  5
+Thread '1' handled request '478'
+thread '2', num_requests =  4
+Thread '2' handled request '479'
+thread '0', num_requests =  3
+Thread '0' handled request '480'
+add_request: added request with id '483'
+thread '1', num_requests =  3
+Thread '1' handled request '481'
+thread '2', num_requests =  2
+Thread '2' handled request '482'
+thread '0', num_requests =  1
+Thread '0' handled request '483'
+add_request: added request with id '484'
+thread '1', num_requests =  1
+Thread '1' handled request '484'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '485'
+thread '1', num_requests =  1
+Thread '1' handled request '485'
+add_request: added request with id '486'
+add_request: added request with id '487'
+thread '1', num_requests =  2
+Thread '1' handled request '486'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '487'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '488'
+add_request: added request with id '489'
+thread '0', num_requests =  2
+Thread '0' handled request '488'
+thread '1', num_requests =  1
+Thread '1' handled request '489'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '490'
+add_request: added request with id '491'
+thread '1', num_requests =  2
+Thread '1' handled request '490'
+thread '0', num_requests =  1
+Thread '0' handled request '491'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '492'
+add_request: added request with id '493'
+thread '0', num_requests =  2
+Thread '0' handled request '492'
+thread '1', num_requests =  1
+Thread '1' handled request '493'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '494'
+add_request: added request with id '495'
+thread '1', num_requests =  2
+Thread '1' handled request '494'
+thread '0', num_requests =  1
+Thread '0' handled request '495'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '496'
+thread '1', num_requests =  1
+Thread '1' handled request '496'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '497'
+add_request: added request with id '498'
+add_request: added request with id '499'
+add_request: added request with id '500'
+thread '1', num_requests =  4
+Thread '1' handled request '497'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '498'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  2
+Thread '0' handled request '499'
+add_request: added request with id '501'
+thread '1', num_requests =  2
+Thread '1' handled request '500'
+thread '2', num_requests =  1
+Thread '2' handled request '501'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '502'
+thread '1', num_requests =  1
+Thread '1' handled request '502'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '503'
+add_request: added request with id '504'
+thread '1', num_requests =  2
+Thread '1' handled request '503'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '504'
+add_request: added request with id '505'
+add_request: added request with id '506'
+thread '1', num_requests =  2
+Thread '1' handled request '505'
+thread '0', num_requests =  1
+Thread '0' handled request '506'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '507'
+add_request: added request with id '508'
+add_request: added request with id '509'
+thread '1', num_requests =  3
+Thread '1' handled request '507'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '508'
+thread '0', num_requests =  1
+Thread '0' handled request '509'
+add_request: added request with id '510'
+add_request: added request with id '511'
+thread '2', num_requests =  2
+Thread '2' handled request '510'
+thread '0', num_requests =  1
+Thread '0' handled request '511'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '512'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '512'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '513'
+thread '1', num_requests =  1
+Thread '1' handled request '513'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '514'
+add_request: added request with id '515'
+add_request: added request with id '516'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '514'
+thread '1', num_requests =  2
+Thread '1' handled request '515'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '516'
+add_request: added request with id '517'
+thread '2', num_requests =  1
+Thread '2' handled request '517'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '518'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  1
+Thread '1' handled request '518'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '519'
+add_request: added request with id '520'
+add_request: added request with id '521'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  3
+Thread '0' handled request '519'
+thread '1', num_requests =  2
+Thread '1' handled request '520'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '521'
+add_request: added request with id '522'
+thread '0', num_requests =  1
+Thread '0' handled request '522'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '523'
+add_request: added request with id '524'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  2
+Thread '1' handled request '523'
+thread '0', num_requests =  1
+Thread '0' handled request '524'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '525'
+add_request: added request with id '526'
+add_request: added request with id '527'
+thread '1', num_requests =  3
+Thread '1' handled request '525'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '526'
+thread '0', num_requests =  1
+Thread '0' handled request '527'
+add_request: added request with id '528'
+thread '1', num_requests =  1
+Thread '1' handled request '528'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '529'
+thread '1', num_requests =  1
+Thread '1' handled request '529'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '530'
+add_request: added request with id '531'
+add_request: added request with id '532'
+add_request: added request with id '533'
+add_request: added request with id '534'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  5
+Thread '2' handled request '530'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  4
+Thread '0' handled request '531'
+thread '1', num_requests =  3
+Thread '1' handled request '532'
+add_request: added request with id '535'
+thread '2', num_requests =  3
+Thread '2' handled request '533'
+thread '0', num_requests =  2
+Thread '0' handled request '534'
+thread '1', num_requests =  1
+Thread '1' handled request '535'
+add_request: added request with id '536'
+thread '2', num_requests =  1
+Thread '2' handled request '536'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '537'
+add_request: added request with id '538'
+add_request: added request with id '539'
+add_request: added request with id '540'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '537'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  3
+Thread '0' handled request '538'
+thread '2', num_requests =  2
+Thread '2' handled request '539'
+add_request: added request with id '541'
+add_request: added request with id '542'
+add_request: added request with id '543'
+add_request: added request with id '544'
+thread '1', num_requests =  5
+Thread '1' handled request '540'
+thread '0', num_requests =  4
+Thread '0' handled request '541'
+thread '2', num_requests =  3
+Thread '2' handled request '542'
+add_request: added request with id '545'
+thread '1', num_requests =  3
+Thread '1' handled request '543'
+thread '0', num_requests =  2
+Thread '0' handled request '544'
+thread '2', num_requests =  1
+Thread '2' handled request '545'
+add_request: added request with id '546'
+add_request: added request with id '547'
+add_request: added request with id '548'
+thread '2', num_requests =  3
+Thread '2' handled request '546'
+thread '1', num_requests =  2
+Thread '1' handled request '547'
+thread '0', num_requests =  1
+Thread '0' handled request '548'
+add_request: added request with id '549'
+add_request: added request with id '550'
+thread '1', num_requests =  2
+Thread '1' handled request '549'
+thread '0', num_requests =  1
+Thread '0' handled request '550'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '551'
+thread '1', num_requests =  1
+Thread '1' handled request '551'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '552'
+add_request: added request with id '553'
+thread '1', num_requests =  2
+Thread '1' handled request '552'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '553'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '554'
+thread '1', num_requests =  1
+Thread '1' handled request '554'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '555'
+add_request: added request with id '556'
+thread '1', num_requests =  2
+Thread '1' handled request '555'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '556'
+add_request: added request with id '557'
+add_request: added request with id '558'
+thread '1', num_requests =  2
+Thread '1' handled request '557'
+thread '0', num_requests =  1
+Thread '0' handled request '558'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '559'
+add_request: added request with id '560'
+add_request: added request with id '561'
+thread '1', num_requests =  3
+Thread '1' handled request '559'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  2
+Thread '2' handled request '560'
+thread '0', num_requests =  1
+Thread '0' handled request '561'
+add_request: added request with id '562'
+thread '1', num_requests =  1
+Thread '1' handled request '562'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '563'
+add_request: added request with id '564'
+thread '1', num_requests =  2
+Thread '1' handled request '563'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  1
+Thread '2' handled request '564'
+add_request: added request with id '565'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '565'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '566'
+add_request: added request with id '567'
+add_request: added request with id '568'
+add_request: added request with id '569'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '566'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '567'
+thread '0', num_requests =  2
+Thread '0' handled request '568'
+add_request: added request with id '570'
+add_request: added request with id '571'
+add_request: added request with id '572'
+add_request: added request with id '573'
+thread '1', num_requests =  5
+Thread '1' handled request '569'
+thread '2', num_requests =  4
+Thread '2' handled request '570'
+thread '0', num_requests =  3
+Thread '0' handled request '571'
+add_request: added request with id '574'
+thread '1', num_requests =  3
+Thread '1' handled request '572'
+thread '2', num_requests =  2
+Thread '2' handled request '573'
+thread '0', num_requests =  1
+Thread '0' handled request '574'
+add_request: added request with id '575'
+thread '1', num_requests =  1
+Thread '1' handled request '575'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '576'
+thread '1', num_requests =  1
+Thread '1' handled request '576'
+add_request: added request with id '577'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '577'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '578'
+add_request: added request with id '579'
+add_request: added request with id '580'
+add_request: added request with id '581'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  4
+Thread '1' handled request '578'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  3
+Thread '2' handled request '579'
+thread '0', num_requests =  2
+Thread '0' handled request '580'
+add_request: added request with id '582'
+thread '1', num_requests =  2
+Thread '1' handled request '581'
+thread '2', num_requests =  1
+Thread '2' handled request '582'
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '583'
+thread '1', num_requests =  1
+Thread '1' handled request '583'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '584'
+thread '1', num_requests =  1
+Thread '1' handled request '584'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '585'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '585'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '586'
+add_request: added request with id '587'
+add_request: added request with id '588'
+add_request: added request with id '589'
+add_request: added request with id '590'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  5
+Thread '1' handled request '586'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  4
+Thread '2' handled request '587'
+thread '0', num_requests =  3
+Thread '0' handled request '588'
+add_request: added request with id '591'
+add_request: added request with id '592'
+thread '2', num_requests =  4
+Thread '2' handled request '589'
+thread '0', num_requests =  3
+Thread '0' handled request '590'
+thread '1', num_requests =  2
+Thread '1' handled request '591'
+add_request: added request with id '593'
+thread '2', num_requests =  2
+Thread '2' handled request '592'
+thread '0', num_requests =  1
+Thread '0' handled request '593'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+add_request: added request with id '594'
+add_request: added request with id '595'
+add_request: added request with id '596'
+thread '1' after pthread_cond_wait
+thread '1', num_requests =  3
+Thread '1' handled request '594'
+thread '2', num_requests =  2
+Thread '2' handled request '595'
+thread '0', num_requests =  1
+Thread '0' handled request '596'
+add_request: added request with id '597'
+thread '1', num_requests =  1
+Thread '1' handled request '597'
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+add_request: added request with id '598'
+thread '1', num_requests =  1
+Thread '1' handled request '598'
+thread '2' after pthread_cond_wait
+thread '2', num_requests =  0
+thread '2' before pthread_cond_wait
+add_request: added request with id '599'
+thread '0' after pthread_cond_wait
+thread '0', num_requests =  1
+Thread '0' handled request '599'
+thread '1', num_requests =  0
+thread '1' before pthread_cond_wait
+thread '0', num_requests =  0
+thread '0' before pthread_cond_wait
+Glory,  we are done.

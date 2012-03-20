@@ -1,8 +1,16 @@
-/**
-	server.h
+ #if !defined( server_h )
+#define server_h
 
-**/
+/* Structure of a single request. */
+typedef struct request {
+    int number;		    /* Request number */
+    struct request* next;   /* Pointer to next request, NULL if none. */
+} request;
 
-int register_s(char * username, char * password);
+typedef request * Request;
 
-User login_s(char * username, char * password);
+void add_request(int request_num, pthread_mutex_t* p_mutex, pthread_cond_t*  p_cond_var);
+Request get_request(pthread_mutex_t* p_mutex);
+void handle_request(Request a_request, int thread_id);
+
+#endif
