@@ -40,17 +40,15 @@ int sendmessage(msg_s * msg){
 	void * msgstr;
 	void * msgstraux;
 	
-	msgSize = sizeof(int) + strlen(msg->msg);
+	msgSize = strlen(msg->msg);
+	msgstr = msgstraux = malloc(msgSize);
 	
-	
-	
-	
-	
+	memcpy(msgstraux,msg->msg, msgSize);
 	
 	
 	int nwrite;
 	
-	if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
+	if((nwrite = write(fdOut, &msgSize, sizeof(int)) == -1))
 	{
 		perror("Could not write message size");
 		return !SUCCESSFUL;

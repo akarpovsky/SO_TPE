@@ -34,7 +34,7 @@ typedef struct user{
 		char * user;
 		char * pass;
 		int leagues;
-		int * leagueIDs;
+		List leaguesIDs;
 }user;
 
 typedef user * User;
