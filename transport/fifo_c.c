@@ -18,7 +18,7 @@ char * fifoOut;
 char * fifoIn;
 int fdIn, fdOut;
 
-msg_s * comunicate(msg_t * msg)
+msg_s * communicate(msg_t * msg)
 {
 	if(sendmessage(msg) == SUCCESSFUL){
 		return rcvmessage();
@@ -67,13 +67,21 @@ int sendmessage(msg_t * msg)
 
 	switch(msg->type)
 	{
+	case CONTACT:
+		int tempnamSize = strlen(msg->data.tempnam)+1;
+		msgSize = 2*sizeof(int) + tempnamSize;
+		msgstraux = msgstr = malloc(msgSize);
+		memcpy(msgstraux, &(msg->type), sizeof(int));
+		msgstraux += sizeof(int);
+		memcpy(msgstraux, &tempnamSize, sizeof(int));
+		msgstraux += sizeof(int);
+		memcpy(msgstraux, &(msg->data.tempnam, tempnamSize));
+		break;
 	case REGISTER:
-		int passSize = strlen(msg->data.register_t.pass);
-		int userSize = strlen(msg->data.register_t.user);
+		int passSize = strlen(msg->data.register_t.pass)+1;
+		int userSize = strlen(msg->data.register_t.user)+1;
 		msgSize = 3*sizeof(int)+passSize+userSize;
 		msgstraux = msgstr = malloc(msgSize);
-		//memcpy(msgstraux, &msgSize, sizeof(int));
-		//msgstraux += sizeof(int);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &(userSize), sizeof(int));
@@ -85,8 +93,8 @@ int sendmessage(msg_t * msg)
 		memcpy(msgstraux, msg->data.register_t.pass, passSize);
 		break;
 	case LOGIN:
-		int passSize = strlen(msg->data.login_t.pass);
-		int userSize = strlen(msg->data.login_t.user);
+		int passSize = strlen(msg->data.login_t.pass)+1;
+		int userSize = strlen(msg->data.login_t.user)+1;
 		msgSize = 3*sizeof(int)+passSize+userSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -110,7 +118,7 @@ int sendmessage(msg_t * msg)
 	case LEAGUE_SHOW:
 	case TEAM_SHOW:
 	case TRADE_SHOW:
-		int idSize = strlen(msg->data.show_t.ID);
+		int idSize = strlen(msg->data.show_t.ID)+1;
 		msgSize = 2*sizeof(int)+idSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -120,9 +128,9 @@ int sendmessage(msg_t * msg)
 		memcpy(msgstraux, &(msg->data.show_t.ID), idSize);
 		break;
 	case TRADE:
-		int fromSize = strlen(msg->data.trade_t.from);
-		int toSize = strlen(msg->data.trade_t.to);
-		int idSize = strlen(msg->data.trade_t.teamID);
+		int fromSize = strlen(msg->data.trade_t.from)+1;
+		int toSize = strlen(msg->data.trade_t.to)+1;
+		int idSize = strlen(msg->data.trade_t.teamID)+1;
 		msgSize = 4*sizeof(int) + fromSize + toSize + idSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -141,7 +149,7 @@ int sendmessage(msg_t * msg)
 		break;
 	case TRADE_WITHDRAW:
 	case TRADE_ACCEPT:
-		int idSize = strlen(msg->data.trade_t.tradeID);
+		int idSize = strlen(msg->data.trade_t.tradeID)+1;
 		msgSize = 2*sizeof(int)+idSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -151,9 +159,9 @@ int sendmessage(msg_t * msg)
 		memcpy(msgstraux, &(msg->data.trade_t.tradeID), idSize);
 		break;
 	case TRADE_NEGOTIATE:
-		int fromSize = strlen(msg->data.trade_t.from);
-		int toSize = strlen(msg->data.trade_t.to);
-		int idSize = strlen(msg->data.trade_t.tradeID);
+		int fromSize = strlen(msg->data.trade_t.from)+1;
+		int toSize = strlen(msg->data.trade_t.to)+1;
+		int idSize = strlen(msg->data.trade_t.tradeID)+1;
 		msgSize = 4*sizeof(int) + fromSize + toSize + idSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -203,8 +211,6 @@ void connectToServer(void)
 		exit(1);
 	}
 	*fifoOut = FIFO_OUT;
-	int tempnamSize = strlen(fifoIn);
-
 
 	if(mkfifo(fifoIn, 0666) ==  -1)
 	{
@@ -227,54 +233,9 @@ void connectToServer(void)
 		exit(1);
 	}
 
-	int nwrite = 0;
+	msg_t com;
+	com.type = CONTACT;
+	com.data.tempnam = fifoIn;
 
-	if((nwrite = write(fdOut, &tempnamSize, sizeof(int))) == 1)
-	{
-		perror("Couldn't write output FIFO size to server");
-		close(fdOut);
-		close(fdIn);
-		unlink(fifoIn);
-		exit(1);
-	}
-
-	if((nwrite = write(fdOut, fifoOut, tempnamSize)) == -1)
-	{
-		perror("Couldn't write output FIFO to server");
-		close(fdOut);
-		close(fdIn);
-		unlink(fifoIn);
-		exit(1);
-	}
-	//TODO: change to make it work with thread pool.
-	do{
-		int nread = 0;
-		if((nread = read(fdIn, &tempnamSize, sizeof(int))) == -1)
-		{
-			perror("Couldn't read input FIFO size from server");
-			close(fdOut);
-			close(fdIn);
-			unlink(fifoIn);
-			exit(1);
-		}
-		else if(nread > 0)
-		{
-			char * temp = malloc(tempnamSize);
-
-			if((nread = read(fdIn, temp, tempnamSize)) == -1)
-			{
-				perror("Couldn't read input FIFO from server");
-				close(fdOut);
-				close(fdIn);
-				unlink(fifoIn);
-				exit(1);
-			}
-			else if(nread > 0)
-			{
-				free(fifoOut);
-				fifoOut = temp;
-				readyFlag = TRUE;
-			}
-		}
-	}while(!readyFlag);
+	communicate(com);
 }
