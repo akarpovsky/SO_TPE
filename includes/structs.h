@@ -44,6 +44,7 @@ typedef user * User;
 typedef struct team{
 	
 	int ID; /* ID del Team */
+	char * owner;
 	int points;	
 	int cantPlayers;
 	Player players[MAX_PLAYERS];

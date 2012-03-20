@@ -219,6 +219,17 @@ Team loadTeam(char * path){
 	num = atoi(aux);
 	auxTeam->ID = num;
 	
+	/* Load owner */
+	fgets(aux,BUFFER_SIZE,file);
+	dim = strlen(aux);
+	auxTeam->owner  = (char *) malloc(dim);
+	if(auxTeam->owner == NULL){
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(auxTeam->owner,aux);
+	auxTeam->owner[dim-1] = '\0';
+	
 	/* Load points */
 	fgets(aux,BUFFER_SIZE,file);
 	num = atoi(aux);
