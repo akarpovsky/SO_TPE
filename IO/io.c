@@ -23,6 +23,7 @@
 User loadUser(char * path){
 	
 	FILE * file;
+	int * id;
 	
 
 	User auxUser; // Will store the loaded user
@@ -71,18 +72,22 @@ User loadUser(char * path){
 	fgets(aux,BUFFER_SIZE,file);
 	num = atoi(aux);
 	auxUser->leagues = num;
-	auxUser->leagueIDs = malloc((num) * sizeof(int));
-	if(auxUser->leagueIDs == NULL){
+	
+	auxUser->leaguesIDs = malloc(sizeof(llist));
+	if(auxUser->leaguesIDs == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
-
-	/* Cargo IDs en el vector de IDs anteriormente malloqueado */
+	
+	CreateList(auxUser->leaguesIDs);
+	
 	int i;
 	for(i = 0; i < num; i++){
 		fgets(aux,BUFFER_SIZE,file);
 		auxNum = atoi(aux);
-		(auxUser->leagueIDs)[i] = auxNum;
+		id = malloc(sizeof(int));
+		*id = auxNum;
+		AddToList(id,auxUser->leaguesIDs);
 	}
 	
 	
@@ -688,15 +693,20 @@ Game loadGame(char * path){
 
 int main(void){
 
-	List leaguesList = loadLeagues("../res/leagues/");
-	printf("Numero de leagues: %d\n",leaguesList->NumEl);
-	Element item_ptr;
-	FOR_EACH(item_ptr, leaguesList){
-		printf("Liga ID %d\n", ((League)item_ptr->data)->ID);
-		printf("Liga STATUS %d\n", ((League)item_ptr->data)->status);
-		printf("Liga availablePlayers %d\n\n", ((League)item_ptr->data)->availablePlayers);
+	User user = loadUser("../res/users/Juan.user");
 
+	printf("User: %s\n",user->user);
+	printf("Pass %s\n", user->pass);
+	printf("cant ligas %d\n", user->leagues);
+	
+	Element leagueID_ptr;
+	
+	FOR_EACH(leagueID_ptr,user->leaguesIDs){
+		printf("league N_ %d\n",*((int *)(leagueID_ptr->data)));
 	}
+	
+
+
 	return 0;
 	
 }
