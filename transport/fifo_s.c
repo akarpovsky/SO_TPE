@@ -79,6 +79,13 @@ msg_t listen()
 
 				switch(type)
 				{
+				case CONTACT:
+					int size;
+					memcpy(&size, stream, sizeof(int));
+					stream += sizeof(int);
+					msg->data.tempnam = malloc(msgSize);
+					memcpy(&(msg->data.tempnam), stream, size);
+					break;
 				case REGISTER:
 					int size;
 					memcpy(&size, stream, sizeof(int));
