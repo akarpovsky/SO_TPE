@@ -79,6 +79,13 @@ msg_t listen()
 
 				switch(type)
 				{
+				case CONTACT:
+					int size;
+					memcpy(&size, stream, sizeof(int));
+					stream += sizeof(int);
+					msg->data.tempnam = malloc(msgSize);
+					memcpy(&(msg->data.tempnam), stream, size);
+					break;
 				case REGISTER:
 					int size;
 					memcpy(&size, stream, sizeof(int));
@@ -173,6 +180,22 @@ msg_t listen()
 int communicate(Channel ch, msg_s * msg)
 {
 	return sendmessage(ch, msg);
+}
+
+Channel createChannel(msg_t * msg)
+{
+	Channel ch = malloc(channel_t);
+
+	ch->fifoOut = msg->data.tempnam;
+
+	if((ch->fdOut = open(ch->fifoOut, O_WRONLY)) == -1)
+	{
+		perror("Output FIFO for file %s couldn't be opened", ch->fifoOut);
+		return NULL;
+	}
+
+	return ch;
+
 }
 
 int establishChannel(Channel ch)
