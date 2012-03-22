@@ -40,8 +40,12 @@ typedef struct msg_t{
 	}data;
 }msg_t;
 
+typedef msg_t * Msg_t;
+
 typedef struct msg_s {
-	size_t size;
-	char * msg;
+	int status;
+	List msgList;
 
 }msg_s;
+
+typedef msg_s * Msg_s;
