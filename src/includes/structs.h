@@ -80,4 +80,12 @@ typedef struct game{
 
 typedef game * Game;
 
+typedef struct client_t{
+	
+	int clientID;
+	
+	}client_t;
+
+typedef client_t * Client;
+
 #endif

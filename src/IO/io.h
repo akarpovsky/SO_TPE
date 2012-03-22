@@ -27,7 +27,7 @@ List loadUsers(char * path);
 List loadTeams(char * path);
 List loadTrades(char * path);
 List loadLegaues(char * path);
-
+Game loadGame();
 /* File types */
 
 #define FILE_TYPE 1
@@ -38,5 +38,6 @@ char * createFilePath(char * path, char * file);
 int isExt(char * nameFile, char * ext);
 int isTeamsFolder(char * nameFile);
 int isTradesFolder(char * nameFile);
+void printUser(User user);
 
 #endif

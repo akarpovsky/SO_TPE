@@ -2,12 +2,14 @@
 #include <stdio.h>      
 #include <pthread.h> 
 #include <stdlib.h>
-
 #include "./server.h"
 
 /* Number of threads used to service requests */
 #define NUM_HANDLER_THREADS 1
 
+
+/* List for mantaining clients threads */
+List clientThreadsList;
 
 /* Global recursive mutex for our program */
 pthread_mutex_t request_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -19,6 +21,10 @@ pthread_cond_t  got_request   = PTHREAD_COND_INITIALIZER;
 
 /* Pending requests */
 int num_requests = 0;
+
+/* Online clients */
+int numberOfClients = 0;
+
 
 Request requests = NULL;     /* Head of linked list of requests. */
 Request last_request = NULL; /* Pointer to last request.         */
@@ -67,7 +73,7 @@ void add_request(int request_num, pthread_mutex_t* p_mutex, pthread_cond_t*  p_c
     num_requests++;
 
 
-    printf("add_request: added request with id '%d'\n", a_request->number);
+    printf("add_request: New added request with id '%d'\n", a_request->number);
 
     /* Signal the condition variable because there's a new request to handle */
     rc = pthread_cond_signal(p_cond_var);
@@ -122,9 +128,41 @@ Request get_request(pthread_mutex_t* p_mutex){
  */
 void handle_request(Request a_request, int thread_id){
     if (a_request) { // Check if a_request is not NULL 
+
+		printf("Handling new client request\n");
+		// First validate if the request is a new_client_connection request!
+		
+		// If a client ask for a connection ...
+		pthread_t clientThread;
+		
+		CreateList(clientThreadsList);	
+		AddToList((void *) &clientThread, clientThreadsList);
+					
+		// I will give a new thread for each client
+		
+		int iRet;
+		numberOfClients++;
+		iRet = pthread_create(&clientThread, NULL, client_thread, (void *) numberOfClients);
+
 		printf("Thread '%d' handled request '%d'\n", thread_id, a_request->number);
-		fflush(stdout);
+
+
 	}
+}
+
+void * client_thread(void * data){
+	
+	while(1){
+		printf("Soy el cliente %d!! \n", (int) data);
+		if ((int) data == 1)
+		{
+			sleep(2);
+		}else
+			sleep(5);
+	}
+	// Acá se le debería informar al IPC qué thread lo está atendiendo
+	
+	
 }
 
 /*
@@ -138,27 +176,22 @@ void handle_request(Request a_request, int thread_id){
  */
 void * request_listener(void* data)
 {
-	printf("Entré al listener\n");
+//	printf("Entré al listener\n");
     
     int rc;	                 
     Request a_request;      /* Stores pointer to a request. */
     int thread_id = *((int*)data);  /* Thread identifying number */
 
-
-    printf("Starting thread '%d'\n", thread_id);
-    fflush(stdout);
-
     /* Lock the mutex, to access the requests list exclusively. */
     rc = pthread_mutex_lock(&request_mutex);
 
 
-    printf("thread '%d' after pthread_mutex_lock\n", thread_id);
-    fflush(stdout);
+ //   printf("thread '%d' after pthread_mutex_lock\n", thread_id);
 
     while (1) {
 
-    	printf("thread '%d', num_requests =  %d\n", thread_id, num_requests);
-    	fflush(stdout);
+  //  	printf("thread '%d', num_requests =  %d\n", thread_id, num_requests);
+  
 
 		if (num_requests > 0) { /* A request is pending */
 			a_request = get_request(&request_mutex);
@@ -171,12 +204,13 @@ void * request_listener(void* data)
 		}else{
 	    /* wait for a request to arrive. note the mutex will be */
 
-    	    printf("thread '%d' before pthread_cond_wait\n", thread_id);
-    	    fflush(stdout);
+    	 //   printf("thread '%d' before pthread_cond_wait\n", thread_id);
+    	  //  fflush(stdout);
+			printf("In the request listener waiting for new clients to arrive .... \n");
 			rc = pthread_cond_wait(&got_request, &request_mutex);
 
-    	    printf("thread '%d' after pthread_cond_wait\n", thread_id);
-    	    fflush(stdout);
+    	    //printf("thread '%d' after pthread_cond_wait\n", thread_id);
+    	   // fflush(stdout);
 		}
 	}
 }
@@ -184,7 +218,7 @@ void * request_listener(void* data)
 void generateRequests(void){
 	int i;
 	/* Genero requests para testing */
-	for (i=0; i<6; i++) {
+	for (i=0; i<3; i++) {
 		add_request(i, &request_mutex, &got_request);
 	}
 }
@@ -195,10 +229,20 @@ int main(void){
     pthread_t  p_threads[NUM_HANDLER_THREADS];   /* thread's structures   */
 	int rc;
 
+	Game game; /* Game structure; will store all the game data */
+
+	// First of all take some time to load all the files inside the memory
+	game = loadGame();
+
+	// Initialize the threadList
+	clientThreadsList = (List) malloc(sizeof(client_t));
+	CreateList(clientThreadsList);
+
+
     /* Create the request-handling threads */
 	for (i=0; i<NUM_HANDLER_THREADS; i++) {
 		thr_id[i] = i;
-		printf("In main creating thread %d\n", i);
+		printf("In main creating thread %d for handling connection requests\n", i);
 		rc = pthread_create(&p_threads[i], NULL, request_listener, &thr_id[i]);
 	    
 		if (rc){
@@ -214,4 +258,6 @@ int main(void){
    printf("Termine !!.\n");
     
    pthread_exit(NULL);
+
+return 0;
 }
