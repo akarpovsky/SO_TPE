@@ -48,7 +48,7 @@ void uplink(void)
 
 }
 
-msg_t listen()
+Msg_t listen()
 {
 	int rcvFlag = FALSE;
 	msg_t * msg = malloc(sizeof(msg_t));
