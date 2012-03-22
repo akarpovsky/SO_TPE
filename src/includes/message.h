@@ -2,6 +2,9 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include "../utils/LinkedList.h"
+#include "./structs.h"
+
 #define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2

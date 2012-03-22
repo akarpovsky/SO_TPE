@@ -733,7 +733,7 @@ char * objToFile(int OBJ_TYPE, void * obj){
 
 Game loadGame(void){
 
-	Game game = (Game)malloc(sizeof(game));
+	Game game = (Game) malloc(sizeof(game));
 	if(game == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
@@ -754,17 +754,15 @@ Game loadGame(void){
 	Element league_ptr;
 	Element team_ptr;
 	
-	/* FIX THIS!!! */
+	//TODO: /* FIX THIS!!! */
 
 	FOR_EACH(league_ptr, game->leagues){
-		// printf("%d\n", ( (Team) ((League)league_ptr->data)->teams)->cantPlayers);
-
-		// FOR_EACH(team_ptr, ((League)league_ptr)->teams){
-			// AddToList((void *) team_ptr, game->teams);
-		// }
+		FOR_EACH(team_ptr, ( (List) ((League)league_ptr->data)->teams)){
+			AddToList((void *) team_ptr, game->teams);
+		}
 	}
 
-	game->loggedUsers = (List)malloc(sizeof(llist));
+	game->loggedUsers = (List) malloc(sizeof(llist));
 		if(game->loggedUsers == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
