@@ -235,7 +235,7 @@ int main(void){
 	game = loadGame();
 
 	// Initialize the threadList
-	clientThreadsList = (List *) malloc(sizeof(client_t));
+	clientThreadsList = (List) malloc(sizeof(client_t));
 	CreateList(clientThreadsList);
 
 

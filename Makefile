@@ -1,8 +1,8 @@
 CC = gcc
 FILES = ./src/server/server.c ./src/io/io.c ./src/utils/LinkedList.c
 OUT_DIR=./run
-
-OUT_EXE = $(addprefix $(OUT_DIR)/,server)
+OUT_EXE = server
+#OUT_EXE = $(addprefix $(OUT_DIR)/,server)
 COPTS= -Wall 
 LDOPTS= -lpthread
 

@@ -38,5 +38,6 @@ char * createFilePath(char * path, char * file);
 int isExt(char * nameFile, char * ext);
 int isTeamsFolder(char * nameFile);
 int isTradesFolder(char * nameFile);
+void printUser(User user);
 
 #endif
