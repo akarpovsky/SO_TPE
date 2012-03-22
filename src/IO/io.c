@@ -729,7 +729,7 @@ Game loadGame(void){
 	}
 	
 	game->users = loadUsers("../res/users/");
-	game->leagues = loadLeagues("../res/legues/");
+	game->leagues = loadLeagues("../res/leagues/");
 	game->teams = (List) malloc(sizeof(llist));
 	if(game->teams == NULL){
 		perror("Insufficient memory\n");
@@ -757,25 +757,4 @@ Game loadGame(void){
 
 	
 	return game;
-}
-
-int main(void){
-
-	League league = loadLeague("../res/leagues/1/");
-
-	printf("id: %d\n",league->ID);
-	printf("name: %s\n",league->name);
-	printf("status %d\n", league->status);
-	printf("cant jugadores disponibles %d\n", league->cantAvailablePlayers);
-	
-	Element leagueID_ptr;
-
-	FOR_EACH(leagueID_ptr,league->availablePlayers){
-		printf("player%s\n points: %d\n",((Player)(leagueID_ptr->data))->name,((Player)(leagueID_ptr->data))->points);
-	}
-	
-
-
-	return 0;
-	
 }

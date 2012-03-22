@@ -2,7 +2,6 @@
 #include <stdio.h>      
 #include <pthread.h> 
 #include <stdlib.h>
-
 #include "./server.h"
 
 /* Number of threads used to service requests */
@@ -153,7 +152,16 @@ void handle_request(Request a_request, int thread_id){
 
 void * client_thread(void * data){
 	
-	printf("Soy el cliente %d!! \n", (int) data);
+	while(1){
+		printf("Soy el cliente %d!! \n", (int) data);
+		if ((int) data == 1)
+		{
+			sleep(2);
+		}else
+			sleep(5);
+	}
+	// Acá se le debería informar al IPC qué thread lo está atendiendo
+	
 	
 }
 
@@ -220,10 +228,16 @@ int main(void){
     int        thr_id[NUM_HANDLER_THREADS];      /* thread IDs            */
     pthread_t  p_threads[NUM_HANDLER_THREADS];   /* thread's structures   */
 	int rc;
-	
+
+	Game game; /* Game structure; will store all the game data */
+
+	// First of all take some time to load all the files inside the memory
+	game = loadGame();
+
 	// Initialize the threadList
 	clientThreadsList = (List *) malloc(sizeof(client_t));
 	CreateList(clientThreadsList);
+
 
     /* Create the request-handling threads */
 	for (i=0; i<NUM_HANDLER_THREADS; i++) {

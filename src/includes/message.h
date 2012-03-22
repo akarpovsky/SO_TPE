@@ -1,3 +1,7 @@
+
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
 #define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2
@@ -49,3 +53,5 @@ typedef struct msg_s {
 }msg_s;
 
 typedef msg_s * Msg_s;
+
+#endif

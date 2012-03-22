@@ -27,7 +27,7 @@ List loadUsers(char * path);
 List loadTeams(char * path);
 List loadTrades(char * path);
 List loadLegaues(char * path);
-
+Game loadGame();
 /* File types */
 
 #define FILE_TYPE 1

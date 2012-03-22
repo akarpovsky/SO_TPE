@@ -1,8 +1,6 @@
 /*
  * fifo_s.c
  *
- *  Created on: 18/03/2012
- *      Author: neon
  */
 #include <fcntl.h>
 #include <stdio.h>

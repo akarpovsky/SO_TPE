@@ -2,6 +2,8 @@
 #define server_h
 
 #include "../includes/structs.h"
+#include "../io/io.h"
+
 #include "../utils/LinkedList.h"
 
 /* Structure of a single request. */

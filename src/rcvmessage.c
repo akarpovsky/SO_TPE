@@ -1,8 +1,6 @@
 /*
  * rcvmessage.c
  *
- *  Created on: 13/03/2012
- *      Author: neon
  */
 
 #include <fcntl.h>
@@ -11,7 +9,7 @@
 #include <string.h>
 #include <errno.h>
 
-//#define MSGSIZ 63
+#define MSGSIZ 63
 
 char *fifo = "fifo";
 
