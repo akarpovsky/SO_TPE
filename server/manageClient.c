@@ -7,6 +7,7 @@
 void manageClient(void * channel){
 
 	int logged = 0;
+	User me;
 
 	Channel ch = (Channel) channel;
 	int ret;

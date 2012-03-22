@@ -153,12 +153,12 @@ void executeLogin(Msg_t msg){
 	/* Me fijo si el usuario existe y lo loggeo*/
 	FOR_EACH(elem, game->users){
 
-		/* Caso: El usuario ya existe */
+		/* Caso: El usuario existe */
 		if(strcmp(((User)(elem->data)->user,user) == 0 &&
 		 			strcmp(((User)(elem->data)->pass,pass) == 0){
 
-			toPrint = malloc(sizeof(strlen("Logged In, Welcome!") + 1);
-			strcpy(toPrint,"Logged In, Welcome!");
+			toPrint = malloc(sizeof(strlen("Welcome! You are logged in") + 1);
+			strcpy(toPrint,"Welcome! You are logged in");
 			AddToList(toPrint,answer->msgList);
 			answer->status = OK;
 
@@ -183,21 +183,123 @@ void executeListLeagues(Msg_t msg, Channel ch){
 
 	Msg_s answer = createMsg_s();
 	char * toPrint;
-	int dim;
 
+	if(game->leagues->NumEl == 0){
+		toPrint = malloc(sizeof(strlen("There is no legaue created") + 1);
+		strcpy(toPrint,"There is no legaue created");
+		AddToList(toPrint,answer->msgList);
+		answer->status = OK;
+		comunicate(ch, answer);
+		return;
+	}
+
+	int dim;
 	Element elem;
 
 	FOR_EACH(elem; game->leagues){
 
-		dim = floor(log10((League)elem)->ID)
+		dim = floor(log10(((League)elem->data))->ID);
 		toPrint = malloc(dim + 1);
-		itoa((League)elem->ID,toPrint);
+		itoa(((League)elem->data))->ID,toPrint);
 		AddToList(toPrint,answer->msgList);
 
-		dim = strlen((League)elem->name);
+		dim = strlen(((League)(elem->data))->name);
 		toPrint = malloc(dim + 1);
-		strcpy(toPrint,(League)elem)->name);
+		strcpy(toPrint,((League)(elem->data))->name);
 		AddToList(toPrint,answer->msgList);
+
+	}
+
+	answer->status = OK;
+	comunicate(ch,answer);
+	return;
+
+}
+
+void executeListTeams(Msg_t msg, Channel ch){
+
+	Msg_s answer = createMsg_s();
+	char * toPrint;
+
+	if(game->teams->NumEl == 0){
+		toPrint = malloc(sizeof(strlen("There is no team created") + 1);
+		strcpy(toPrint,"There is no team created");
+		AddToList(toPrint,answer->msgList);
+		answer->status = OK;
+		comunicate(ch, answer);
+		return;
+	}
+
+	int dim;
+	Element elem;
+	Element elemTeam;
+
+	FOR_EACH(elem; game->leagues){
+
+		dim = strlen("In League:");
+		toPrint = malloc(dim + 1);
+		strcpy(toPrint,"In League:");
+		AddToList(toPrint,answer->msgList);
+
+		dim = strlen(((League)elem->data)->name);
+		toPrint = malloc(dim + 1);
+		strcpy(toPrint,((League)elem->data)->name);
+		AddToList(toPrint,answer->msgList);
+
+		FOR_EACH(elemTeam; ((League)elem->data)->teams){
+			dim = floor(log10((Team)(elemTeam->data)->ID));
+			toPrint = malloc(dim + 1);
+			itoa((Team)(elemTeam->data)->ID,toPrint);
+			AddToList(toPrint,answer->msgList);
+
+			dim = strlen(((Team)elemTeam->data)->owner);
+			toPrint = malloc(dim + 1);
+			strcpy(toPrint,((Team)elemTeam->data)->owner);
+			AddToList(toPrint,answer->msgList);
+
+		}
+
+	}
+
+	answer->status = OK;
+	comunicate(ch,answer);
+	return;
+
+}
+
+void executeListTrades(Msg_t msg, Channel ch){
+
+	Msg_s answer = createMsg_s();
+	char * toPrint;
+
+	int dim;
+	Element elem;
+	Element elemTrade;
+
+	FOR_EACH(elem; game->leagues){
+
+		dim = strlen("In League:");
+		toPrint = malloc(dim + 1);
+		strcpy(toPrint,"In League:");
+		AddToList(toPrint,answer->msgList);
+
+		dim = strlen(((League)elem->data)->name);
+		toPrint = malloc(dim + 1);
+		strcpy(toPrint,((League)elem->data)->name);
+		AddToList(toPrint,answer->msgList);
+
+		FOR_EACH(elemTrade; ((Trade)elem->data)->trades){
+
+			if(strcmp(me->user,((Trade)->elemTrade->data)->userFrom) == 0 ||
+				strcmp(me->user,((Trade)->elemTrade->data)->userTo) == 0){
+				
+				dim = floor(log10((Trade)elemTrade->data)->ID);
+				toPrint = malloc(dim + 1);
+				itoa(((Team)elemTeam->data)->ID,toPrint);
+				AddToList(toPrint,answer->msgList);
+			}
+
+		}
 
 	}
 
