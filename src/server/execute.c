@@ -534,7 +534,7 @@ int main(void){
 
 	gameAux = loadGame();
 
-	register_c()
+	register_c();
 
 	return;
 }
