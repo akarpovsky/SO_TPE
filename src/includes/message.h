@@ -20,6 +20,7 @@
 #define TRADE_NEGOTIATE 12
 #define LOGOUT 13
 
+
 typedef struct msg_t{
 	
 	int type;

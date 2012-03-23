@@ -229,12 +229,12 @@ void executeListLeagues(Msg_t msg, Channel ch){
 	char * toPrint;
 
 	if(gameAux->leagues->NumEl == 0){
-		toPrint = malloc(strlen("There is no legaue created") + 1);
+		toPrint = malloc(strlen("There is no league created") + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"There is no legaue created");
+		strcpy(toPrint,"There is no league created");
 		AddToList(toPrint,answer->msgList);
 		answer->status = OK;
 	//	comunicate(ch, answer);
@@ -279,7 +279,7 @@ void executeListTeams(Msg_t msg, Channel ch){
 	Msg_s answer = createMsg_s();
 	char * toPrint;
 
-	if(gameAux->teams->NumEl == 0){
+	if(gameAux->cantTeams == 0){
 		toPrint = malloc(strlen("There is no team created") + 1);
 		if(toPrint == NULL){
 				perror("Insufficient memory\n");
@@ -355,7 +355,7 @@ void executeListTrades(Msg_t msg, Channel ch){
 	Element elemTrade;
 
 	FOR_EACH(elem, gameAux->leagues){
-
+		/* Agrego la frase "In League" */
 		dim = strlen("In League:");
 		toPrint = malloc(dim + 1);
 		if(toPrint == NULL){
@@ -365,6 +365,7 @@ void executeListTrades(Msg_t msg, Channel ch){
 		strcpy(toPrint,"In League:");
 		AddToList(toPrint,answer->msgList);
 
+		/* Agrego el nombre de la League */
 		dim = strlen(((League)elem->data)->name);
 		toPrint = malloc(dim + 1);
 		if(toPrint == NULL){
@@ -373,6 +374,7 @@ void executeListTrades(Msg_t msg, Channel ch){
 		}
 		strcpy(toPrint,((League)elem->data)->name);
 		AddToList(toPrint,answer->msgList);
+
 
 		FOR_EACH(elemTrade, ((League)elem->data)->trades){
 
@@ -529,12 +531,141 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 
 }
 
+void executeTeamShow(Msg_t msg, Channel ch){
+	
+	Msg_s answer = createMsg_s();
+	char * toPrint;
+	int input = msg->data.show_t.ID;
+
+	int dim;
+	Element elemLeague;
+	Element elemTeam;
+	Element elemPlayer;
+
+	FOR_EACH(elemLeague, gameAux->leagues){
+
+		FOR_EACH(elemTeam, ((League)elemLeague->data)->teams){
+
+			if(((Team)elemTeam->data)->ID == input){
+
+				/* Frase In League */
+				dim = strlen("In League:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"In League:");
+				AddToList(toPrint,answer->msgList);
+
+				/* Agrego el nombre de la League */
+				dim = strlen(((League)elemLeague->data)->name);
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,((League)elemLeague->data)->name);
+				AddToList(toPrint,answer->msgList);
+
+				/* Frase owner */
+				dim = strlen("Owner:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"Owner:");
+				AddToList(toPrint,answer->msgList);
+
+				/* Owner */
+				dim = strlen(((Team)elemTeam->data)->owner);
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,((Team)elemTeam->data)->owner);
+				AddToList(toPrint,answer->msgList);
+
+				/* Frase Points*/
+				dim = strlen("Points:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"Points:");
+				AddToList(toPrint,answer->msgList);
+
+				/* Points */
+				dim = floor(log10(((Team)elemTeam->data)->points));	
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				itoa(((Team)elemTeam->data)->points,toPrint);
+				AddToList(toPrint,answer->msgList);
+
+				/* Frase Players */
+				dim = strlen("Players:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"Players:");
+				AddToList(toPrint,answer->msgList);
+
+				/* Player */
+				FOR_EACH(elemPlayer, ((Team)elemTeam->data)->players){
+
+					/* Nombre del jugador */
+					dim = strlen(((Player)elemPlayer->data)->name);
+					toPrint = malloc(dim + 1);
+					if(toPrint == NULL){
+						perror("Insufficient memory\n");
+						exit(EXIT_FAILURE);
+					}
+					strcpy(toPrint,((Player)elemPlayer->data)->name);
+					AddToList(toPrint,answer->msgList);
+
+					/* Points */
+					dim = floor(log10(((Player)elemPlayer->data)->points));	
+					toPrint = malloc(dim + 1);
+					if(toPrint == NULL){
+						perror("Insufficient memory\n");
+						exit(EXIT_FAILURE);
+					}
+					itoa(((Player)elemPlayer->data)->points,toPrint);
+					AddToList(toPrint,answer->msgList);
+
+				}
+
+				answer->status = ERROR;
+			//	comunicate(ch,answer);
+				return;
+			} 
+		}
+	}
+
+	toPrint = malloc(strlen("Incorrect ID") + 1);
+	if(toPrint == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(toPrint,"Incorrect ID");
+	AddToList(toPrint,answer->msgList);
+	answer->status = ERROR;
+//	comunicate(ch,answer);
+	return;
+}
+
 
 int main(void){
 
 	gameAux = loadGame();
 
-	register_c();
-
-	return;
+	return 0;
 }
