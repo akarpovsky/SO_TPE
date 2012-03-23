@@ -47,7 +47,7 @@ typedef struct team{
 	char * owner;
 	int points;	
 	int cantPlayers;
-	Player players[MAX_PLAYERS];
+	List players;
 
 }team;
 
@@ -75,6 +75,7 @@ typedef struct game{
 	List leagues;
 	List teams;
 	List loggedUsers;
+	int cantTeams;
 
 	}game;
 

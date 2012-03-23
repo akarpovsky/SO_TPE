@@ -244,7 +244,7 @@ Team loadTeam(char * path){
 	num = atoi(aux);
 	auxTeam->points = num;
 	
-	/* Load players */
+	/* Load cantPlayers */
 	fgets(aux,BUFFER_SIZE,file);
 	num = atoi(aux);
 	if(num > MAX_PLAYERS){
@@ -255,7 +255,14 @@ Team loadTeam(char * path){
 	auxTeam->cantPlayers = num;
 	
 
-	
+	/* Load players */
+
+	auxTeam->players = (List) malloc(sizeof(llist));
+	if(auxTeam->players == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+
 	for(i = 0; i < auxTeam->cantPlayers; i++){
 
 		auxPlayer = malloc(sizeof(player));
@@ -279,7 +286,7 @@ Team loadTeam(char * path){
 		num = atoi(aux);
 		auxPlayer->points = num;	
 		
-		(auxTeam->players)[i] = auxPlayer;
+		AddToList(auxPlayer,auxTeam->players);
 	}
 	return auxTeam;
 }
@@ -740,36 +747,24 @@ Game loadGame(void){
 	}
 	
 	game->users = loadUsers("./res/users/");
-
 	game->leagues = loadLeagues("./res/leagues/");
-	
-	game->teams = (List) malloc(sizeof(llist));
-	if(game->teams == NULL){
+	game->loggedUsers = (List) malloc(sizeof(llist));
+	if(game->loggedUsers == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
-	
-	CreateList(game->teams);
-	
+	CreateList(game->loggedUsers);
+
+	game->cantTeams = 0;
+
 	Element league_ptr;
 	Element team_ptr;
 	
-	
-
 	FOR_EACH(league_ptr, game->leagues){
 		FOR_EACH(team_ptr, ( (List) ((League)league_ptr->data)->teams)){
-			AddToList((void *) team_ptr, game->teams);
+			game->cantTeams++;
 		}
 	}
-
-	game->loggedUsers = (List) malloc(sizeof(llist));
-		if(game->loggedUsers == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	// CreateList(game->loggedUsers);
-
 	
 	return game;
 }

@@ -11,8 +11,8 @@
 
 #define MSGSIZ 63
 
-char *fifo = "fifo";
-
+char * fifo = "/fifo";
+ 
 main(int argc, char ** argv)
 {
 	int fdIn, fdOut;
@@ -26,7 +26,6 @@ main(int argc, char ** argv)
 		}
 	}
 
-
 	if((fdIn = open(fifo, O_RDONLY)) < 0)
 	{
 		perror("fifo in open failed");
@@ -39,7 +38,7 @@ main(int argc, char ** argv)
 		int count;
 		if(read(fdIn, &size, sizeof(int)) == -1)
 		{
-			perror("failed to read the size");
+			perror("Failed to read the size");
 		}
 		else
 		{
@@ -112,7 +111,7 @@ main(int argc, char ** argv)
 			}
 		}
 
-		//printf("message received:%s\n", msgbuf);
+		printf("message received:%s\n", msgbuf);
 	}
 
 }
