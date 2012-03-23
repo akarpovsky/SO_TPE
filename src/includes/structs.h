@@ -56,10 +56,11 @@ typedef team * Team;
 
 
 typedef struct league{
-	
 	int ID;
+	char * name;
 	int status;
-	int availablePlayers;
+	int cantAvailablePlayers;
+	List availablePlayers;
 	List teams;
 	List trades;
 }league;
@@ -73,9 +74,18 @@ typedef struct game{
 	List users;
 	List leagues;
 	List teams;
+	List loggedUsers;
 
 	}game;
 
 typedef game * Game;
+
+typedef struct client_t{
+	
+	int clientID;
+	
+	}client_t;
+
+typedef client_t * Client;
 
 #endif

@@ -1,3 +1,10 @@
+
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
+#include "../utils/LinkedList.h"
+#include "./structs.h"
+
 #define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2
@@ -40,17 +47,14 @@ typedef struct msg_t{
 	}data;
 }msg_t;
 
+typedef msg_t * Msg_t;
+
 typedef struct msg_s {
-	int type;
-	char * msg;
+	int status;
+	List msgList;
 
 }msg_s;
 
-/*
- * msg_s
-{
-int status;
-int cant;
-char ** strings;
-}
- */
+typedef msg_s * Msg_s;
+
+#endif

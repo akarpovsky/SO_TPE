@@ -1,8 +1,6 @@
 /*
  * fifo_s.c
  *
- *  Created on: 18/03/2012
- *      Author: neon
  */
 #include <fcntl.h>
 #include <stdio.h>
@@ -39,7 +37,7 @@ void uplink(void)
 
 }
 
-msg_t listen()
+Msg_t listen()
 {
 	int rcvFlag = FALSE;
 	msg_t * msg = malloc(sizeof(msg_t));
