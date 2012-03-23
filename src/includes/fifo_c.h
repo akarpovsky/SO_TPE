@@ -7,13 +7,23 @@
 
 #ifndef FIFO_C_H_
 #define FIFO_C_H_
+
+#include <fcntl.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include "../includes/message.h"
+#include "../includes/marshalling.h"
+#include "../includes/defines.h"
+
 #define FIFO_OUT "/tmp/fifo"
 
-msg_s * communicate(msg_t * msg);
+Msg_s communicate(Msg_t msg);
 
-msg_s * rcvmessage(void);
+Msg_s rcvmessage(void);
 
-int sendmessage(msg_t * msg);
+int sendmessage(Msg_t msg);
 
 void connectToServe(void);
 

@@ -4,23 +4,13 @@
  *  Created on: 16/03/2012
  *      Author: Facundo
  */
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "../includes/message.h"
 #include "../includes/fifo_c.h"
-#include "../includes/marshalling.h"
-#include "../includes/defines.h"
-
-
 
 char * fifoOut;
 char * fifoIn;
 int fdIn, fdOut;
 
-msg_s * communicate(msg_t * msg)
+Msg_s communicate(Msg_t msg)
 {
 
 	if(sendmessage(msg) == SUCCESSFUL){
@@ -30,29 +20,56 @@ msg_s * communicate(msg_t * msg)
 	return NULL;
 }
 
-msg_s * rcvmessage(void)
+Msg_s rcvmessage(void)
 {
 	int rcvFlag = FALSE;
-	msg_s * msg = malloc(sizeof(msg_s));
+	Msg_s msg = malloc(sizeof(msg_s));
 	do{
-		int nread;
-		char * charMsg;
-		if((nread = read(fdIn, &(msg->status), sizeof(size_t))) == -1)
+		int nread, msgSize;
+		void * bytestring;
+		void * aux;
+		if((nread = read(fdIn, &(msgSize), sizeof(int))) == -1)
 		{
 			perror("Reading server message size failed");
 			return NULL;
 		}
 		else if(nread > 0)
 		{
-			charMsg = malloc(msg->status);
-			if((nread = read(fdIn, charMsg, msg->status)) == -1)
+			aux = bytestring = malloc(msgSize);
+			if((nread = read(fdIn, aux, msgSize)) == -1)
 			{
 				perror("Reading server message failed");
 				return NULL;
 			}
 			else if(nread > 0)
 			{
-				msg->msgList = charMsg;
+				memcpy(&(msg->status), aux, sizeof(int));
+				aux += sizeof(int);
+
+				List l = malloc(sizeof(llist));
+				CreateList(l);
+
+				msg->msgList = l;
+
+				int cantElem;
+				memcpy(&(cantElem), aux, sizeof(int));
+				aux += sizeof(int);
+
+				int i;
+				int strsize;
+				char * str;
+
+				for(i = 0; i < cantElem; i++)
+				{
+					memcpy(&(strsize), aux, sizeof(int));
+					aux += sizeof(int);
+
+					str = malloc(strsize);
+					memcpy(str, aux, strsize);
+					aux += strsize;
+
+					AddToList(str, msg->msgList);
+				}
 				rcvFlag = TRUE;
 			}
 		}
@@ -62,7 +79,7 @@ msg_s * rcvmessage(void)
 	return msg;
 }
 
-int sendmessage(msg_t * msg)
+int sendmessage(Msg_t msg)
 {
 	int msgSize;
 	void * msgstr;
@@ -121,20 +138,16 @@ int sendmessage(msg_t * msg)
 	case LEAGUE_SHOW:
 	case TEAM_SHOW:
 	case TRADE_SHOW:
-		int idSize = strlen(msg->data.show_t.ID)+1;
-		msgSize = 2*sizeof(int)+idSize;
+		msgSize = 2*sizeof(int);
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
 		msgstraux += sizeof(int);
-		memcpy(msgstraux, &idSize, sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.show_t.ID), idSize);
+		memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
 		break;
 	case TRADE:
 		int fromSize = strlen(msg->data.trade_t.from)+1;
 		int toSize = strlen(msg->data.trade_t.to)+1;
-		int idSize = strlen(msg->data.trade_t.teamID)+1;
-		msgSize = 4*sizeof(int) + fromSize + toSize + idSize;
+		msgSize = 4*sizeof(int) + fromSize + toSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
 		msgstraux += sizeof(int);
@@ -142,30 +155,24 @@ int sendmessage(msg_t * msg)
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
 		msgstraux += fromSize;
-		memcpy(msgstraux, &(fromSize), sizeof(int));
+		memcpy(msgstraux, &(toSize), sizeof(int));
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
 		msgstraux += toSize;
-		memcpy(msgstraux, &(fromSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.trade_t.teamID), idSize);
+		memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
 		break;
 	case TRADE_WITHDRAW:
 	case TRADE_ACCEPT:
-		int idSize = strlen(msg->data.trade_t.tradeID)+1;
-		msgSize = 2*sizeof(int)+idSize;
+		msgSize = 2*sizeof(int);
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
 		msgstraux += sizeof(int);
-		memcpy(msgstraux, &idSize, sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.trade_t.tradeID), idSize);
+		memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
 		break;
 	case TRADE_NEGOTIATE:
 		int fromSize = strlen(msg->data.trade_t.from)+1;
 		int toSize = strlen(msg->data.trade_t.to)+1;
-		int idSize = strlen(msg->data.trade_t.tradeID)+1;
-		msgSize = 4*sizeof(int) + fromSize + toSize + idSize;
+		msgSize = 4*sizeof(int) + fromSize + toSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
 		msgstraux += sizeof(int);
@@ -173,13 +180,11 @@ int sendmessage(msg_t * msg)
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
 		msgstraux += fromSize;
-		memcpy(msgstraux, &(fromSize), sizeof(int));
+		memcpy(msgstraux, &(toSize), sizeof(int));
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
 		msgstraux += toSize;
-		memcpy(msgstraux, &(fromSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.trade_t.tradeID), idSize);
+		memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
 		break;
 	}
 

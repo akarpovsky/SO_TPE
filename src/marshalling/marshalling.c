@@ -114,7 +114,7 @@ void tradeAccept_c(char * id){
 	msg_t msg;
 	
 	msg.type = TRADE_ACCEPT;
-	msg.data.trade_t.tradeID = atoic(id);
+	msg.data.trade_t.tradeID = atoi(id);
 	
 //	response = comunicate(msg);
 

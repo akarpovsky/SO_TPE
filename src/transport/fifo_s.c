@@ -2,12 +2,6 @@
  * fifo_s.c
  *
  */
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "../includes/message.h"
-#include "../includes/defines.h"
 #include "../includes/fifo_s.h"
 
 int fdIn;
@@ -40,7 +34,7 @@ void uplink(void)
 Msg_t listen()
 {
 	int rcvFlag = FALSE;
-	msg_t * msg = malloc(sizeof(msg_t));
+	Msg_t msg = malloc(sizeof(msg_t));
 	int msgSize;
 	do{
 		int nread;
@@ -109,8 +103,7 @@ Msg_t listen()
 					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.show_t.ID = malloc(size);
-					memcpy(&(msg->data.show_t.ID), stream, size);
+					memcpy(&(msg->data.show_t.ID), stream, sizeof(int));
 					break;
 				case TRADE:
 					int size;
@@ -124,19 +117,14 @@ Msg_t listen()
 					msg->data.trade_t.to = malloc(size);
 					memcpy(&(msg->data.trade_t.to), stream, size);
 					stream+=size;
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.trade_t.teamID = malloc(size);
-					memcpy(&(msg->data.trade_t.teamID), stream, size);
-					stream+=size;
+					memcpy(&(msg->data.trade_t.teamID), stream, sizeof(int));
 					break;
 				case TRADE_WITHDRAW:
 				case TRADE_ACCEPT:
 					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream += sizeof(int);
-					msg->data.trade_t.tradeID = malloc(size);
-					memcpy(&(msg->data.trade_t.tradeID), stream, size);
+					memcpy(&(msg->data.trade_t.tradeID), stream, sizeof(int));
 					break;
 				case TRADE_NEGOTIATE:
 					int size;
@@ -150,11 +138,7 @@ Msg_t listen()
 					msg->data.trade_t.to = malloc(size);
 					memcpy(&(msg->data.trade_t.to), stream, size);
 					stream+=size;
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.trade_t.tradeID = malloc(size);
-					memcpy(&(msg->data.trade_t.tradeID), stream, size);
-					stream+=size;
+					memcpy(&(msg->data.trade_t.tradeID), stream, sizeof(int));
 					break;
 				}
 				free(streamAux);
@@ -166,12 +150,12 @@ Msg_t listen()
 	return msg;
 }
 
-int communicate(Channel ch, msg_s * msg)
+int communicate(Channel ch, Msg_s msg)
 {
 	return sendmessage(ch, msg);
 }
 
-Channel createChannel(msg_t * msg)
+Channel createChannel(Msg_t msg)
 {
 	Channel ch = malloc(channel_t);
 
@@ -216,21 +200,48 @@ int establishChannel(Channel ch)
 	return communicate(ch, response);
 }
 
-int sendmessage(Channel ch, msg_s * msg){
-	
+int sendmessage(Channel ch, Msg_s msg){
+
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	
-	int stringSize = strlen(msg->msg)+1;
-	msgSize = sizeof(int) + stringSize;
+	int sizes[] = malloc(msg->msgList->NumEl);
+	char * strings[] = malloc(msg->msgList->NumEl);
+	int msgListSize = 0;
+	int i;
+
+	Element e;
+
+	FOR_EACH(e, msg->msgList)
+	{
+		sizes[i] = strlen(e->data)+1;
+		strings[i] = e->data;
+		e = e->next;
+
+		msgListSize += sizes[i];
+	}
+
+	msgSize = 2*sizeof(int) + msgListSize;
 	msgstr = msgstraux = malloc(msgSize);
-	
-	memcpy(msgstraux,msg->msg, msgSize);
-	
-	
+
+
+	memcpy(msgstraux,msg->status, sizeof(int));
+	msgstraux += sizeof(int);
+
+	memcpy(msgstraux, msg->msgList->NumEl, sizeof(int));
+	msgstraux += sizeof(int);
+
+	for(i = 0; i < msg->msgList->NumEl; i++)
+	{
+		memcpy(msgstraux, &sizes[i], sizeof(int));
+		msgstraux += sizeof(int);
+
+		memcpy(msgstraux, strings[i], sizes[i]);
+		msgstraux += sizes[i];
+	}
+
 	int nwrite;
-	
+
 	if((nwrite = write(ch.fdOut, &msgSize, sizeof(int)) == -1))
 	{
 		perror("Could not write message size");
@@ -245,6 +256,6 @@ int sendmessage(Channel ch, msg_s * msg){
 
 	free(msgstr);
 	return SUCCESSFUL;
-	
+
 }
 
