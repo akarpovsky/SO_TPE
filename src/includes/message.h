@@ -35,14 +35,14 @@ typedef struct msg_t{
 			char * pass;
 		}login_t;
 		struct show_t{
-			char * ID; /* league, team o trade */
+			int ID; /* league, team o trade */
 		}show_t;
 				
 		struct trade_t{
 			char * from;
 			char * to;
-			char * teamID;
-			char * tradeID;
+			int teamID;
+			int tradeID;
 		}trade_t;
 	}data;
 }msg_t;

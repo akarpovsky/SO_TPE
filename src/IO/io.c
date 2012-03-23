@@ -754,7 +754,7 @@ Game loadGame(void){
 	Element league_ptr;
 	Element team_ptr;
 	
-	//TODO: /* FIX THIS!!! */
+	
 
 	FOR_EACH(league_ptr, game->leagues){
 		FOR_EACH(team_ptr, ( (List) ((League)league_ptr->data)->teams)){
