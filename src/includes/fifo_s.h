@@ -1,8 +1,6 @@
 /*
  * fifo_s.h
  *
- *  Created on: 22/03/2012
- *      Author: neon
  */
 
 #ifndef FIFO_S_H_
@@ -27,6 +25,8 @@ int communicate(Channel ch, msg_s * msg);
 int establishChannel(Channel ch);
 
 int sendmessage(Channel ch, msg_s * msg);
+
+Channel createChannel(msg_t * msg);
 
 
 #endif /* FIFO_S_H_ */

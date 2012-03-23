@@ -21,7 +21,7 @@ typedef struct message {
 	};
 } message;
 
-char *fifoOut = "fifo";
+char *fifoOut = "/fifo";
 
 main (int argc, char **argv)
 {
