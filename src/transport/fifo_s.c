@@ -8,17 +8,8 @@
 #include <errno.h>
 #include "../includes/message.h"
 #include "../includes/defines.h"
+#include "../includes/fifo_s.h"
 
-typedef struct channel_t {
-	char * fifoIn;
-	char * fifoOut;
-	int fdIn;
-	int fdOut;
-} channel_t;
-
-typedef channel_t * Channel;
-
-#define FIFO_IN "/tmp/fifo"
 int fdIn;
 char * fifoIn;
 
@@ -219,7 +210,7 @@ int establishChannel(Channel ch)
 	int nwrtie;
 
 	msg_s response;
-	response.size = strlen(ch->fifoIn);
+	response.type = SUCCESSFUL;
 	response.msg = ch.fifoIn;
 
 	return communicate(ch, response);
@@ -231,7 +222,8 @@ int sendmessage(Channel ch, msg_s * msg){
 	void * msgstr;
 	void * msgstraux;
 	
-	msgSize = strlen(msg->msg);
+	int stringSize = strlen(msg->msg)+1;
+	msgSize = sizeof(int) + stringSize;
 	msgstr = msgstraux = malloc(msgSize);
 	
 	memcpy(msgstraux,msg->msg, msgSize);
