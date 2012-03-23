@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include "../includes/parseCommand.h"
 
+
+
 void readPrompt(char * s, int size);
 
 int main(void){
 	
-	char input[100];
+	char input[];
 
 	while(1){
 		printf("client:/$ ");
