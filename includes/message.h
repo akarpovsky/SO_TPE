@@ -41,7 +41,16 @@ typedef struct msg_t{
 }msg_t;
 
 typedef struct msg_s {
-	size_t size;
+	int type;
 	char * msg;
 
 }msg_s;
+
+/*
+ * msg_s
+{
+int status;
+int cant;
+char ** strings;
+}
+ */

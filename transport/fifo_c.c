@@ -5,14 +5,14 @@
  *      Author: Facundo
  */
 #include <fcntl.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <../includes/marshalling.h>
+#include "../includes/fifo_c.h"
+#include "../includes/marshalling.h"
 #include "../includes/defines.h"
 #include "../includes/message.h"
-
-#define FIFO_OUT "/tmp/fifo"
 
 char * fifoOut;
 char * fifoIn;
@@ -20,6 +20,7 @@ int fdIn, fdOut;
 
 msg_s * communicate(msg_t * msg)
 {
+
 	if(sendmessage(msg) == SUCCESSFUL){
 		return rcvmessage();
 	}
@@ -34,15 +35,15 @@ msg_s * rcvmessage(void)
 	do{
 		int nread;
 		char * charMsg;
-		if((nread = read(fdIn, &(msg->size), sizeof(size_t))) == -1)
+		if((nread = read(fdIn, &(msg->type), sizeof(size_t))) == -1)
 		{
 			perror("Reading server message size failed");
 			return NULL;
 		}
 		else if(nread > 0)
 		{
-			charMsg = malloc(msg->size);
-			if((nread = read(fdIn, charMsg, msg->size)) == -1)
+			charMsg = malloc(msg->type);
+			if((nread = read(fdIn, charMsg, msg->type)) == -1)
 			{
 				perror("Reading server message failed");
 				return NULL;
