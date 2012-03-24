@@ -1,9 +1,16 @@
 /*
  * fifo.c
  *
- *  Created on: 16/03/2012
- *      Author: Facundo
  */
+#include <fcntl.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include "../includes/message.h"
+#include "../includes/marshalling.h"
+#include "../includes/defines.h"
+
 #include "../includes/fifo_c.h"
 
 char * fifoOut;

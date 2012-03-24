@@ -10,13 +10,13 @@ server: $(FILES)
 	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(LDOPTS)
 
 
-CC = gcc
-FILES = ./src/server/server.c ./src/io/io.c ./src/utils/LinkedList.c
-OUT_DIR=./run
-OUT_EXE = server
+CLIENT_CC =  gcc
+CLIENT_FILES = ./src/client/client.c ./src/transport/fifo_c.c ./src/marshalling/marshalling.c 
+#CLIENT_OUT_DIR=./run
+CLIENT_OUT_EXE = server
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)
-COPTS= -Wall 
-LDOPTS= -lpthread
+CLIENT_COPTS= -Wall 
+CLIENT_LDOPTS= -lpthread
 
 client: $(CLIENT_FILES)
 	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(CLIENT_LDOPTS)
