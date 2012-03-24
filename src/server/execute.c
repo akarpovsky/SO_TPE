@@ -662,7 +662,7 @@ void executeTeamShow(Msg_t msg, Channel ch){
 	return;
 }
 
-void executeTradeShow(){
+void executeTradeShow(Msg_t msg, Channel ch){
 	
 	Msg_s answer = createMsg_s();
 	char * toPrint;
