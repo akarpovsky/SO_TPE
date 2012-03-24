@@ -1,21 +1,10 @@
 /*
  * fifo_c.h
  *
- *  Created on: 22/03/2012
- *      Author: neon
  */
 
 #ifndef FIFO_C_H_
 #define FIFO_C_H_
-
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include "../includes/message.h"
-#include "../includes/marshalling.h"
-#include "../includes/defines.h"
 
 #define FIFO_OUT "/tmp/fifo"
 

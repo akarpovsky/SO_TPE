@@ -1,37 +1,47 @@
-/*
-
-	Client
-
-*/
+#include <stdio.h>
+#include <string.h>
 
 
-void * PrintThread(void * threadID){
+#include "../includes/client.h"
+#include "../includes/parseCommand.h"
+#include "../includes/fifo_c.h"
 
-}
 
 
 
 int main(void){
 	
-	pthread_t printThread;
-	int rc;
+	char input[COMMAND_MAX_LENGHT];
+
+	connectToServer();
+
+	// while(1){
+	// 	printf("client:/$ ");
+	// 	readPrompt(input,sizeof(input));
+	// 	if(input[0] != 0){
+	// 		parseCommand(input);
+	// 	}
+	// }
+
+
 	
-	printf("In main thread creating thread\n");
-	rc = pthread_create(&printThread, NULL, PrintThread, (void *) t);
-	if(rc){
-		perror("ERROR; return code from pthread_create() is %d\n", rc);
-		exit(-1);
-	}
-
-
-
-
-
-
-	/* Last thing that main() should do */
-	pthread_exit(NULL);
 }
 
 
+void readPrompt(char * s, int size){
+	
+	int input = 0;
 
-
+	while(--size && (input = getchar()) != EOF && input != '\n'){
+		
+		*s = input;
+		s++;
+	}
+	
+	if(input == EOF){
+		printf("\n");
+	}
+	
+	*s = 0;
+	
+}

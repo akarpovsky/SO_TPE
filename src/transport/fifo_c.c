@@ -1,9 +1,16 @@
 /*
  * fifo.c
  *
- *  Created on: 16/03/2012
- *      Author: Facundo
  */
+#include <fcntl.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include "../includes/message.h"
+#include "../includes/marshalling.h"
+#include "../includes/defines.h"
+
 #include "../includes/fifo_c.h"
 
 char * fifoOut;
@@ -95,7 +102,7 @@ int sendmessage(Msg_t msg)
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &tempnamSize, sizeof(int));
 		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.tempnam, tempnamSize));
+		memcpy(msgstraux, &(msg->data.tempnam), tempnamSize));
 		break;
 	case REGISTER:
 		int passSize = strlen(msg->data.register_t.pass)+1;
