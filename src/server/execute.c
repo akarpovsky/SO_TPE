@@ -662,6 +662,108 @@ void executeTeamShow(Msg_t msg, Channel ch){
 	return;
 }
 
+void executeTradeShow(){
+	
+	Msg_s answer = createMsg_s();
+	char * toPrint;
+	int input = msg->data.show_t.ID;
+
+	int dim;
+	Element elemLeague;
+	Element elemTrade;
+
+	FOR_EACH(elemLeague, gameAux->leagues){
+
+		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
+
+			if(((Trade)elemTrade->data)->ID == input){
+
+				/* Frase User from */
+				dim = strlen("User from:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"User from:");
+				AddToList(toPrint,answer->msgList);
+
+				/* UserFrom */
+				dim = strlen(((Trade)elemTrade->data)->userFrom);
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,((Trade)elemTrade->data)->userFrom);
+				AddToList(toPrint,answer->msgList);
+
+				/* Frase User to */
+				dim = strlen("User to:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"User to:");
+				AddToList(toPrint,answer->msgList);
+
+				/* UserTo */
+				dim = strlen(((Trade)elemTrade->data)->userTo);
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,((Trade)elemTrade->data)->userTo);
+				AddToList(toPrint,answer->msgList);
+
+				/* Frase Player from */
+				dim = strlen("Player from:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"Player from:");
+				AddToList(toPrint,answer->msgList);
+
+				/* PlayerFrom */
+				dim = strlen(((Trade)elemTrade->data)->playerFrom);
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,((Trade)elemTrade->data)->playerFrom);
+				AddToList(toPrint,answer->msgList);
+
+				/* Frase Player to */
+				dim = strlen("Player to:");
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,"Player to:");
+				AddToList(toPrint,answer->msgList);
+
+				/* playerTo */
+				dim = strlen(((Trade)elemTrade->data)->playerTo);
+				toPrint = malloc(dim + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(toPrint,((Trade)elemTrade->data)->playerTo);
+				AddToList(toPrint,answer->msgList);
+			}
+
+		}
+	}
+
+}
+
 
 int main(void){
 

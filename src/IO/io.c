@@ -756,15 +756,16 @@ Game loadGame(void){
 	CreateList(game->loggedUsers);
 
 	game->cantTeams = 0;
+	game->cantTrades = 0;
 
 	Element league_ptr;
-	Element team_ptr;
 	
 	FOR_EACH(league_ptr, game->leagues){
-		FOR_EACH(team_ptr, ( (List) ((League)league_ptr->data)->teams)){
-			game->cantTeams++;
-		}
+	
+		game->cantTeams += ((League)league_ptr->data)->teams->NumEl;
+		game->cantTrades += ((League)league_ptr->data)->trades->NumEl;		
 	}
+
 	
 	return game;
 }
