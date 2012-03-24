@@ -56,6 +56,7 @@ Msg_t listen()
 			else if(nread > 0)
 			{
 				int type;
+				int size;
 				memcpy(&type, stream, sizeof(int));
 				stream += sizeof(int);
 				msg->type = type;
@@ -63,14 +64,12 @@ Msg_t listen()
 				switch(type)
 				{
 				case CONTACT:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream += sizeof(int);
 					msg->data.tempnam = malloc(msgSize);
 					memcpy(&(msg->data.tempnam), stream, size);
 					break;
 				case REGISTER:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
 					msg->data.register_t.user = malloc(size);
@@ -82,7 +81,6 @@ Msg_t listen()
 					memcpy(&(msg->data.register_t.pass), stream, size);
 					break;
 				case LOGIN:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
 					msg->data.login_t.user = malloc(size);
@@ -100,13 +98,11 @@ Msg_t listen()
 				case LEAGUE_SHOW:
 				case TEAM_SHOW:
 				case TRADE_SHOW:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
 					memcpy(&(msg->data.show_t.ID), stream, sizeof(int));
 					break;
 				case TRADE:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
 					msg->data.trade_t.from = malloc(size);
@@ -121,13 +117,11 @@ Msg_t listen()
 					break;
 				case TRADE_WITHDRAW:
 				case TRADE_ACCEPT:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream += sizeof(int);
 					memcpy(&(msg->data.trade_t.tradeID), stream, sizeof(int));
 					break;
 				case TRADE_NEGOTIATE:
-					int size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
 					msg->data.trade_t.from = malloc(size);
@@ -157,13 +151,13 @@ int communicate(Channel ch, Msg_s msg)
 
 Channel createChannel(Msg_t msg)
 {
-	Channel ch = malloc(channel_t);
+	Channel ch = malloc(sizeof(channel_t));
 
 	ch->fifoOut = msg->data.tempnam;
 
 	if((ch->fdOut = open(ch->fifoOut, O_WRONLY)) == -1)
 	{
-		perror("Output FIFO for file %s couldn't be opened", ch->fifoOut);
+		perror("Output FIFO couldn't be opened");
 		return NULL;
 	}
 
@@ -194,10 +188,15 @@ int establishChannel(Channel ch)
 	int nwrtie;
 
 	msg_s response;
-	response.type = SUCCESSFUL;
-	response.msg = ch.fifoIn;
+	response.status = SUCCESSFUL;
 
-	return communicate(ch, response);
+	List l = malloc(sizeof(llist));
+	CreateList(l);
+	AddToList(ch->fifoIn, l);
+
+	response.msgList = l;
+
+	return communicate(ch, &response);
 }
 
 int sendmessage(Channel ch, Msg_s msg){
@@ -205,8 +204,9 @@ int sendmessage(Channel ch, Msg_s msg){
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int sizes[] = malloc(msg->msgList->NumEl);
-	char * strings[] = malloc(msg->msgList->NumEl);
+	int NumEl = msg->msgList->NumEl;
+	int sizes[] = malloc(NumEl * sizeof(int ));
+	char * strings[] = malloc(NumEl * sizeof(char *));
 	int msgListSize = 0;
 	int i;
 
@@ -225,10 +225,10 @@ int sendmessage(Channel ch, Msg_s msg){
 	msgstr = msgstraux = malloc(msgSize);
 
 
-	memcpy(msgstraux,msg->status, sizeof(int));
+	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);
 
-	memcpy(msgstraux, msg->msgList->NumEl, sizeof(int));
+	memcpy(msgstraux, &(msg->msgList->NumEl), sizeof(int));
 	msgstraux += sizeof(int);
 
 	for(i = 0; i < msg->msgList->NumEl; i++)
@@ -242,12 +242,12 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	int nwrite;
 
-	if((nwrite = write(ch.fdOut, &msgSize, sizeof(int)) == -1))
+	if((nwrite = write(ch->fdOut, &msgSize, sizeof(int)) == -1))
 	{
 		perror("Could not write message size");
 		return !SUCCESSFUL;
 	}
-	if((nwrite = write(ch.fdOut, msgstr, msgSize)) == -1)
+	if((nwrite = write(ch->fdOut, msgstr, msgSize)) == -1)
 	{
 		perror("Could not write message");
 		return !SUCCESSFUL;

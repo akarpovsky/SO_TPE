@@ -34,7 +34,7 @@ int establishChannel(Channel ch);
 
 int sendmessage(Channel ch, Msg_s msg);
 
-Channel createChannel(msg_t * msg);
+Channel createChannel(Msg_t msg);
 
 
 #endif /* FIFO_S_H_ */

@@ -84,22 +84,23 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
+	int tempnamSize, passSize, userSize, fromSize, toSize;
 
 	switch(msg->type)
 	{
 	case CONTACT:
-		int tempnamSize = strlen(msg->data.tempnam)+1;
+		tempnamSize = strlen(msg->data.tempnam)+1;
 		msgSize = 2*sizeof(int) + tempnamSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
 		msgstraux += sizeof(int);
 		memcpy(msgstraux, &tempnamSize, sizeof(int));
 		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.tempnam, tempnamSize));
+		memcpy(msgstraux, &(msg->data.tempnam), tempnamSize);
 		break;
 	case REGISTER:
-		int passSize = strlen(msg->data.register_t.pass)+1;
-		int userSize = strlen(msg->data.register_t.user)+1;
+		passSize = strlen(msg->data.register_t.pass)+1;
+		userSize = strlen(msg->data.register_t.user)+1;
 		msgSize = 3*sizeof(int)+passSize+userSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -113,8 +114,8 @@ int sendmessage(Msg_t msg)
 		memcpy(msgstraux, msg->data.register_t.pass, passSize);
 		break;
 	case LOGIN:
-		int passSize = strlen(msg->data.login_t.pass)+1;
-		int userSize = strlen(msg->data.login_t.user)+1;
+		passSize = strlen(msg->data.login_t.pass)+1;
+		userSize = strlen(msg->data.login_t.user)+1;
 		msgSize = 3*sizeof(int)+passSize+userSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -145,8 +146,8 @@ int sendmessage(Msg_t msg)
 		memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
 		break;
 	case TRADE:
-		int fromSize = strlen(msg->data.trade_t.from)+1;
-		int toSize = strlen(msg->data.trade_t.to)+1;
+		fromSize = strlen(msg->data.trade_t.from)+1;
+		toSize = strlen(msg->data.trade_t.to)+1;
 		msgSize = 4*sizeof(int) + fromSize + toSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -170,8 +171,8 @@ int sendmessage(Msg_t msg)
 		memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
 		break;
 	case TRADE_NEGOTIATE:
-		int fromSize = strlen(msg->data.trade_t.from)+1;
-		int toSize = strlen(msg->data.trade_t.to)+1;
+		fromSize = strlen(msg->data.trade_t.from)+1;
+		toSize = strlen(msg->data.trade_t.to)+1;
 		msgSize = 4*sizeof(int) + fromSize + toSize;
 		msgstraux = msgstr = malloc(msgSize);
 		memcpy(msgstraux, &(msg->type), sizeof(int));
@@ -245,5 +246,5 @@ void connectToServer(void)
 	com.type = CONTACT;
 	com.data.tempnam = fifoIn;
 
-	communicate(com);
+	communicate(&com);
 }
