@@ -10,7 +10,7 @@ server: $(FILES)
 	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(LDOPTS)
 
 
-CLIENT_CC = gcc
+CLIENT_CC =  gcc
 CLIENT_FILES = ./src/client/client.c ./src/transport/fifo_c.c ./src/marshalling/marshalling.c 
 #CLIENT_OUT_DIR=./run
 CLIENT_OUT_EXE = server
