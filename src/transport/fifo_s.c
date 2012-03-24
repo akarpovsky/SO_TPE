@@ -15,7 +15,7 @@ void uplink(void)
 		 exit(1);
 	}
 
-	*fifoIn = FIFO_IN;
+	strcpy(fifoIn, FIFO_IN);
 
 	if(mkfifo(fifoIn, 0666) == -1)
 	{
@@ -205,8 +205,8 @@ int sendmessage(Channel ch, Msg_s msg){
 	void * msgstr;
 	void * msgstraux;
 	int NumEl = msg->msgList->NumEl;
-	int sizes[] = malloc(NumEl * sizeof(int ));
-	char * strings[] = malloc(NumEl * sizeof(char *));
+	int * sizes = malloc(NumEl * sizeof(int ));
+	char ** strings = malloc(NumEl * sizeof(char *));
 	int msgListSize = 0;
 	int i;
 

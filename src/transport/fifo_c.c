@@ -226,7 +226,7 @@ void connectToServer(void)
 		perror("Output FIFO name couldn't be allocated");
 		exit(1);
 	}
-	*fifoOut = FIFO_OUT;
+	strcpy(fifoOut, FIFO_OUT);
 
 	if(mkfifo(fifoIn, 0666) ==  -1)
 	{
