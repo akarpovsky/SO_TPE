@@ -9,15 +9,14 @@ void register_c(char * user, char * pass){
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
-	
 	if(msg == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);		
 	}
 	
-	msg.type = REGISTER;
-	msg.data.register_t.user = user;
-	msg.data.register_t.pass = pass;
+	msg->type = REGISTER;
+	strcpy(msg->data.register_t.user,user);
+	strcpy(msg->data.register_t.pass,pass);
 
 //	response = comunicate(&msg);
 	
@@ -26,13 +25,16 @@ void register_c(char * user, char * pass){
 
 void login_c(char * user, char * pass){
 	
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = LOGIN;
-
-	msg.data.login_t.user = user;
-	msg.data.login_t.pass = pass;
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = LOGIN;
+	strcpy(msg->data.login_t.user,user);
+	strcpy(msg->data.login_t.pass,pass);
 
 //	response = comunicate(msg);
 	
@@ -41,10 +43,14 @@ void login_c(char * user, char * pass){
 
 void list_c(int toList){
 	
-	msg_t response;
-	msg_t msg;
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
 	
-	msg.type = toList;
+	msg->type = toList;
 	
 //	response = comunicate(msg);
 
@@ -52,11 +58,16 @@ void list_c(int toList){
 }
 
 void leagueShow_c(char * id){
-	msg_t response;
-	msg_t msg;
+
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
 	
-	msg.type = LEAGUE_SHOW;
-	msg.data.show_t.ID = id;
+	msg->type = LEAGUE_SHOW;
+	msg->data.show_t.ID = atoi(id);
 	
 //	response = comunicate(msg);
 
@@ -64,11 +75,16 @@ void leagueShow_c(char * id){
 }
 
 void teamShow_c(char * id){
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = TEAM_SHOW;
-	msg.data.show_t.ID = id;
+
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+
+	msg->type = TEAM_SHOW;
+	msg->data.show_t.ID = atoi(id);
 	
 //	response = comunicate(msg);
 
@@ -77,11 +93,15 @@ void teamShow_c(char * id){
 
 void tradeShow_c(char * id){
 	
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = TRADE_SHOW;
-	msg.data.show_t.ID = atoi(id);
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = TRADE_SHOW;
+	msg->data.show_t.ID = atoi(id);
 	
 //	response = comunicate(msg);
 
@@ -89,13 +109,18 @@ void tradeShow_c(char * id){
 }
 
 void trade_c(char * id, char * from, char * to){
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = TRADE;
-	msg.data.trade_t.teamID = atoi(id);
-	msg.data.trade_t.from = from;
-	msg.data.trade_t.to = to;
+
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = TRADE;
+	msg->data.trade_t.teamID = atoi(id);
+	strcpy(msg->data.trade_t.from,from);
+	strcpy(msg->data.trade_t.to,to);
 	
 //	response = comunicate(msg);
 
@@ -103,11 +128,16 @@ void trade_c(char * id, char * from, char * to){
 }
 
 void tradeWithdraw_c(char * id){
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = TRADE_WITHDRAW;
-	msg.data.trade_t.tradeID = atoi(id);
+
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = TRADE_WITHDRAW;
+	msg->data.trade_t.tradeID = atoi(id);
 	
 //	response = comunicate(msg);
 
@@ -115,11 +145,16 @@ void tradeWithdraw_c(char * id){
 }
 
 void tradeAccept_c(char * id){
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = TRADE_ACCEPT;
-	msg.data.trade_t.tradeID = atoi(id);
+
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = TRADE_ACCEPT;
+	msg->data.trade_t.tradeID = atoi(id);
 	
 //	response = comunicate(msg);
 
@@ -127,13 +162,18 @@ void tradeAccept_c(char * id){
 }
 
 void tradeNegotiate_c(char * id, char * from, char * to){
-	msg_t response;
-	msg_t msg;
-	
-	msg.type = TRADE_NEGOTIATE;
-	msg.data.trade_t.tradeID = atoi(id);
-	msg.data.trade_t.from = from;
-	msg.data.trade_t.to = to;
+
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = TRADE_NEGOTIATE;
+	msg->data.trade_t.tradeID = atoi(id);
+	strcpy(msg->data.trade_t.from,from);
+	strcpy(msg->data.trade_t.to,to);
 	
 //	response = comunicate(msg);
 
