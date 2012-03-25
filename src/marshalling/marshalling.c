@@ -7,8 +7,13 @@
 
 void register_c(char * user, char * pass){
 
-	msg_t response;
-	msg_t msg;
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
 	
 	msg.type = REGISTER;
 	msg.data.register_t.user = user;
