@@ -13,6 +13,8 @@ List clientThreadsList;
 
 /* Global recursive mutex for our program */
 pthread_mutex_t request_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+/* Global mutex for game */
+pthread_mutex_t game_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* Global condition variable for our program that
 	will be signaled each time a new request arrives

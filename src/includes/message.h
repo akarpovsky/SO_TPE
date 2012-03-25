@@ -28,20 +28,20 @@ typedef struct msg_t{
 		char * tempnam;
 		int ping;
 		struct register_t{
-			char * user;
-			char * pass;
+			char user[MAX_LENGHT];
+			char pass[MAX_LENGHT];
 		}register_t;
 		struct login_t{
-			char * user;
-			char * pass;
+			char user[MAX_LENGHT];
+			char pass[MAX_LENGHT];
 		}login_t;
 		struct show_t{
 			int ID; /* league, team o trade */
 		}show_t;
 				
 		struct trade_t{
-			char * from;
-			char * to;
+			char from[MAX_LENGHT];
+			char to[MAX_LENGHT];
 			int teamID;
 			int tradeID;
 		}trade_t;
