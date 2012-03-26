@@ -253,5 +253,18 @@ void connectToServer(void)
 	com.type = CONTACT;
 	com.data.tempnam = fifoIn;
 
-	communicate(&com);
+	Msg_s response = communicate(&com);
+
+	fifoIn = response->msgList->pFirst->data;
+
+	close(fdIn);
+
+	if((fdIn = open(fifoIn, O_RDONLY)) == -1)
+	{
+		perror("Input FIFO from server couldn't be opened");
+		close(fdOut);
+		unlink(fifoOut);
+		exit(1);
+	}
+
 }
