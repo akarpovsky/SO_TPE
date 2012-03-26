@@ -141,6 +141,10 @@ int establishChannel(Channel ch)
 	return 0;
 }
 
+int communicate(Channel ch, Msg_s msg){
+	return sendmessage(ch, msg);
+}
+
 int sendmessage(Channel ch, Msg_s msg){
 
 
@@ -151,7 +155,7 @@ int sendmessage(Channel ch, Msg_s msg){
 	int * sizes = malloc(NumEl * sizeof(int));
 	char ** strings = malloc(NumEl * sizeof(char *));
 	int msgListSize = 0;
-	int i;
+	int i = 0;
 
 	Element e;
 
@@ -160,18 +164,18 @@ int sendmessage(Channel ch, Msg_s msg){
 	{
 		printf("\tProcesando _%s_\n", (char *) e->data);
 		sizes[i] = strlen(e->data)+1;
-		strings[i] = e->data;
-		// e = e->next;
+		printf("Guardo en sizes[i] = %d\n", sizes[i]);
 
+		strings[i] = e->data;
 		msgListSize += sizes[i];
+		i+=1;
 	}
 
 	printf("Terminé de armar las listas\n");
 	printf("msgListSize = %d\n", msgListSize);
 
-	msgSize = 2*sizeof(int) + msgListSize;
-	// msgstr = msgstraux = calloc(sizeof(char), msgSize);
-	msgstr = msgstraux =(void *) malloc(2*sizeof(int));
+	msgSize = 2*sizeof(int) + msgListSize*sizeof(int) + msgListSize ;
+	msgstr = msgstraux = calloc(msgSize, sizeof(char));
 
 	printf("msgSize = %d\n", msgSize);
 
@@ -184,11 +188,15 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	for(i = 0; i < msg->msgList->NumEl; i++)
 	{
-		memcpy(msgstraux, &sizes[i], sizeof(int));
+		memcpy(msgstraux, &(sizes[i]), sizeof(int));
 		msgstraux += sizeof(int);
+		printf("Memcpy de mensaje con size[%d] = %d\n", i, sizes[i]);
 
 		memcpy(msgstraux, strings[i], sizes[i]);
 		msgstraux += sizes[i];
+
+		printf("Memcpy de mensaje con str[%d] = %s\n", i, strings[i]);
+
 	}
 
 
@@ -206,25 +214,6 @@ int sendmessage(Channel ch, Msg_s msg){
 	}else{
 		printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>", msgSize);
 	}
-
-	// char * mensaje = "Hola lalala_";
-	// int largo = strlen(mensaje) + 1;
-
-	// if((sendto(ch->sockfd, &largo, sizeof(int), MSG_WAITALL, (struct sockaddr *) ch->client, SOCKET_SIZE) == -1)){
-	// 	perror("<LOG socket_s.c> Server: Could not write message size <end>");
-	// 	return !SUCCESSFUL;
-	// }else{
-	// 	printf("<LOG socket_s.c> Server: Envio el message size = %d <end>\n", msgSize);
-	// }
-
-	// if((sendto(ch->sockfd,  mensaje, largo, 0, (struct sockaddr *) ch->client, SOCKET_SIZE) == -1)){
-	// 	perror("<LOG socket_s.c> Server: Could not write message <end>");
-	// 	return !SUCCESSFUL;
-	// }else{
-	// 	printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>", msgSize);
-	// }
-	
-
 
 	// free(msgstr);
 	return SUCCESSFUL;
@@ -247,8 +236,8 @@ int main(void){
 	
 	int msg = 0;
 
-	for ( ; ; )
-	{
+	for ( ; ; ){
+		
 		if( (recvfrom(sockfd, &msg, sizeof(int), MSG_WAITALL, (struct sockaddr *) client, &client_size)) == -1){
 			perror("Error while receiving data");
 			continue ;
@@ -279,10 +268,10 @@ int main(void){
 		List l = (List) malloc(sizeof(llist));
 
 		CreateList(l);
-		AddToList("Hola", l);
-		AddToList("Chau", l);
-		AddToList("Ultimo msg", l);
-
+		AddToList("Coca-Cola", l);
+		AddToList("Prueba", l);
+		AddToList("Mensaje laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaargo", l);
+		AddToList("Fin", l);
 		Element e;
 
 		msg_s mymen;

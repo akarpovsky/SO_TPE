@@ -28,7 +28,7 @@
 
 int sockfd; // Server socket file descriptor
 struct sockaddr_un * client_address;
-
+struct sockaddr_un * server_address;	
 
 struct sockaddr_un * fillServerData(){
 	
@@ -69,6 +69,8 @@ void sigint(){
 	exit(EXIT_FAILURE);
 }
 
+
+
 Msg_s rcvmessage(void){
 
 	int rcvFlag = FALSE;
@@ -89,12 +91,10 @@ Msg_s rcvmessage(void){
 
 		
 		if(msgSize > 0){
-			printf("<LOG socket_c.c> Client: Recibiendo mensaje de tamaño = %d <end>\n", msgSize);
+			printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
 
-			
 
 			aux = bytestring = calloc(msgSize, sizeof(char));
-			
 								
 
 			if( (recvfrom(sockfd, aux, msgSize * sizeof(char), MSG_WAITALL, NULL, NULL)) == -1){
@@ -106,7 +106,7 @@ Msg_s rcvmessage(void){
 				memcpy(&(msg->status), aux, sizeof(int));
 				aux += sizeof(int);
 
-				printf("Client - Received message status: %d\n", msg->status);
+				printf("<LOG socket_c.c> Client - Received message status: %d <end>\n", msg->status);
 
 
 				List l = malloc(sizeof(llist));
@@ -118,19 +118,30 @@ Msg_s rcvmessage(void){
 				memcpy(&(cantElem), aux, sizeof(int));
 				aux += sizeof(int);
 
+				printf("<LOG socket_c.c> Client - Starting reception of list containing %d messages <end>\n", cantElem);
+
+
 				int i;
 				int strsize;
-				char * str;
+				// char * str;
 
 				for(i = 0; i < cantElem; i++){
 					memcpy(&(strsize), aux, sizeof(int));
 					aux += sizeof(int);
+					printf("<LOG socket_c.c> Client - Receiving message %d of %d - Message length = %d  <end>\n", i+1, cantElem, strsize);
 
-					str = malloc(strsize);
+					char * str = calloc(strsize, sizeof(char));
+
+					memset(str, 0 , strsize);
 					memcpy(str, aux, strsize);
+
+					// memcpy(str, aux, strsize);
+					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 					aux += strsize;
-					printf("Recibido: %s\n", str);
+					printf("<LOG socket_c.c> Client - Avanzo aux %d lugares <end>\n", strsize);
+
 					AddToList(str, msg->msgList);
+					free(str);
 				}
 				rcvFlag = TRUE;
 			}
@@ -141,15 +152,146 @@ Msg_s rcvmessage(void){
 }
 
 
+int sendmessage(Msg_t msg)
+{
+	int msgSize;
+	void * msgstr;
+	void * msgstraux;
+	int tempnamSize, passSize, userSize, fromSize, toSize;
+
+	switch(msg->type)	{
+		case CONTACT:
+			tempnamSize = strlen(msg->data.tempnam)+1;
+			msgSize = 2*sizeof(int) + tempnamSize;
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &tempnamSize, sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.tempnam), tempnamSize);
+			break;
+		case REGISTER:
+			passSize = strlen(msg->data.register_t.pass)+1;
+			userSize = strlen(msg->data.register_t.user)+1;
+			msgSize = 3*sizeof(int)+passSize+userSize;
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(userSize), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, msg->data.register_t.user, userSize);
+			msgstraux += userSize;
+			memcpy(msgstraux, &passSize, sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, msg->data.register_t.pass, passSize);
+			break;
+		case LOGIN:
+			passSize = strlen(msg->data.login_t.pass)+1;
+			userSize = strlen(msg->data.login_t.user)+1;
+			msgSize = 3*sizeof(int)+passSize+userSize;
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(userSize), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, msg->data.login_t.user, userSize);
+			msgstraux += userSize;
+			memcpy(msgstraux, &passSize, sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, msg->data.login_t.pass, passSize);
+			break;
+		case LIST_LEAGUES:
+		case LIST_TEAMS:
+		case LIST_TRADES:
+		case LOGOUT:
+			msgSize = sizeof(int);
+			msgstr = malloc(msgSize);
+			memcpy(msgstr, &(msg->type), sizeof(int));
+			break;
+		case LEAGUE_SHOW:
+		case TEAM_SHOW:
+		case TRADE_SHOW:
+			msgSize = 2*sizeof(int);
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
+			break;
+		case TRADE:
+			fromSize = strlen(msg->data.trade_t.from)+1;
+			toSize = strlen(msg->data.trade_t.to)+1;
+			msgSize = 4*sizeof(int) + fromSize + toSize;
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(fromSize), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
+			msgstraux += fromSize;
+			memcpy(msgstraux, &(toSize), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
+			msgstraux += toSize;
+			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
+			break;
+		case TRADE_WITHDRAW:
+		case TRADE_ACCEPT:
+			msgSize = 2*sizeof(int);
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
+			break;
+		case TRADE_NEGOTIATE:
+			fromSize = strlen(msg->data.trade_t.from)+1;
+			toSize = strlen(msg->data.trade_t.to)+1;
+			msgSize = 4*sizeof(int) + fromSize + toSize;
+			msgstraux = msgstr = malloc(msgSize);
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(fromSize), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
+			msgstraux += fromSize;
+			memcpy(msgstraux, &(toSize), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
+			msgstraux += toSize;
+			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
+			break;
+	}
+
+	// int nwrite;
+	// if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
+	// {
+	// 	perror("Could not write message size");
+	// 	return !SUCCESSFUL;
+	// }
+	// if((nwrite = write(fdOut, msgstr, msgSize)) == -1)
+	// {
+	// 	perror("Could not write message");
+	// 	return !SUCCESSFUL;
+	// }
+
+	// free(msgstr);
+
+	return SUCCESSFUL;
+}
+
+Msg_s communicate(Msg_t msg)
+{
+
+	if(sendmessage(msg) == SUCCESSFUL){
+		return rcvmessage();
+	}
+
+	return NULL;
+}
 
 
-int main(void){
-
-	signal(SIGINT,sigint);
-
-
- 	struct sockaddr_un * server_address = fillServerData();
- 	client_address = fillClientData(getpid());
+void connectToServer(void){
+	server_address = fillServerData();
+	client_address = fillClientData(getpid());
 
 	/* Transport endpoint */
 	if( (sockfd = socket(SAME_MACHINE_CONNECTION, SOCK_DGRAM, 0)) == -1){
@@ -166,16 +308,27 @@ int main(void){
 		exit(EXIT_FAILURE);
 	}
 
-
-
 	int pid = getpid();
 
+	
+
+
 	if((sendto(sockfd, &pid, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-		perror("Error while trying to send a msg.\n");
+		perror("Error while trying to connecto to server.\n");
 		closeClient(client_address->sun_path);
 		// continue ;
 	}
 
+
+}
+
+int main(void){
+
+	signal(SIGINT,sigint);
+
+
+
+	connectToServer();
 
 	rcvmessage();
 
