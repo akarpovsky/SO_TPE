@@ -31,16 +31,27 @@ void uplink(void)
 
 }
 
-Msg_t listen()
+Msg_t listen(Channel ch)
 {
 	int rcvFlag = FALSE;
 	Msg_t msg = malloc(sizeof(msg_t));
 	int msgSize;
+	int auxfdIn;
+
+	if(ch == NULL)
+	{
+		auxfdIn = fdIn;
+	}
+	else
+	{
+		auxfdIn = ch->fdIn;
+	}
+
 	do{
 		int nread;
 		void * stream;
 		void * streamAux;
-		if((nread = read(fdIn, &(msgSize), sizeof(int))) == -1)
+		if((nread = read(auxfdIn, &(msgSize), sizeof(int))) == -1)
 		{
 			perror("Reading server message size failed");
 			return NULL;
@@ -48,7 +59,7 @@ Msg_t listen()
 		else if(nread > 0)
 		{
 			streamAux = stream = malloc(msgSize);
-			if((nread = read(fdIn, stream, msgSize)) == -1)
+			if((nread = read(auxfdIn, stream, msgSize)) == -1)
 			{
 				perror("Reading server message failed");
 				return NULL;
@@ -218,6 +229,7 @@ int sendmessage(Channel ch, Msg_s msg){
 		strings[i] = e->data;
 
 		msgListSize += sizes[i];
+		i++;
 	}
 
 	msgSize = 2*sizeof(int) + msgListSize;
