@@ -214,7 +214,7 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	FOR_EACH(e, msg->msgList)
 	{
-		sizes[i] = strlen(e->data)+1;
+		sizes[i] = strlen(e->data)+1+sizeof(int);
 		strings[i] = e->data;
 
 		msgListSize += sizes[i];

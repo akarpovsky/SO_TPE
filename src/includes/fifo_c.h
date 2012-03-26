@@ -14,7 +14,7 @@ Msg_s rcvmessage(void);
 
 int sendmessage(Msg_t msg);
 
-void connectToServe(void);
+void connectToServer(void);
 
 
 #endif /* FIFO_C_H_ */
