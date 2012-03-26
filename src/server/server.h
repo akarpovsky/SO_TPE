@@ -2,7 +2,7 @@
 #define server_h
 
 #include "../includes/structs.h"
-#include "../io/io.h"
+#include "../IO/io.h"
 
 #include "../utils/LinkedList.h"
 

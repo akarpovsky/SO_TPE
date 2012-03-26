@@ -1,9 +1,9 @@
 CC = gcc
-FILES = ./src/server/server.c ./src/io/io.c ./src/utils/LinkedList.c
+FILES = ./src/server/server.c ./src/IO/io.c ./src/utils/LinkedList.c
 OUT_DIR=./run
 OUT_EXE = server
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)
-COPTS= -Wall 
+COPTS= -Wall -g
 LDOPTS= -lpthread
 
 server: $(FILES)
@@ -15,7 +15,7 @@ CLIENT_FILES = ./src/client/client.c ./src/transport/fifo_c.c ./src/marshalling/
 #CLIENT_OUT_DIR=./run
 CLIENT_OUT_EXE = server
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)
-CLIENT_COPTS= -Wall 
+CLIENT_COPTS= -Wall -g 
 CLIENT_LDOPTS= -lpthread
 
 client: $(CLIENT_FILES)

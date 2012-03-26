@@ -5,6 +5,7 @@
 #include "../utils/LinkedList.h"
 #include "./structs.h"
 
+#define MAX_LENGTH 20
 #define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2
