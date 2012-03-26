@@ -21,6 +21,8 @@
 #define TRADE_NEGOTIATE 12
 #define LOGOUT 13
 
+#define MAX_LENGHT 50
+
 
 typedef struct msg_t{
 	
@@ -39,13 +41,16 @@ typedef struct msg_t{
 		struct show_t{
 			int ID; /* league, team o trade */
 		}show_t;
-				
 		struct trade_t{
 			char from[MAX_LENGTH];
 			char to[MAX_LENGTH];
 			int teamID;
 			int tradeID;
 		}trade_t;
+		struct socket_client_t{
+			int socket_family;
+			char socket_path[MAX_LENGHT];
+		}socket_client_t;
 	}data;
 }msg_t;
 
