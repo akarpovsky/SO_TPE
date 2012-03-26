@@ -72,22 +72,22 @@ Msg_t listen()
 				case REGISTER:
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.register_t.user = malloc(size);
+					//msg->data.register_t.user = malloc(size);
 					memcpy(&(msg->data.register_t.user), stream, size);
 					stream+=size;
 					memcpy(&size, stream, sizeof(int));
-					msg->data.register_t.pass = malloc(size);
+					//msg->data.register_t.pass = malloc(size);
 					stream+=sizeof(int);
 					memcpy(&(msg->data.register_t.pass), stream, size);
 					break;
 				case LOGIN:
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.login_t.user = malloc(size);
+					//msg->data.login_t.user = malloc(size);
 					memcpy(&(msg->data.login_t.user), stream, size);
 					stream+=size;
 					memcpy(&size, stream, sizeof(int));
-					msg->data.login_t.pass = malloc(size);
+					//msg->data.login_t.pass = malloc(size);
 					stream+=sizeof(int);
 					memcpy(&(msg->data.login_t.pass), stream, size);
 					break;
@@ -105,12 +105,12 @@ Msg_t listen()
 				case TRADE:
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.trade_t.from = malloc(size);
+					//msg->data.trade_t.from = malloc(size);
 					memcpy(&(msg->data.trade_t.from), stream, size);
 					stream+=size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.trade_t.to = malloc(size);
+					//msg->data.trade_t.to = malloc(size);
 					memcpy(&(msg->data.trade_t.to), stream, size);
 					stream+=size;
 					memcpy(&(msg->data.trade_t.teamID), stream, sizeof(int));
@@ -124,12 +124,12 @@ Msg_t listen()
 				case TRADE_NEGOTIATE:
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.trade_t.from = malloc(size);
+					//msg->data.trade_t.from = malloc(size);
 					memcpy(&(msg->data.trade_t.from), stream, size);
 					stream+=size;
 					memcpy(&size, stream, sizeof(int));
 					stream+=sizeof(int);
-					msg->data.trade_t.to = malloc(size);
+					//msg->data.trade_t.to = malloc(size);
 					memcpy(&(msg->data.trade_t.to), stream, size);
 					stream+=size;
 					memcpy(&(msg->data.trade_t.tradeID), stream, sizeof(int));
@@ -216,7 +216,6 @@ int sendmessage(Channel ch, Msg_s msg){
 	{
 		sizes[i] = strlen(e->data)+1;
 		strings[i] = e->data;
-		e = e->next;
 
 		msgListSize += sizes[i];
 	}

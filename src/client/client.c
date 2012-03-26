@@ -3,6 +3,7 @@
 
 
 #include "../includes/client.h"
+#include "../includes/message.h"
 #include "../includes/parseCommand.h"
 #include "../includes/fifo_c.h"
 
@@ -15,13 +16,13 @@ int main(void){
 
 	connectToServer();
 
-	// while(1){
-	// 	printf("client:/$ ");
-	// 	readPrompt(input,sizeof(input));
-	// 	if(input[0] != 0){
-	// 		parseCommand(input);
-	// 	}
-	// }
+	while(1){
+		printf("client:/$ ");
+		readPrompt(input,sizeof(input));
+		if(input[0] != 0){
+			parseCommand(input);
+		}
+	}
 
 
 	
