@@ -17,30 +17,7 @@
 #include "../../includes/message.h"
 #include "../../utils/LinkedList.h"
 #include "../../includes/defines.h"
-
-
-
-#define SAME_MACHINE_CONNECTION AF_UNIX
-#define QUEUE_CONNECTION_SIZE 5
-#define SOCKET_SIZE sizeof(struct sockaddr_un)
-
-#define UNIX_PATH_MAX    108
-#define SERVER_PATH "/tmp/socket_server"
-
-
-
-
-struct sockaddr_un {
-	sa_family_t sun_family;               /* AF_UNIX */
-    char        sun_path[UNIX_PATH_MAX];  /* pathname */
- };
-
- typedef struct channel_t {
-	struct sockaddr_un * client;
-	int sockfd;
-} channel_t;
-
-typedef channel_t * Channel;
+#include "../../includes/socket_s.h"
 
 
 int sockfd; // Server socket file descriptor
@@ -171,13 +148,12 @@ int sendmessage(Channel ch, Msg_s msg){
 		i+=1;
 	}
 
-	printf("Terminé de armar las listas\n");
+	printf("Terminé de armar las listas de mensajes\n");
 	printf("msgListSize = %d\n", msgListSize);
-
-	msgSize = 2*sizeof(int) + msgListSize*sizeof(int) + msgListSize ;
+	msgSize = 2*sizeof(int) + (i*sizeof(int)) + msgListSize ;
 	msgstr = msgstraux = calloc(msgSize, sizeof(char));
 
-	printf("msgSize = %d\n", msgSize);
+	printf("Tamaño del mensaje a enviar = %d\n", msgSize);
 
 	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);
@@ -190,12 +166,12 @@ int sendmessage(Channel ch, Msg_s msg){
 	{
 		memcpy(msgstraux, &(sizes[i]), sizeof(int));
 		msgstraux += sizeof(int);
-		printf("Memcpy de mensaje con size[%d] = %d\n", i, sizes[i]);
+		// printf("Memcpy de mensaje con size[%d] = %d\n", i, sizes[i]);
 
 		memcpy(msgstraux, strings[i], sizes[i]);
 		msgstraux += sizes[i];
 
-		printf("Memcpy de mensaje con str[%d] = %s\n", i, strings[i]);
+		// printf("Memcpy de mensaje con str[%d] = %s\n", i, strings[i]);
 
 	}
 
@@ -212,13 +188,250 @@ int sendmessage(Channel ch, Msg_s msg){
 		perror("<LOG socket_s.c> Server: Could not write message <end>");
 		return !SUCCESSFUL;
 	}else{
-		printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>", msgSize);
+		printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>\n", msgSize);
 	}
 
 	// free(msgstr);
 	return SUCCESSFUL;
 
 }
+
+
+Msg_t IPClisten(void){
+
+	int rcvFlag = FALSE;
+	Msg_t msg = calloc(1, sizeof(msg_t));
+
+	do{
+		int nread, msgSize, user_len, pass_len, from_len, to_len;
+		int client_len = SOCKET_SIZE;
+		void * bytestring;
+		void * aux;
+		
+
+		struct sockaddr_un * client = calloc(1, sizeof(SOCKET_SIZE));
+		int client_size = SOCKET_SIZE;
+
+
+
+		if( (recvfrom(sockfd, &msgSize, sizeof(int), MSG_WAITALL, NULL, NULL)) == -1){
+			perror("Error while receiving data");
+			continue ;
+		}
+
+
+		if(msgSize > 0){
+			
+			aux = bytestring = malloc(msgSize);
+			
+
+			printf("<LOG socket_c.c> Server - Message header received OK. Full message size = %d <end>\n", msgSize);
+
+			if( (recvfrom(sockfd, aux, msgSize * sizeof(char), MSG_WAITALL, NULL, NULL)) == -1){
+				perror("Reading client message failed");
+				return NULL;
+			}
+			else{
+				int status;
+				memcpy(&(msg->type), aux, sizeof(int));
+				aux += sizeof(int);
+
+				printf("<LOG socket_c.c> Server - Received message type: %d <end>\n", msg->type);
+
+				int type = msg->type;
+				switch(type){
+					
+					case CONTACT:
+						
+						printf("CONTACT message received\n");
+						printf("\n<data>\n");
+						memcpy(&(msg->data.socket_client_t.client_pid), aux, sizeof(int));
+						aux += sizeof(int);
+						printf("\tCLIENT_PID = %d \n", msg->data.socket_client_t.client_pid);
+
+						memcpy(&(msg->data.socket_client_t.socket_family), aux, sizeof(int));
+						aux += sizeof(int);
+						printf("\tSOCKET_FAMILY = %d \n", msg->data.socket_client_t.socket_family);
+					
+						int path_len = 0;
+						memcpy(&(path_len), aux, sizeof(int));
+						aux += sizeof(int);
+						printf("\tSOCKET_PATH_LENGHT = %d \n", path_len);
+
+						memcpy(msg->data.socket_client_t.socket_path, aux, path_len);
+						printf("\tSOCKET_PATH = %s \n", msg->data.socket_client_t.socket_path);
+						printf("</data>\n");
+					
+						break;
+
+					case REGISTER:
+
+							printf("REGISTER message received\n");
+							printf("\n<data>\n");
+							
+							user_len = 0;
+							memcpy(&(user_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.register_t.user, aux, user_len);
+							printf("\tUsername = %s \n", msg->data.register_t.user);
+							aux += user_len;
+
+							pass_len = 0;
+							memcpy(&(pass_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.register_t.pass, aux, pass_len);
+							printf("\tPassword = %s \n", msg->data.register_t.pass);
+							aux += pass_len;
+
+							printf("</data>\n");
+
+						break;
+
+					case LOGIN:
+
+							printf("LOGIN message received\n");
+							printf("\n<data>\n");
+							
+							user_len = 0;
+							memcpy(&(user_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.login_t.user, aux, user_len);
+							printf("\tUsername = %s \n", msg->data.login_t.user);
+							aux += user_len;
+
+							pass_len = 0;
+							memcpy(&(pass_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.login_t.pass, aux, pass_len);
+							printf("\tPassword = %s \n", msg->data.login_t.pass);
+							aux += pass_len;
+
+							printf("</data>\n");
+
+						break;
+
+				case LIST_LEAGUES:
+				case LIST_TEAMS:
+				case LIST_TRADES:
+						printf("LIST_TEAMS / LIST_LEAGUES / LIST_TRADES message received\n");
+
+						break;
+
+				case LEAGUE_SHOW:
+				case TEAM_SHOW:
+				case TRADE_SHOW:
+
+							printf("TEAM_SHOW / TEAM_SHOW / TRADE_SHOW message received\n");
+							printf("\n<data>\n");
+							
+							memcpy(&(msg->data.show_t.ID), aux, sizeof(int));
+							printf("\tSHOW_ID = %d \n", msg->data.show_t.ID);
+							aux += sizeof(int);
+
+							printf("</data>\n");
+
+						break;
+
+				case TRADE:
+
+							printf("TRADE message received\n");
+							printf("\n<data>\n");
+							
+
+							memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
+							printf("\tTradeID = %d \n", msg->data.trade_t.tradeID);
+							aux += sizeof(int);
+
+							memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
+							printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
+							aux += sizeof(int);
+
+							from_len = 0;
+							memcpy(&(from_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.trade_t.from, aux, from_len);
+							printf("\tTRADE FROM = %s \n", msg->data.trade_t.from);
+							aux += from_len;
+
+							to_len = 0;
+							memcpy(&(to_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.trade_t.to, aux, to_len);
+							printf("\tTRADE TO = %s \n", msg->data.trade_t.to);
+							aux += to_len;
+
+							printf("</data>\n");
+
+						break;
+
+
+				case TRADE_WITHDRAW:
+				case TRADE_ACCEPT:
+
+							printf("TRADE ACCEPT / WITHDRAW message received\n");
+							printf("\n<data>\n");
+							memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
+							printf("\tTRADE_ID = %d \n", msg->data.trade_t.tradeID);
+							aux += sizeof(int);
+							printf("</data>\n");
+
+						break;
+
+				case  TRADE_NEGOTIATE:
+
+							printf("TRADE NEGOTIATE message received\n");
+							printf("\n<data>\n");
+							
+
+							memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
+							printf("\tTradeID = %d \n", msg->data.trade_t.tradeID);
+							aux += sizeof(int);
+
+							memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
+							printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
+							aux += sizeof(int);
+
+							from_len = 0;
+							memcpy(&(from_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.trade_t.from, aux, from_len);
+							printf("\tTRADE FROM = %s \n", msg->data.trade_t.from);
+							aux += from_len;
+
+							to_len = 0;
+							memcpy(&(to_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							memcpy(msg->data.trade_t.to, aux, to_len);
+							printf("\tTRADE TO = %s \n", msg->data.trade_t.to);
+							aux += to_len;
+
+							printf("</data>\n");
+
+						break;
+
+				case LOGOUT:
+
+							printf("LOGOUT message received\n");
+						break;		
+
+				}
+				free(bytestring);
+				rcvFlag = TRUE;
+			}
+		}
+	}while(!rcvFlag);
+
+	return msg;
+}
+
 
 
 
@@ -237,14 +450,13 @@ int main(void){
 	int msg = 0;
 
 	for ( ; ; ){
-		
-		if( (recvfrom(sockfd, &msg, sizeof(int), MSG_WAITALL, (struct sockaddr *) client, &client_size)) == -1){
-			perror("Error while receiving data");
-			continue ;
-		}
 
+		// if( (recvfrom(sockfd, &msg, sizeof(int), MSG_WAITALL, (struct sockaddr *) client, &client_size)) == -1){
+		// 	perror("Error while receiving data");
+		// 	continue ;
+		// }
 
-		printf("Recibí PID: %d\n\n", msg);
+		IPClisten();
 
 
 		/*
@@ -253,39 +465,39 @@ int main(void){
 			*
 
 		*/
-		msg_t test;
+		// msg_t test;
 
-		char client_path[50];
-		sprintf(client_path, client->sun_path);
-		memcpy(test.data.socket_client_t.socket_path, client_path, sizeof(test.data.socket_client_t.socket_path)-1);
-		test.data.socket_client_t.socket_family = client->sun_family;
+		// char client_path[50];
+		// sprintf(client_path, client->sun_path);
+		// memcpy(test.data.socket_client_t.socket_path, client_path, sizeof(test.data.socket_client_t.socket_path)-1);
+		// test.data.socket_client_t.socket_family = client->sun_family;
 
 		
-		Channel ch = createChannel(&test);
-		establishChannel(ch);
+		// Channel ch = createChannel(&test);
+		// establishChannel(ch);
 
 
-		List l = (List) malloc(sizeof(llist));
+		// List l = (List) malloc(sizeof(llist));
 
-		CreateList(l);
-		AddToList("Coca-Cola", l);
-		AddToList("Prueba", l);
-		AddToList("Mensaje laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaargo", l);
-		AddToList("Fin", l);
-		Element e;
+		// CreateList(l);
+		// AddToList("Coca-Cola", l);
+		// AddToList("Naranja", l);
+		// AddToList("", l);
+		// AddToList("El anterior era vacio!!!", l);
+		// Element e;
 
-		msg_s mymen;
-		mymen.status = 38;
-		mymen.msgList = l;
-		printf("Mensaje de prueba creado:\n");
-		FOR_EACH(e, mymen.msgList)
-		{
-			printf("\t%s\n", (char *) e->data);
-		}
+		// msg_s mymen;
+		// mymen.status = 38;
+		// mymen.msgList = l;
+		// printf("Mensaje de prueba creado:\n");
+		// FOR_EACH(e, mymen.msgList)
+		// {
+		// 	printf("\t%s\n", (char *) e->data);
+		// }
 
 
 
-		sendmessage(ch, &mymen);
+		// sendmessage(ch, &mymen);
 
 
 	}

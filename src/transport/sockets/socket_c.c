@@ -128,17 +128,17 @@ Msg_s rcvmessage(void){
 				for(i = 0; i < cantElem; i++){
 					memcpy(&(strsize), aux, sizeof(int));
 					aux += sizeof(int);
+
 					printf("<LOG socket_c.c> Client - Receiving message %d of %d - Message length = %d  <end>\n", i+1, cantElem, strsize);
 
 					char * str = calloc(strsize, sizeof(char));
 
-					memset(str, 0 , strsize);
+					// memset(str, 0 , strsize);
 					memcpy(str, aux, strsize);
 
 					// memcpy(str, aux, strsize);
-					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 					aux += strsize;
-					printf("<LOG socket_c.c> Client - Avanzo aux %d lugares <end>\n", strsize);
+					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 
 					AddToList(str, msg->msgList);
 					free(str);
@@ -157,108 +157,193 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int tempnamSize, passSize, userSize, fromSize, toSize;
+	int pathSize, passSize, userSize, fromSize, toSize, from_len, to_len;
+
+	int pass_len, user_len;
 
 	switch(msg->type)	{
 		case CONTACT:
-			tempnamSize = strlen(msg->data.tempnam)+1;
-			msgSize = 2*sizeof(int) + tempnamSize;
-			msgstraux = msgstr = malloc(msgSize);
+			pathSize = strlen(msg->data.socket_client_t.socket_path)+1;
+			msgSize = 4*sizeof(int) + pathSize;
+
+			// Contact message: [MSG_TYPE CLIENT_PID SOCKET_FAMILY PATH_LEN PATH]
+			// MSG_TYPE (int) --> CLIENT_PID (int) --> 
+			// --> SOCKET_FAMILY (int) --> PATH_LEN (int) --> PATH (char[N])
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &tempnamSize, sizeof(int));
+			
+			int client_pid = msg->data.socket_client_t.client_pid;
+			memcpy(msgstraux, &client_pid, sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.tempnam), tempnamSize);
+
+			int socket_family = msg->data.socket_client_t.socket_family;
+			memcpy(msgstraux, &socket_family, sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &pathSize, sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.socket_client_t.socket_path, pathSize);
 			break;
+
+
 		case REGISTER:
-			passSize = strlen(msg->data.register_t.pass)+1;
-			userSize = strlen(msg->data.register_t.user)+1;
-			msgSize = 3*sizeof(int)+passSize+userSize;
-			msgstraux = msgstr = malloc(msgSize);
+			
+			user_len = strlen(msg->data.register_t.user)+1;
+			pass_len = strlen(msg->data.register_t.pass)+1;
+			
+			msgSize = 3*sizeof(int) + user_len + pass_len;
+
+			// REGISTER message: [MSG_TYPE USER_LEN USER PASS_LEN PASS]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(userSize), sizeof(int));
+			
+			memcpy(msgstraux, &user_len, sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.register_t.user, userSize);
-			msgstraux += userSize;
-			memcpy(msgstraux, &passSize, sizeof(int));
+			
+			memcpy(msgstraux, msg->data.register_t.user, user_len);
+			msgstraux += user_len;
+
+			memcpy(msgstraux, &pass_len, sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.register_t.pass, passSize);
+			
+			memcpy(msgstraux, msg->data.register_t.pass, pass_len);
+			msgstraux += user_len;
+
 			break;
-		case LOGIN:
-			passSize = strlen(msg->data.login_t.pass)+1;
-			userSize = strlen(msg->data.login_t.user)+1;
-			msgSize = 3*sizeof(int)+passSize+userSize;
-			msgstraux = msgstr = malloc(msgSize);
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(userSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.login_t.user, userSize);
-			msgstraux += userSize;
-			memcpy(msgstraux, &passSize, sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.login_t.pass, passSize);
-			break;
+
 		case LIST_LEAGUES:
 		case LIST_TEAMS:
 		case LIST_TRADES:
-		case LOGOUT:
+
 			msgSize = sizeof(int);
-			msgstr = malloc(msgSize);
-			memcpy(msgstr, &(msg->type), sizeof(int));
+
+			// LIST message: [MSG_TYPE]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
 			break;
+
 		case LEAGUE_SHOW:
 		case TEAM_SHOW:
 		case TRADE_SHOW:
+			
 			msgSize = 2*sizeof(int);
-			msgstraux = msgstr = malloc(msgSize);
+
+			// SHOW message: [MSG_TYPE SHOW_ID]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
+			
 			memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
-			break;
+			msgstraux += sizeof(int);
+			
+			break;	
+
 		case TRADE:
-			fromSize = strlen(msg->data.trade_t.from)+1;
-			toSize = strlen(msg->data.trade_t.to)+1;
-			msgSize = 4*sizeof(int) + fromSize + toSize;
-			msgstraux = msgstr = malloc(msgSize);
+
+			from_len = strlen(msg->data.trade_t.from)+1;
+			to_len = strlen(msg->data.trade_t.to)+1;
+			printf("from = %d - to = %d\n", from_len, to_len);
+			msgSize = 5*sizeof(int) + from_len + to_len;
+			
+			// TRADE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(fromSize), sizeof(int));
+
+			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
-			msgstraux += fromSize;
-			memcpy(msgstraux, &(toSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
-			msgstraux += toSize;
+
 			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(from_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.from, from_len);
+			msgstraux += from_len;
+
+			memcpy(msgstraux, &(to_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.to, to_len);
+			msgstraux += to_len;
+
 			break;
+
 		case TRADE_WITHDRAW:
 		case TRADE_ACCEPT:
+
 			msgSize = 2*sizeof(int);
-			msgstraux = msgstr = malloc(msgSize);
+
+			// TRADE WITHDRAW / ACCEPT message: [MSG_TYPE TRADE_ID]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
+			
 			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
-			break;
+			msgstraux += sizeof(int);
+
+			break;	
+
 		case TRADE_NEGOTIATE:
-			fromSize = strlen(msg->data.trade_t.from)+1;
-			toSize = strlen(msg->data.trade_t.to)+1;
-			msgSize = 4*sizeof(int) + fromSize + toSize;
-			msgstraux = msgstr = malloc(msgSize);
+
+			from_len = strlen(msg->data.trade_t.from)+1;
+			to_len = strlen(msg->data.trade_t.to)+1;
+			msgSize = 5*sizeof(int) + from_len + to_len;
+			
+			// TRADE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(fromSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
-			msgstraux += fromSize;
-			memcpy(msgstraux, &(toSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
-			msgstraux += toSize;
+
 			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(from_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.from, from_len);
+			msgstraux += from_len;
+
+			memcpy(msgstraux, &(to_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.to, to_len);
+			msgstraux += to_len;
+
 			break;
+
+	}
+
+	if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+		perror("Error while trying to send a message to server.\n");
+		closeClient(client_address->sun_path);
+	}
+
+	if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+		perror("Error while trying to send a message to server.\n");
+		closeClient(client_address->sun_path);
 	}
 
 	// int nwrite;
@@ -273,7 +358,7 @@ int sendmessage(Msg_t msg)
 	// 	return !SUCCESSFUL;
 	// }
 
-	// free(msgstr);
+	free(msgstr);
 
 	return SUCCESSFUL;
 }
@@ -310,15 +395,48 @@ void connectToServer(void){
 
 	int pid = getpid();
 
-	
+	// Create a connection message
 
+	msg_t com;
+	com.type = CONTACT;
 
-	if((sendto(sockfd, &pid, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-		perror("Error while trying to connecto to server.\n");
-		closeClient(client_address->sun_path);
-		// continue ;
-	}
+	char client_path[50];
+	sprintf(client_path, client_address->sun_path);
+	memcpy(com.data.socket_client_t.socket_path, client_path, sizeof(com.data.socket_client_t.socket_path)-1);
+	com.data.socket_client_t.socket_family = client_address->sun_family;
+	com.data.socket_client_t.client_pid = pid;
 
+	msg_t com2;
+	com2.type = REGISTER;
+	sprintf(com2.data.register_t.user, "A");
+	sprintf(com2.data.register_t.pass, "B");
+
+	msg_t com3;
+	com3.type = TEAM_SHOW;
+	com3.data.show_t.ID = 23;
+
+	// msg_t com4;
+	// com4.type = TRADE;
+	// sprintf(com4.data.trade_t.from, "A");
+	// sprintf(com4.data.trade_t.to, "B");
+	// com4.data.trade_t.teamID = 15;
+	// com4.data.trade_t.tradeID = 1;
+
+	msg_t com4;
+	com4.type = TRADE_NEGOTIATE;
+	sprintf(com4.data.trade_t.from, "A");
+	sprintf(com4.data.trade_t.to, "B");
+	com4.data.trade_t.teamID = 15;
+	com4.data.trade_t.tradeID = 1;
+
+	msg_t com5;
+	com5.type = LOGOUT;
+
+	// communicate(&com);
+	communicate(&com2);
+	// communicate(&com3);
+	// communicate(&com4);
+	// communicate(&com5);
 
 }
 

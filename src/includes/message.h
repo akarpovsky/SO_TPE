@@ -6,7 +6,7 @@
 #include "./structs.h"
 
 #define MAX_LENGTH 20
-#define CONTACT 0
+#define CONTACT 1012
 #define REGISTER 1
 #define LOGIN 2
 #define LIST_LEAGUES 3
@@ -48,6 +48,7 @@ typedef struct msg_t{
 			int tradeID;
 		}trade_t;
 		struct socket_client_t{
+			int client_pid;
 			int socket_family;
 			char socket_path[MAX_LENGHT];
 		}socket_client_t;
