@@ -88,7 +88,7 @@ User loadUser(char * path){
 		AddToList(id,auxUser->leaguesIDs);
 	}
 	
-	printUser(auxUser);
+	// printUser(auxUser);
 	
 	return auxUser;
 }

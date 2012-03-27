@@ -245,11 +245,11 @@ int main(void){
 
 	upLink();
 
-	// for ( ; ; ){
+	for ( ; ; ){
 
 		IPClisten(NULL);
 
-	// }
+	}
 
     /* Create the request-handling threads */
 	// for (i=0; i<NUM_HANDLER_THREADS; i++) {
