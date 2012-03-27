@@ -42,7 +42,6 @@ struct sockaddr_un * fillServerData(){
 		return server_address;
 }
 
-
  struct sockaddr_un * fillClientData(int pid){
 
 		char path1[UNIX_PATH_MAX];
@@ -69,6 +68,12 @@ void sigint(){
 	exit(EXIT_FAILURE);
 }
 
+void sigpipe(){  
+	signal(SIGINT,sigpipe); /* reset signal */
+	printf("<LOG socket_s.c> Client have received a SIGPIPE. <end> \n");
+	printf("<LOG socket_s.c> Cannot talk to the server. Server may have been initialized wrong or it has crashed. <end> \n");
+	exit(EXIT_FAILURE);
+}
 
 
 Msg_s rcvmessage(void){
@@ -76,9 +81,8 @@ Msg_s rcvmessage(void){
 	int rcvFlag = FALSE;
 	Msg_s msg = calloc(1, sizeof(msg_s));
 
-
 	do{
-		int nread, msgSize;
+		int msgSize;
 		int client_len = SOCKET_SIZE;
 		void * bytestring;
 		void * aux;
@@ -157,7 +161,7 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int pathSize, passSize, userSize, fromSize, toSize, from_len, to_len;
+	int pathSize, from_len, to_len;
 
 	int pass_len, user_len;
 
@@ -254,7 +258,6 @@ int sendmessage(Msg_t msg)
 
 			from_len = strlen(msg->data.trade_t.from)+1;
 			to_len = strlen(msg->data.trade_t.to)+1;
-			printf("from = %d - to = %d\n", from_len, to_len);
 			msgSize = 5*sizeof(int) + from_len + to_len;
 			
 			// TRADE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
@@ -307,7 +310,7 @@ int sendmessage(Msg_t msg)
 			to_len = strlen(msg->data.trade_t.to)+1;
 			msgSize = 5*sizeof(int) + from_len + to_len;
 			
-			// TRADE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
+			// TRADE NEGOTIATE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
 
 			msgstraux = msgstr = calloc(msgSize, sizeof(char));
 			
@@ -333,30 +336,35 @@ int sendmessage(Msg_t msg)
 			msgstraux += to_len;
 
 			break;
+		
+		case LOGOUT:
+
+			msgSize = sizeof(int);
+
+			// LOGOUT message: [MSG_TYPE]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
+			break;
 
 	}
 
 	if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-		perror("Error while trying to send a message to server.\n");
+		perror("Error while trying to send a message to server.");
+		printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
 		closeClient(client_address->sun_path);
+		exit(EXIT_FAILURE);
 	}
 
 	if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
 		perror("Error while trying to send a message to server.\n");
+		printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
 		closeClient(client_address->sun_path);
+		exit(EXIT_FAILURE);
 	}
-
-	// int nwrite;
-	// if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
-	// {
-	// 	perror("Could not write message size");
-	// 	return !SUCCESSFUL;
-	// }
-	// if((nwrite = write(fdOut, msgstr, msgSize)) == -1)
-	// {
-	// 	perror("Could not write message");
-	// 	return !SUCCESSFUL;
-	// }
 
 	free(msgstr);
 
@@ -400,99 +408,98 @@ void connectToServer(void){
 	msg_t com;
 	com.type = CONTACT;
 
-	char client_path[50];
-	sprintf(client_path, client_address->sun_path);
-	memcpy(com.data.socket_client_t.socket_path, client_path, sizeof(com.data.socket_client_t.socket_path)-1);
+	int path_len = strlen(client_address->sun_path)+1;
+	com.data.socket_client_t.socket_path = calloc(path_len, sizeof(char));
+	memcpy(com.data.socket_client_t.socket_path, client_address->sun_path, path_len-1);
 	com.data.socket_client_t.socket_family = client_address->sun_family;
 	com.data.socket_client_t.client_pid = pid;
 
-	msg_t com2;
-	com2.type = REGISTER;
-	sprintf(com2.data.register_t.user, "A");
-	sprintf(com2.data.register_t.pass, "B");
+	// msg_t com2;
+	// com2.type = REGISTER;
+	// com2.data.register_t.user = "A";
+	// com2.data.register_t.pass = "B";
 
-	msg_t com3;
-	com3.type = TEAM_SHOW;
-	com3.data.show_t.ID = 23;
+	// msg_t com3;
+	// com3.type = TEAM_SHOW;
+	// com3.data.show_t.ID = 23;
 
 	// msg_t com4;
-	// com4.type = TRADE;
+	// com4.type = TRADE_NEGOTIATE;
+	// com4.data.trade_t.from = "Palermo";
+	// com4.data.trade_t.to = "Messi";
+	// com4.data.trade_t.teamID = 15;
+	// com4.data.trade_t.tradeID = 1;
+
+	// msg_t com4;
+	// com4.type = TRADE_NEGOTIATE;
 	// sprintf(com4.data.trade_t.from, "A");
 	// sprintf(com4.data.trade_t.to, "B");
 	// com4.data.trade_t.teamID = 15;
 	// com4.data.trade_t.tradeID = 1;
 
-	msg_t com4;
-	com4.type = TRADE_NEGOTIATE;
-	sprintf(com4.data.trade_t.from, "A");
-	sprintf(com4.data.trade_t.to, "B");
-	com4.data.trade_t.teamID = 15;
-	com4.data.trade_t.tradeID = 1;
-
-	msg_t com5;
-	com5.type = LOGOUT;
+	// msg_t com5;
+	// com5.type = LOGOUT;
 
 	// communicate(&com);
-	communicate(&com2);
+	// communicate(&com2);
 	// communicate(&com3);
 	// communicate(&com4);
-	// communicate(&com5);
+	communicate(&com);
 
 }
 
-int main(void){
+// int main(void){
 
-	signal(SIGINT,sigint);
+// 	signal(SIGINT,sigint);
+// 	signal(SIGPIPE,sigpipe);
 
+// 	connectToServer();
 
+// 	rcvmessage();
 
-	connectToServer();
-
-	rcvmessage();
-
-	// /* Connect the socket to the server's address and then
-	// 	send and receive information from the server */
+// 	// /* Connect the socket to the server's address and then
+// 	// 	send and receive information from the server */
 
 	
-	// if( (connect(sockfd, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-	// 	perror("<LOG socket_c.c> Connect call failed <end>");
-	// 	printf("<LOG socket_c.c> Tried to open the server first? <end>\n");
-	// 	exit(EXIT_FAILURE);
-	// }
+// 	// if( (connect(sockfd, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+// 	// 	perror("<LOG socket_c.c> Connect call failed <end>");
+// 	// 	printf("<LOG socket_c.c> Tried to open the server first? <end>\n");
+// 	// 	exit(EXIT_FAILURE);
+// 	// }
 
-	/* Send and receive information with the server */
+// 	/* Send and receive information with the server */
 
-	// First of all we will send our PID so the server can create an
-	// exclusive socket for listening me :)
+// 	// First of all we will send our PID so the server can create an
+// 	// exclusive socket for listening me :)
 
-	// int clientPID = getpid();
-	// send(sockfd, &clientPID, sizeof(clientPID), 0);	
+// 	// int clientPID = getpid();
+// 	// send(sockfd, &clientPID, sizeof(clientPID), 0);	
 	
-	// int ping = 0;
+// 	// int ping = 0;
 
-	// if(recv(sockfd, &ping, sizeof(int), 0) > 0)
-	// 	printf("Recibí: %d\n", ping);
-	// else
-	// 	printf("Server has died\n");
+// 	// if(recv(sockfd, &ping, sizeof(int), 0) > 0)
+// 	// 	printf("Recibí: %d\n", ping);
+// 	// else
+// 	// 	printf("Server has died\n");
 
-	// char c, rc;
-	// for( rc = '\n'; ; ){
-	// 	if(rc == '\n')
-	// 		printf("Input a lower case character\n");
+// 	// char c, rc;
+// 	// for( rc = '\n'; ; ){
+// 	// 	if(rc == '\n')
+// 	// 		printf("Input a lower case character\n");
 
-	// 	c = getchar();
+// 	// 	c = getchar();
 
-	// 	send(sockfd, &c, 1, 0);
-	// 	if(recv(sockfd, &rc, 1, 0) > 0)
-	// 		printf("Recibí: %c\n", rc);
-	// 	else{
-	// 		printf("Server has died\n");
-	// 		close(sockfd);
-	// 		exit(EXIT_FAILURE);
-	// 	}
+// 	// 	send(sockfd, &c, 1, 0);
+// 	// 	if(recv(sockfd, &rc, 1, 0) > 0)
+// 	// 		printf("Recibí: %c\n", rc);
+// 	// 	else{
+// 	// 		printf("Server has died\n");
+// 	// 		close(sockfd);
+// 	// 		exit(EXIT_FAILURE);
+// 	// 	}
 
-	// }
-	// sleep(3);
-	closeClient(client_address->sun_path);
+// 	// }
+// 	// sleep(3);
+// 	closeClient(client_address->sun_path);
 
-}
+// }

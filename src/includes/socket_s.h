@@ -1,5 +1,5 @@
 /*
- * fifo_s.h (Server)
+ * socket_s.h (Server)
  *
  */
 
@@ -32,33 +32,12 @@ struct sockaddr_un {
     char        sun_path[UNIX_PATH_MAX];  /* pathname */
  };
 
- typedef struct channel_t {
-	struct sockaddr_un * client;
-	int sockfd;
-} channel_t;
 
-typedef channel_t * Channel;
-
-
-void uplink(void);
-
-Msg_t IPClisten(void);
-
-int communicate(Channel ch, Msg_s msg);
-
-int establishChannel(Channel ch);
-
-int sendmessage(Channel ch, Msg_s msg);
-
-Channel createChannel(Msg_t msg);
 
 void closeServer(char * server_path);
 
 struct sockaddr_un * getClientChannel(char * path, int socket_family);
 
 struct sockaddr_un * getServerAddress();
-
-void sigint();
-
 
 #endif /* SOCKET_S_H_ */
