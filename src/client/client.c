@@ -15,6 +15,7 @@ int main(void){
 	char input[COMMAND_MAX_LENGHT];
 
 	connectToServer();
+	printf("BLA\n");
 
 	while(1){
 		printf("client:/$ ");

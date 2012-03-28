@@ -202,7 +202,7 @@ Msg_t IPClisten(Channel ch){
 	Msg_t msg = calloc(1, sizeof(msg_t));
 
 	do{
-		int msgSize, user_len, pass_len, from_len, to_len;
+		int msgSize, user_len, pass_len, from_len, to_len, name_len;
 		int client_len = SOCKET_SIZE;
 		void * bytestring;
 		void * aux;
@@ -435,7 +435,39 @@ Msg_t IPClisten(Channel ch){
 
 				case LOGOUT:
 							printf("\nLOGOUT message received\n");
-						break;		
+						break;
+				
+				case JOIN_LEAGUE:
+				case DRAFT:
+
+						printf("\nJOIN_LEAGUE / DRAFT message received\n");
+
+						printf("\n<data>\n");
+						memcpy(&(msg->data.ID), aux, sizeof(int));
+						printf("\tLEAGUE_ID = %d \n", msg->data.ID);
+						aux += sizeof(int);
+						printf("</data>\n\n");
+						
+						break;
+						
+				case CREATE_LEAGUE:
+
+						printf("\nCREATE_LEAGUE message received\n");
+						
+						name_len = 0;
+						memcpy(&(name_len), aux, sizeof(int));	
+						aux += sizeof(int);
+
+						msg->data.name = calloc(name_len,sizeof(char));
+						memcpy(msg->data.name, aux, name_len);
+						printf("\tCREATE_LEAGUE_NAME = %s \n", msg->data.name);
+						aux += name_len;
+
+				case DRAFT_OUT:
+
+						printf("\nDRAFT_OUT message received\n");
+
+					break;			
 
 				}
 				free(bytestring);

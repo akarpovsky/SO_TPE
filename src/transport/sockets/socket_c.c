@@ -1,6 +1,6 @@
 /*
 * 
-* Socket server
+* Socket client
 *
 */
 
@@ -161,7 +161,7 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int pathSize, from_len, to_len;
+	int pathSize, from_len, to_len, name_len;
 
 	int pass_len, user_len;
 
@@ -350,6 +350,56 @@ int sendmessage(Msg_t msg)
 
 			break;
 
+		case JOIN_LEAGUE:
+		case DRAFT:
+
+			// JOIN_LEAGUE or DRAFT_LEAGUE message: [MSG_TYPE LEAGUE_ID]		
+		
+			msgSize = 2*sizeof(int);
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+		
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(msg->data.ID), sizeof(int));
+			msgstraux += sizeof(int);
+				
+			break;
+					
+		case CREATE_LEAGUE:
+
+			// CREATE_LEAGUE message: [MSG_TYPE NAME_LEN NAME]
+
+			name_len = strlen(msg->data.name)+1;
+			msgSize = 2*sizeof(int) + name_len;
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+		
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(name_len), sizeof(int));
+			msgstraux += sizeof(int);
+			memcpy(msgstraux, msg->data.name, name_len);
+			msgstraux +=  name_len;
+				
+			break;
+
+		case DRAFT_OUT:
+
+			// DRAFT_OUT message: [MSG_TYPE]
+
+			msgSize = sizeof(int);
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+		
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
+			break;
+
+
 	}
 
 	if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
@@ -367,7 +417,7 @@ int sendmessage(Msg_t msg)
 	}
 
 	free(msgstr);
-
+	printf("ACA\n");
 	return SUCCESSFUL;
 }
 
@@ -445,6 +495,8 @@ void connectToServer(void){
 	// communicate(&com3);
 	// communicate(&com4);
 	communicate(&com);
+
+	return ;
 
 }
 
