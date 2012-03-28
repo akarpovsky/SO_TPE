@@ -2,8 +2,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-# define OK 0
-# define ERROR 1
+#define OK 0
+#define ERROR 1
 
 #include "../utils/LinkedList.h"
 #include "../includes/structs.h"

@@ -10,8 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "../includes/message.h"
-#include "../includes/defines.h"
+#include <string.h>
+#include "message.h"
+#include "defines.h"
 
 #define FIFO_IN "/tmp/fifo"
 
@@ -68,6 +69,21 @@ int sendmessage(Channel ch, Msg_s msg);
  */
 
 Channel createChannel(Msg_t msg);
+
+/**
+ * This function gracefuly closes the connection to the main server. Is supposed to
+ * be called once the main server exits.
+ */
+
+void closeMainServer(void);
+
+/**
+ * This function gracefuly closes the connections of the service provider assigned
+ * to a client. Is supposed to be called at the end of the execution of the such
+ * said service provider.
+ */
+
+void closeConnection(Channel ch);
 
 
 #endif /* FIFO_S_H_ */

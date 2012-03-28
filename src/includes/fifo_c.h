@@ -36,5 +36,12 @@ int sendmessage(Msg_t msg);
 
 void connectToServer(void);
 
+/**
+ * This function gracefuly closes the connection to the main server. Is supposed
+ * to be called once in the client is about to shut down.
+ */
+
+void closeConnection(void);
+
 
 #endif /* FIFO_C_H_ */
