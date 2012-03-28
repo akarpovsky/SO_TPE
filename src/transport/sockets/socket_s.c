@@ -13,34 +13,13 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../../includes/message.h"
 #include "../../utils/LinkedList.h"
 #include "../../includes/defines.h"
-
-
-
-#define SAME_MACHINE_CONNECTION AF_UNIX
-#define QUEUE_CONNECTION_SIZE 5
-#define SOCKET_SIZE sizeof(struct sockaddr_un)
-
-#define UNIX_PATH_MAX    108
-#define SERVER_PATH "/tmp/socket_server"
-
-
-
-
-struct sockaddr_un {
-	sa_family_t sun_family;               /* AF_UNIX */
-    char        sun_path[UNIX_PATH_MAX];  /* pathname */
- };
-
- typedef struct channel_t {
-	struct sockaddr_un * client;
-	int sockfd;
-} channel_t;
-
-typedef channel_t * Channel;
+#include "../../includes/socket_s.h"
+#include "../../includes/transport_s.h"
 
 
 int sockfd; // Server socket file descriptor
@@ -171,13 +150,12 @@ int sendmessage(Channel ch, Msg_s msg){
 		i+=1;
 	}
 
-	printf("Terminé de armar las listas\n");
+	printf("Terminé de armar las listas de mensajes\n");
 	printf("msgListSize = %d\n", msgListSize);
-
-	msgSize = 2*sizeof(int) + msgListSize*sizeof(int) + msgListSize ;
+	msgSize = 2*sizeof(int) + (i*sizeof(int)) + msgListSize ;
 	msgstr = msgstraux = calloc(msgSize, sizeof(char));
 
-	printf("msgSize = %d\n", msgSize);
+	printf("Tamaño del mensaje a enviar = %d\n", msgSize);
 
 	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);
@@ -190,15 +168,12 @@ int sendmessage(Channel ch, Msg_s msg){
 	{
 		memcpy(msgstraux, &(sizes[i]), sizeof(int));
 		msgstraux += sizeof(int);
-		printf("Memcpy de mensaje con size[%d] = %d\n", i, sizes[i]);
 
 		memcpy(msgstraux, strings[i], sizes[i]);
 		msgstraux += sizes[i];
 
-		printf("Memcpy de mensaje con str[%d] = %s\n", i, strings[i]);
 
 	}
-
 
 	if((sendto(ch->sockfd, &msgSize, sizeof(int), MSG_WAITALL, (struct sockaddr *) ch->client, SOCKET_SIZE) == -1)){
 		perror("<LOG socket_s.c> Server: Could not write message size <end>");
@@ -212,119 +187,378 @@ int sendmessage(Channel ch, Msg_s msg){
 		perror("<LOG socket_s.c> Server: Could not write message <end>");
 		return !SUCCESSFUL;
 	}else{
-		printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>", msgSize);
+		printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>\n");
 	}
 
 	// free(msgstr);
 	return SUCCESSFUL;
-
 }
 
 
+Msg_t IPClisten(Channel ch){
 
-int main(void){
-	
-	// First of all be aware of system signals.
-	// We must exit clean :)
+	printf("\nServer listening ...\n\n");
+	int rcvFlag = FALSE;
+	Msg_t msg = calloc(1, sizeof(msg_t));
 
-	signal(SIGINT,sigint);
+	do{
+		int msgSize, user_len, pass_len, from_len, to_len;
+		int client_len = SOCKET_SIZE;
+		void * bytestring;
+		void * aux;
+		struct sockaddr_un * client;
 
-	upLink();
 
-	struct sockaddr_un * client = malloc(sizeof(SOCKET_SIZE));
-	int client_size = SOCKET_SIZE;
-	
-	int msg = 0;
 
-	for ( ; ; ){
-		
-		if( (recvfrom(sockfd, &msg, sizeof(int), MSG_WAITALL, (struct sockaddr *) client, &client_size)) == -1){
+		int listenFD;
+		if(ch == NULL){
+			listenFD = sockfd;
+		}
+		else{
+			listenFD = ch->sockfd;
+			client = ch->client;
+		}
+
+
+		int client_size = SOCKET_SIZE;
+
+		if( (recvfrom(listenFD, &msgSize, sizeof(int), MSG_WAITALL, NULL, NULL)) == -1){
 			perror("Error while receiving data");
 			continue ;
 		}
 
+		if(msgSize > 0){
+			
+			aux = bytestring = malloc(msgSize);
+			
 
-		printf("Recibí PID: %d\n\n", msg);
+			printf("<LOG socket_c.c> Server - Message header received OK. Full message size = %d <end>\n", msgSize);
+
+			if( (recvfrom(listenFD, aux, msgSize * sizeof(char), MSG_WAITALL, NULL, NULL)) == -1){
+				perror("Reading client message failed");
+				return NULL;
+			}
+			else{
+				
+				memcpy(&(msg->type), aux, sizeof(int));
+				aux += sizeof(int);
+
+				printf("<LOG socket_c.c> Server - Received message type: %d <end>\n", msg->type);
+
+				int type = msg->type;
+				switch(type){
+					
+					case CONTACT:
+						
+						printf("\nCONTACT message received\n");
+						printf("\n<data>\n");
+						memcpy(&(msg->data.socket_client_t.client_pid), aux, sizeof(int));
+						aux += sizeof(int);
+						printf("\tCLIENT_PID = %d \n", msg->data.socket_client_t.client_pid);
+
+						memcpy(&(msg->data.socket_client_t.socket_family), aux, sizeof(int));
+						aux += sizeof(int);
+						printf("\tSOCKET_FAMILY = %d \n", msg->data.socket_client_t.socket_family);
+					
+						int path_len = 0;
+						memcpy(&(path_len), aux, sizeof(int));
+						aux += sizeof(int);
+						printf("\tSOCKET_PATH_LENGHT = %d \n", path_len);
+
+						msg->data.socket_client_t.socket_path = calloc(path_len, sizeof(char));
+						memcpy(msg->data.socket_client_t.socket_path, aux, path_len);
+						printf("\tSOCKET_PATH = %s \n", msg->data.socket_client_t.socket_path);
+						printf("</data>\n\n");
+					
+						break;
+
+					case REGISTER:
+
+							printf("\nREGISTER message received\n");
+							printf("\n<data>\n");
+							
+							user_len = 0;
+							memcpy(&(user_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.register_t.user = calloc(user_len,sizeof(char));
+							memcpy(msg->data.register_t.user, aux, user_len);
+							printf("\tUsername = %s \n", msg->data.register_t.user);
+							aux += user_len;
+
+							pass_len = 0;
+							memcpy(&(pass_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.register_t.pass = calloc(pass_len,sizeof(char));
+							memcpy(msg->data.register_t.pass, aux, pass_len);
+							printf("\tPassword = %s \n", msg->data.register_t.pass);
+							aux += pass_len;
+
+							printf("</data>\n\n");
+
+						break;
+
+					case LOGIN:
+
+							printf("\nLOGIN message received\n");
+							printf("\n<data>\n");
+							
+							user_len = 0;
+							memcpy(&(user_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.register_t.user = calloc(user_len,sizeof(char));
+							memcpy(msg->data.register_t.user, aux, user_len);
+							printf("\tUsername = %s \n", msg->data.register_t.user);
+							aux += user_len;
+
+							pass_len = 0;
+							memcpy(&(pass_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.register_t.pass = calloc(pass_len,sizeof(char));
+							memcpy(msg->data.register_t.pass, aux, pass_len);
+							printf("\tPassword = %s \n", msg->data.register_t.pass);
+							aux += pass_len;
+
+							printf("</data>\n\n");
+
+						break;
+
+				case LIST_LEAGUES:
+				case LIST_TEAMS:
+				case LIST_TRADES:
+						printf("\nLIST_TEAMS / LIST_LEAGUES / LIST_TRADES message received\n");
+
+						break;
+
+				case LEAGUE_SHOW:
+				case TEAM_SHOW:
+				case TRADE_SHOW:
+
+							printf("\nTEAM_SHOW / TEAM_SHOW / TRADE_SHOW message received\n");
+							printf("\n<data>\n");
+							
+							memcpy(&(msg->data.show_t.ID), aux, sizeof(int));
+							printf("\tSHOW_ID = %d \n", msg->data.show_t.ID);
+							aux += sizeof(int);
+
+							printf("</data>\n\n");
+
+						break;
+
+				case TRADE:
+
+							printf("\nTRADE message received\n");
+							printf("\n<data>\n");
+							
+
+							memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
+							printf("\tTradeID = %d \n", msg->data.trade_t.tradeID);
+							aux += sizeof(int);
+
+							memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
+							printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
+							aux += sizeof(int);
+
+							from_len = 0;
+							memcpy(&(from_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.trade_t.from = calloc(from_len, sizeof(char));
+							memcpy(msg->data.trade_t.from, aux, from_len);
+							printf("\tTRADE FROM = %s \n", msg->data.trade_t.from);
+							aux += from_len;
+
+							to_len = 0;
+							memcpy(&(to_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.trade_t.to = calloc(to_len, sizeof(char));
+							memcpy(msg->data.trade_t.to, aux, to_len);
+							printf("\tTRADE TO = %s \n", msg->data.trade_t.to);
+							aux += to_len;
+
+							printf("</data>\n\n");
+
+						break;
 
 
-		/*
-			*
-			* Mensaje de prueba para create channel
-			*
+				case TRADE_WITHDRAW:
+				case TRADE_ACCEPT:
 
-		*/
-		msg_t test;
+							printf("\nTRADE ACCEPT / WITHDRAW message received\n");
+							printf("\n<data>\n");
+							memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
+							printf("\tTRADE_ID = %d \n", msg->data.trade_t.tradeID);
+							aux += sizeof(int);
+							printf("</data>\n\n");
 
-		char client_path[50];
-		sprintf(client_path, client->sun_path);
-		memcpy(test.data.socket_client_t.socket_path, client_path, sizeof(test.data.socket_client_t.socket_path)-1);
-		test.data.socket_client_t.socket_family = client->sun_family;
+						break;
+
+				case  TRADE_NEGOTIATE:
+
+							printf("\nTRADE NEGOTIATE message received\n");
+							printf("\n<data>\n");
+							
+
+							memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
+							printf("\tTradeID = %d \n", msg->data.trade_t.tradeID);
+							aux += sizeof(int);
+
+							memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
+							printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
+							aux += sizeof(int);
+
+							from_len = 0;
+							memcpy(&(from_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.trade_t.from = calloc(from_len, sizeof(char));
+							memcpy(msg->data.trade_t.from, aux, from_len);
+							printf("\tTRADE FROM = %s \n", msg->data.trade_t.from);
+							aux += from_len;
+
+							to_len = 0;
+							memcpy(&(to_len), aux, sizeof(int));	
+							aux += sizeof(int);
+
+							msg->data.trade_t.to = calloc(to_len, sizeof(char));
+							memcpy(msg->data.trade_t.to, aux, to_len);
+							printf("\tTRADE TO = %s \n", msg->data.trade_t.to);
+							aux += to_len;
+
+							printf("</data>\n\n");
+
+						break;
+
+				case LOGOUT:
+							printf("\nLOGOUT message received\n");
+						break;		
+
+				}
+				free(bytestring);
+				rcvFlag = TRUE;
+			}
+		}
+	}while(!rcvFlag);
+
+	return msg;
+}
+
+
+
+
+// int main(void){
+	
+// 	// First of all be aware of system signals.
+// 	// We must exit clean :)
+
+// 	signal(SIGINT,sigint);
+
+// 	upLink();
+
+// 	struct sockaddr_un * client = malloc(sizeof(SOCKET_SIZE));
+// 	int client_size = SOCKET_SIZE;
+
+// 	// char client_path[50];
+// 	// sprintf(client_path, client->sun_path);
+// 	// memcpy(test.data.socket_client_t.socket_path, client_path, sizeof(test.data.socket_client_t.socket_path)-1);
+// 	// test.data.socket_client_t.socket_family = client->sun_family;
 
 		
-		Channel ch = createChannel(&test);
-		establishChannel(ch);
-
-
-		List l = (List) malloc(sizeof(llist));
-
-		CreateList(l);
-		AddToList("Coca-Cola", l);
-		AddToList("Prueba", l);
-		AddToList("Mensaje laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaargo", l);
-		AddToList("Fin", l);
-		Element e;
-
-		msg_s mymen;
-		mymen.status = 38;
-		mymen.msgList = l;
-		printf("Mensaje de prueba creado:\n");
-		FOR_EACH(e, mymen.msgList)
-		{
-			printf("\t%s\n", (char *) e->data);
-		}
-
-
-
-		sendmessage(ch, &mymen);
-
-
-	}
-
-	// // -2- Start listening for incoming connections
-
-	// // The server will be able to queue up to QUEUE_CONNECTION_SIZE incoming connection requests
-	// if( listen(sockfd, QUEUE_CONNECTION_SIZE) == -1){
-	// 	perror("<LOG socket_s.c> Listen call failed <end>");
-	// 	exit(EXIT_FAILURE);
-	// }
-
-	// int clientPID; // Buffer for storing received data
-
-
-	// // -3- Loop
-	// for ( ; ; )
-	// {
-
-	// 	/* Accept a connections */
-	// 	newsockfd = accept(sockfd, NULL, NULL);
-
-	// 	if( newsockfd == -1){
-	// 		perror("<LOG socket_s.c> Accept call failed <end>");
-	// 		continue;
-	// 	}else{
-	// 		printf("<LOG socket_s.c> New connection accepted. Created unique socket file descriptor: newsockfd = %d <end>\n", newsockfd);
-	// 	}
+// 	// Channel ch = createChannel(&test);
+// 	// establishChannel(ch);
 	
-	// -4- Spawn a child to deal with the connection
-	// Here we will have to create a new thread for our child
+// 	int msg = 0;
 
-	// if( fork() == 0){
-	// 	/* Receive data */
-	// 	while(recv(newsockfd, &clientPID, sizeof(clientPID), 0) > 0){
-	// 		printf("Server recibe el PID del cliente: %d\n", clientPID);
+// 	for ( ; ; ){
 
-	// 		}
-	// 	}
-	// }
+// 		msg_t test;
 
-}
+// 		int client_len = strlen(client->sun_path) + 1;
+// 		test.data.socket_client_t.socket_path = calloc(client_len, sizeof(char));
+// 		test.data.socket_client_t.socket_path = client->sun_path;
+// 		test.data.socket_client_t.socket_family = client->sun_family;
+		
+// 		Channel ch = createChannel(&test);
+// 		establishChannel(ch);
+
+// 		IPClisten(ch);
+
+
+// 		/*
+// 			*
+// 			* Mensaje de prueba para create channel
+// 			*
+
+// 		*/
+// 		// msg_t test;
+
+
+
+
+// 		// List l = (List) malloc(sizeof(llist));
+
+// 		// CreateList(l);
+// 		// AddToList("Coca-Cola", l);
+// 		// AddToList("Naranja", l);
+// 		// AddToList("", l);
+// 		// AddToList("El anterior era vacio!!!", l);
+// 		// Element e;
+
+// 		// msg_s mymen;
+// 		// mymen.status = 38;
+// 		// mymen.msgList = l;
+// 		// printf("Mensaje de prueba creado:\n");
+// 		// FOR_EACH(e, mymen.msgList)
+// 		// {
+// 		// 	printf("\t%s\n", (char *) e->data);
+// 		// }
+
+
+
+// 		// sendmessage(ch, &mymen);
+
+
+// 	}
+
+// 	// // -2- Start listening for incoming connections
+
+// 	// // The server will be able to queue up to QUEUE_CONNECTION_SIZE incoming connection requests
+// 	// if( listen(sockfd, QUEUE_CONNECTION_SIZE) == -1){
+// 	// 	perror("<LOG socket_s.c> Listen call failed <end>");
+// 	// 	exit(EXIT_FAILURE);
+// 	// }
+
+// 	// int clientPID; // Buffer for storing received data
+
+
+// 	// // -3- Loop
+// 	// for ( ; ; )
+// 	// {
+
+// 	// 	/* Accept a connections */
+// 	// 	newsockfd = accept(sockfd, NULL, NULL);
+
+// 	// 	if( newsockfd == -1){
+// 	// 		perror("<LOG socket_s.c> Accept call failed <end>");
+// 	// 		continue;
+// 	// 	}else{
+// 	// 		printf("<LOG socket_s.c> New connection accepted. Created unique socket file descriptor: newsockfd = %d <end>\n", newsockfd);
+// 	// 	}
+	
+// 	// -4- Spawn a child to deal with the connection
+// 	// Here we will have to create a new thread for our child
+
+// 	// if( fork() == 0){
+// 	// 	/* Receive data */
+// 	// 	while(recv(newsockfd, &clientPID, sizeof(clientPID), 0) > 0){
+// 	// 		printf("Server recibe el PID del cliente: %d\n", clientPID);
+
+// 	// 		}
+// 	// 	}
+// 	// }
+
+// }

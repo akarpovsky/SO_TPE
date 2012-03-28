@@ -3,6 +3,7 @@
 #include <pthread.h> 
 #include <stdlib.h>
 #include "./server.h"
+#include "../includes/transport_s.h"
 
 /* Number of threads used to service requests */
 #define NUM_HANDLER_THREADS 1
@@ -164,7 +165,6 @@ void * client_thread(void * data){
 	}
 	// Acá se le debería informar al IPC qué thread lo está atendiendo
 	
-	
 }
 
 /*
@@ -226,9 +226,12 @@ void generateRequests(void){
 }
 
 int main(void){
-    int        i;                                /* loop counter          */
-    int        thr_id[NUM_HANDLER_THREADS];      /* thread IDs            */
-    pthread_t  p_threads[NUM_HANDLER_THREADS];   /* thread's structures   */
+ 
+ 	// First of all be aware of system signals.
+	// We must exit clean :)
+
+	signal(SIGINT,sigint);
+
 	int rc;
 
 	Game game; /* Game structure; will store all the game data */
@@ -240,26 +243,32 @@ int main(void){
 	clientThreadsList = (List) malloc(sizeof(client_t));
 	CreateList(clientThreadsList);
 
+	upLink();
+
+	for ( ; ; ){
+
+		IPClisten(NULL);
+
+	}
 
     /* Create the request-handling threads */
-	for (i=0; i<NUM_HANDLER_THREADS; i++) {
-		thr_id[i] = i;
-		printf("In main creating thread %d for handling connection requests\n", i);
-		rc = pthread_create(&p_threads[i], NULL, request_listener, &thr_id[i]);
+	// for (i=0; i<NUM_HANDLER_THREADS; i++) {
+	// 	thr_id[i] = i;
+	// 	printf("In main creating thread %d for handling connection requests\n", i);
+	// 	rc = pthread_create(&p_threads[i], NULL, request_listener, &thr_id[i]);
 	    
-		if (rc){
-		         printf("ERROR; return code from pthread_create() is %d\n", rc);
-		         exit(-1);
-		      }	
+	// 	if (rc){
+	// 	         printf("ERROR; return code from pthread_create() is %d\n", rc);
+	// 	         exit(-1);
+	// 	      }	
+ //    }
 
-    }
 
-	generateRequests();
-
+	// generateRequests();
 	
-   printf("Termine !!.\n");
+	printf("Exiting main thread !!.\n");
     
-   pthread_exit(NULL);
+	pthread_exit(NULL);
 
-return 0;
+	return EXIT_SUCCESS;
 }

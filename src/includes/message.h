@@ -5,6 +5,7 @@
 #include "../utils/LinkedList.h"
 #include "./structs.h"
 
+
 #define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2
@@ -21,7 +22,6 @@
 #define LOGOUT 13
 #define CONVENTION 50000
 #define MAX_LENGHT 50
-
 
 typedef struct msg_t{
 	
@@ -47,8 +47,9 @@ typedef struct msg_t{
 			int tradeID;
 		}trade_t;
 		struct socket_client_t{
+			int client_pid;
 			int socket_family;
-			char socket_path[MAX_LENGHT];
+			char * socket_path;
 		}socket_client_t;
 	}data;
 	int pidFrom;

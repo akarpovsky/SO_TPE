@@ -42,7 +42,6 @@ struct sockaddr_un * fillServerData(){
 		return server_address;
 }
 
-
  struct sockaddr_un * fillClientData(int pid){
 
 		char path1[UNIX_PATH_MAX];
@@ -69,6 +68,12 @@ void sigint(){
 	exit(EXIT_FAILURE);
 }
 
+void sigpipe(){  
+	signal(SIGINT,sigpipe); /* reset signal */
+	printf("<LOG socket_s.c> Client have received a SIGPIPE. <end> \n");
+	printf("<LOG socket_s.c> Cannot talk to the server. Server may have been initialized wrong or it has crashed. <end> \n");
+	exit(EXIT_FAILURE);
+}
 
 
 Msg_s rcvmessage(void){
@@ -76,9 +81,8 @@ Msg_s rcvmessage(void){
 	int rcvFlag = FALSE;
 	Msg_s msg = calloc(1, sizeof(msg_s));
 
-
 	do{
-		int nread, msgSize;
+		int msgSize;
 		int client_len = SOCKET_SIZE;
 		void * bytestring;
 		void * aux;
@@ -128,17 +132,17 @@ Msg_s rcvmessage(void){
 				for(i = 0; i < cantElem; i++){
 					memcpy(&(strsize), aux, sizeof(int));
 					aux += sizeof(int);
+
 					printf("<LOG socket_c.c> Client - Receiving message %d of %d - Message length = %d  <end>\n", i+1, cantElem, strsize);
 
 					char * str = calloc(strsize, sizeof(char));
 
-					memset(str, 0 , strsize);
+					// memset(str, 0 , strsize);
 					memcpy(str, aux, strsize);
 
 					// memcpy(str, aux, strsize);
-					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 					aux += strsize;
-					printf("<LOG socket_c.c> Client - Avanzo aux %d lugares <end>\n", strsize);
+					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 
 					AddToList(str, msg->msgList);
 					free(str);
@@ -157,123 +161,212 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int tempnamSize, passSize, userSize, fromSize, toSize;
+	int pathSize, from_len, to_len;
+
+	int pass_len, user_len;
 
 	switch(msg->type)	{
 		case CONTACT:
-			tempnamSize = strlen(msg->data.tempnam)+1;
-			msgSize = 2*sizeof(int) + tempnamSize;
-			msgstraux = msgstr = malloc(msgSize);
+			pathSize = strlen(msg->data.socket_client_t.socket_path)+1;
+			msgSize = 4*sizeof(int) + pathSize;
+
+			// Contact message: [MSG_TYPE CLIENT_PID SOCKET_FAMILY PATH_LEN PATH]
+			// MSG_TYPE (int) --> CLIENT_PID (int) --> 
+			// --> SOCKET_FAMILY (int) --> PATH_LEN (int) --> PATH (char[N])
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &tempnamSize, sizeof(int));
+			
+			int client_pid = msg->data.socket_client_t.client_pid;
+			memcpy(msgstraux, &client_pid, sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.tempnam), tempnamSize);
+
+			int socket_family = msg->data.socket_client_t.socket_family;
+			memcpy(msgstraux, &socket_family, sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &pathSize, sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.socket_client_t.socket_path, pathSize);
 			break;
+
+
 		case REGISTER:
-			passSize = strlen(msg->data.register_t.pass)+1;
-			userSize = strlen(msg->data.register_t.user)+1;
-			msgSize = 3*sizeof(int)+passSize+userSize;
-			msgstraux = msgstr = malloc(msgSize);
+			
+			user_len = strlen(msg->data.register_t.user)+1;
+			pass_len = strlen(msg->data.register_t.pass)+1;
+			
+			msgSize = 3*sizeof(int) + user_len + pass_len;
+
+			// REGISTER message: [MSG_TYPE USER_LEN USER PASS_LEN PASS]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(userSize), sizeof(int));
+			
+			memcpy(msgstraux, &user_len, sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.register_t.user, userSize);
-			msgstraux += userSize;
-			memcpy(msgstraux, &passSize, sizeof(int));
+			
+			memcpy(msgstraux, msg->data.register_t.user, user_len);
+			msgstraux += user_len;
+
+			memcpy(msgstraux, &pass_len, sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.register_t.pass, passSize);
+			
+			memcpy(msgstraux, msg->data.register_t.pass, pass_len);
+			msgstraux += user_len;
+
 			break;
-		case LOGIN:
-			passSize = strlen(msg->data.login_t.pass)+1;
-			userSize = strlen(msg->data.login_t.user)+1;
-			msgSize = 3*sizeof(int)+passSize+userSize;
-			msgstraux = msgstr = malloc(msgSize);
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(userSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.login_t.user, userSize);
-			msgstraux += userSize;
-			memcpy(msgstraux, &passSize, sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.login_t.pass, passSize);
-			break;
+
 		case LIST_LEAGUES:
 		case LIST_TEAMS:
 		case LIST_TRADES:
-		case LOGOUT:
+
 			msgSize = sizeof(int);
-			msgstr = malloc(msgSize);
-			memcpy(msgstr, &(msg->type), sizeof(int));
+
+			// LIST message: [MSG_TYPE]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
 			break;
+
 		case LEAGUE_SHOW:
 		case TEAM_SHOW:
 		case TRADE_SHOW:
+			
 			msgSize = 2*sizeof(int);
-			msgstraux = msgstr = malloc(msgSize);
+
+			// SHOW message: [MSG_TYPE SHOW_ID]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
+			
 			memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
-			break;
+			msgstraux += sizeof(int);
+			
+			break;	
+
 		case TRADE:
-			fromSize = strlen(msg->data.trade_t.from)+1;
-			toSize = strlen(msg->data.trade_t.to)+1;
-			msgSize = 4*sizeof(int) + fromSize + toSize;
-			msgstraux = msgstr = malloc(msgSize);
+
+			from_len = strlen(msg->data.trade_t.from)+1;
+			to_len = strlen(msg->data.trade_t.to)+1;
+			msgSize = 5*sizeof(int) + from_len + to_len;
+			
+			// TRADE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(fromSize), sizeof(int));
+
+			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
-			msgstraux += fromSize;
-			memcpy(msgstraux, &(toSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
-			msgstraux += toSize;
+
 			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(from_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.from, from_len);
+			msgstraux += from_len;
+
+			memcpy(msgstraux, &(to_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.to, to_len);
+			msgstraux += to_len;
+
 			break;
+
 		case TRADE_WITHDRAW:
 		case TRADE_ACCEPT:
+
 			msgSize = 2*sizeof(int);
-			msgstraux = msgstr = malloc(msgSize);
+
+			// TRADE WITHDRAW / ACCEPT message: [MSG_TYPE TRADE_ID]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
+			
 			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
-			break;
+			msgstraux += sizeof(int);
+
+			break;	
+
 		case TRADE_NEGOTIATE:
-			fromSize = strlen(msg->data.trade_t.from)+1;
-			toSize = strlen(msg->data.trade_t.to)+1;
-			msgSize = 4*sizeof(int) + fromSize + toSize;
-			msgstraux = msgstr = malloc(msgSize);
+
+			from_len = strlen(msg->data.trade_t.from)+1;
+			to_len = strlen(msg->data.trade_t.to)+1;
+			msgSize = 5*sizeof(int) + from_len + to_len;
+			
+			// TRADE NEGOTIATE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
 			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(fromSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.from), fromSize);
-			msgstraux += fromSize;
-			memcpy(msgstraux, &(toSize), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, &(msg->data.trade_t.to), toSize);
-			msgstraux += toSize;
+
 			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, &(from_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.from, from_len);
+			msgstraux += from_len;
+
+			memcpy(msgstraux, &(to_len), sizeof(int));
+			msgstraux += sizeof(int);
+
+			memcpy(msgstraux, msg->data.trade_t.to, to_len);
+			msgstraux += to_len;
+
 			break;
+		
+		case LOGOUT:
+
+			msgSize = sizeof(int);
+
+			// LOGOUT message: [MSG_TYPE]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+
+			break;
+
 	}
 
-	// int nwrite;
-	// if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
-	// {
-	// 	perror("Could not write message size");
-	// 	return !SUCCESSFUL;
-	// }
-	// if((nwrite = write(fdOut, msgstr, msgSize)) == -1)
-	// {
-	// 	perror("Could not write message");
-	// 	return !SUCCESSFUL;
-	// }
+	if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+		perror("Error while trying to send a message to server.");
+		printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
+		closeClient(client_address->sun_path);
+		exit(EXIT_FAILURE);
+	}
 
-	// free(msgstr);
+	if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+		perror("Error while trying to send a message to server.\n");
+		printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
+		closeClient(client_address->sun_path);
+		exit(EXIT_FAILURE);
+	}
+
+	free(msgstr);
 
 	return SUCCESSFUL;
 }
@@ -310,71 +403,103 @@ void connectToServer(void){
 
 	int pid = getpid();
 
-	
+	// Create a connection message
 
+	msg_t com;
+	com.type = CONTACT;
 
-	if((sendto(sockfd, &pid, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-		perror("Error while trying to connecto to server.\n");
-		closeClient(client_address->sun_path);
-		// continue ;
-	}
+	int path_len = strlen(client_address->sun_path)+1;
+	com.data.socket_client_t.socket_path = calloc(path_len, sizeof(char));
+	memcpy(com.data.socket_client_t.socket_path, client_address->sun_path, path_len-1);
+	com.data.socket_client_t.socket_family = client_address->sun_family;
+	com.data.socket_client_t.client_pid = pid;
 
+	// msg_t com2;
+	// com2.type = REGISTER;
+	// com2.data.register_t.user = "A";
+	// com2.data.register_t.pass = "B";
 
-}
+	// msg_t com3;
+	// com3.type = TEAM_SHOW;
+	// com3.data.show_t.ID = 23;
 
-int main(void){
+	// msg_t com4;
+	// com4.type = TRADE_NEGOTIATE;
+	// com4.data.trade_t.from = "Palermo";
+	// com4.data.trade_t.to = "Messi";
+	// com4.data.trade_t.teamID = 15;
+	// com4.data.trade_t.tradeID = 1;
 
-	signal(SIGINT,sigint);
+	// msg_t com4;
+	// com4.type = TRADE_NEGOTIATE;
+	// sprintf(com4.data.trade_t.from, "A");
+	// sprintf(com4.data.trade_t.to, "B");
+	// com4.data.trade_t.teamID = 15;
+	// com4.data.trade_t.tradeID = 1;
 
+	// msg_t com5;
+	// com5.type = LOGOUT;
 
-
-	connectToServer();
-
-	rcvmessage();
-
-	// /* Connect the socket to the server's address and then
-	// 	send and receive information from the server */
-
-	
-	// if( (connect(sockfd, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-	// 	perror("<LOG socket_c.c> Connect call failed <end>");
-	// 	printf("<LOG socket_c.c> Tried to open the server first? <end>\n");
-	// 	exit(EXIT_FAILURE);
-	// }
-
-	/* Send and receive information with the server */
-
-	// First of all we will send our PID so the server can create an
-	// exclusive socket for listening me :)
-
-	// int clientPID = getpid();
-	// send(sockfd, &clientPID, sizeof(clientPID), 0);	
-	
-	// int ping = 0;
-
-	// if(recv(sockfd, &ping, sizeof(int), 0) > 0)
-	// 	printf("Recibí: %d\n", ping);
-	// else
-	// 	printf("Server has died\n");
-
-	// char c, rc;
-	// for( rc = '\n'; ; ){
-	// 	if(rc == '\n')
-	// 		printf("Input a lower case character\n");
-
-	// 	c = getchar();
-
-	// 	send(sockfd, &c, 1, 0);
-	// 	if(recv(sockfd, &rc, 1, 0) > 0)
-	// 		printf("Recibí: %c\n", rc);
-	// 	else{
-	// 		printf("Server has died\n");
-	// 		close(sockfd);
-	// 		exit(EXIT_FAILURE);
-	// 	}
-
-	// }
-	// sleep(3);
-	closeClient(client_address->sun_path);
+	// communicate(&com);
+	// communicate(&com2);
+	// communicate(&com3);
+	// communicate(&com4);
+	communicate(&com);
 
 }
+
+// int main(void){
+
+// 	signal(SIGINT,sigint);
+// 	signal(SIGPIPE,sigpipe);
+
+// 	connectToServer();
+
+// 	rcvmessage();
+
+// 	// /* Connect the socket to the server's address and then
+// 	// 	send and receive information from the server */
+
+	
+// 	// if( (connect(sockfd, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+// 	// 	perror("<LOG socket_c.c> Connect call failed <end>");
+// 	// 	printf("<LOG socket_c.c> Tried to open the server first? <end>\n");
+// 	// 	exit(EXIT_FAILURE);
+// 	// }
+
+// 	/* Send and receive information with the server */
+
+// 	// First of all we will send our PID so the server can create an
+// 	// exclusive socket for listening me :)
+
+// 	// int clientPID = getpid();
+// 	// send(sockfd, &clientPID, sizeof(clientPID), 0);	
+	
+// 	// int ping = 0;
+
+// 	// if(recv(sockfd, &ping, sizeof(int), 0) > 0)
+// 	// 	printf("Recibí: %d\n", ping);
+// 	// else
+// 	// 	printf("Server has died\n");
+
+// 	// char c, rc;
+// 	// for( rc = '\n'; ; ){
+// 	// 	if(rc == '\n')
+// 	// 		printf("Input a lower case character\n");
+
+// 	// 	c = getchar();
+
+// 	// 	send(sockfd, &c, 1, 0);
+// 	// 	if(recv(sockfd, &rc, 1, 0) > 0)
+// 	// 		printf("Recibí: %c\n", rc);
+// 	// 	else{
+// 	// 		printf("Server has died\n");
+// 	// 		close(sockfd);
+// 	// 		exit(EXIT_FAILURE);
+// 	// 	}
+
+// 	// }
+// 	// sleep(3);
+// 	closeClient(client_address->sun_path);
+
+// }
