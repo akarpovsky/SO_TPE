@@ -188,6 +188,31 @@ int sendmessage(Msg_t msg){
 							perror("msgsnd");
 						}
 						break;
+		
+		case JOIN_LEAGUE:
+		case DRAFT:
+						/* Mando ID */
+						toSendNum.dataInt.num = msg->data.ID;
+						if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
+							perror("msgsnd");
+						}
+						break;
+						
+		case CREATE_LEAGUE:
+		
+						/* Mando size de name */
+						size = strlen(msg->data.name) + 1;
+						toSendNum.dataInt.num = size;
+						if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
+							perror("msgsnd");
+						}
+						
+						/* Mando name */
+						strcpy(toSendString.dataString.string,msg->data.name);
+						if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
+							perror("msgsnd");
+						}
+						
 						
 	}	
 	

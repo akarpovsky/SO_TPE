@@ -205,7 +205,37 @@ Msg_t IPClisten(Channel ch){
 						}
 						msg->data.trade_t.tradeID = num.dataInt.num;
 						
-						break;		
+						break;
+						
+			case JOIN_LEAGUE:
+			case DRAFT:
+						/* Recibo ID */
+						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						msg->data.ID = num.dataInt.num;
+						
+						break;
+						
+			case CREATE_LEAGUE:
+						
+						/* Escucho size de name */
+						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						sizeString = num.dataInt.num;
+						msg->data.name = (char *) malloc(sizeString);
+						
+						/* Recibo to */
+						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						strcpy(msg->data.name,string.dataString.string);
+						
+							
 		}
 		
 		return msg;

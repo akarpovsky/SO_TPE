@@ -59,6 +59,8 @@ void parseCommand(char * cmd){
 		}
 	} 
 	
+
+	
 	/* Ahora en commandName hay un string con el nombre del comando
 	* y en param 1, 2 y 3 hay user, pass, id, player from, player to, etc...*/
 	

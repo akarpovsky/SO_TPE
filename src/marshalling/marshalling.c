@@ -31,7 +31,7 @@ void register_c(char * user, char * pass){
 	strcpy(msg->data.register_t.user,user);
 	strcpy(msg->data.register_t.pass,pass);
 
-	response = comunicate(&msg);
+	response = communicate(&msg);
 	
 	Element elem;
 	
@@ -68,8 +68,8 @@ void login_c(char * user, char * pass){
 	strcpy(msg->data.login_t.user,user);
 	strcpy(msg->data.login_t.pass,pass);
 
-	response = comunicate(msg);
-	
+	response = communicate(msg);
+
 	Element elem;
 	
 	/* Imprimo todos los msjs */
@@ -90,7 +90,7 @@ void list_c(int toList){
 	
 	msg->type = toList;
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -112,7 +112,7 @@ void leagueShow_c(char * id){
 	msg->type = LEAGUE_SHOW;
 	msg->data.show_t.ID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -134,7 +134,7 @@ void teamShow_c(char * id){
 	msg->type = TEAM_SHOW;
 	msg->data.show_t.ID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -156,7 +156,7 @@ void tradeShow_c(char * id){
 	msg->type = TRADE_SHOW;
 	msg->data.show_t.ID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -193,7 +193,7 @@ void trade_c(char * id, char * from, char * to){
 	strcpy(msg->data.trade_t.from,from);
 	strcpy(msg->data.trade_t.to,to);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -215,7 +215,7 @@ void tradeWithdraw_c(char * id){
 	msg->type = TRADE_WITHDRAW;
 	msg->data.trade_t.tradeID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -237,7 +237,7 @@ void tradeAccept_c(char * id){
 	msg->type = TRADE_ACCEPT;
 	msg->data.trade_t.tradeID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -273,7 +273,7 @@ void tradeNegotiate_c(char * id, char * from, char * to){
 	strcpy(msg->data.trade_t.from,from);
 	strcpy(msg->data.trade_t.to,to);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -295,7 +295,7 @@ void joinLeague_c(char * id){
 	msg->type = JOIN_LEAGUE;
 	msg->data.ID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -323,7 +323,7 @@ void createLeague_c(char * name){
 	}
 	strcpy(msg->data.name,name);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -345,7 +345,7 @@ void draft_c(char * id){
 	msg->type = DRAFT;
 	msg->data.ID = atoi(id);
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -366,7 +366,7 @@ void logout_c(){
 	
 	msg->type = LOGOUT;
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
@@ -388,7 +388,7 @@ void draftout_c(){
 	
 	msg->type = DRAFT_OUT;
 	
-	response = comunicate(msg);
+	response = communicate(msg);
 
 	Element elem;
 	
