@@ -5,6 +5,8 @@
 #include "./server.h"
 #include "../includes/transport_s.h"
 
+
+
 /* Number of threads used to service requests */
 #define NUM_HANDLER_THREADS 1
 
@@ -230,7 +232,7 @@ int main(void){
  	// First of all be aware of system signals.
 	// We must exit clean :)
 
-	signal(SIGINT,sigint);
+	signal(SIGINT, sigint);
 
 	int rc;
 
@@ -243,7 +245,7 @@ int main(void){
 	clientThreadsList = (List) malloc(sizeof(client_t));
 	CreateList(clientThreadsList);
 
-	upLink();
+	uplink();
 
 	for ( ; ; ){
 

@@ -63,7 +63,7 @@ void sigint(){
 	exit(EXIT_FAILURE);
 }
 
-void upLink(void){
+void uplink(void){
 
 	/* Transport endpoint */
 	if( (sockfd = socket(SAME_MACHINE_CONNECTION, SOCK_DGRAM, 0)) == -1){

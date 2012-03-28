@@ -5,12 +5,7 @@
 #include <string.h>  
 #include <stdlib.h>  
 #include "../../includes/message.h"
-#define MAXSIZE	128
-#define FTOK_ID 1
-#define FTOK_FILE "/tmp/msgq"
-#define MAIN_SERVER_PRIORITY 1
-#define MAX_STRING 200
-#define SUCCESSFUL 1
+#include "../../includes/mq_c.h"
 
 int msgqID;
 int pid;
@@ -258,51 +253,51 @@ Msg_s rcvmessage(void){
 	
 }
 
-int main(void){
+// int main(void){
 	
-	connectToServer();
-	printf("YA ME CONECTE\n");
+// 	connectToServer();
+// 	printf("YA ME CONECTE\n");
 	
-	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
-	if(msg == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);		
-	}
+// 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+// 	if(msg == NULL){
+// 		perror("Insufficient memory\n");
+// 		exit(EXIT_FAILURE);		
+// 	}
 	
-	msg->type = REGISTER;
-	msg->data.register_t.user = "vicky";
-	msg->data.register_t.pass = "PASS123";
-	communicate(msg);
+// 	msg->type = REGISTER;
+// 	msg->data.register_t.user = "vicky";
+// 	msg->data.register_t.pass = "PASS123";
+// 	communicate(msg);
 	
-	msg->type = LOGIN;
-	msg->data.login_t.user = "vicky";
-	msg->data.login_t.pass = "PASS123";
-	communicate(msg);
+// 	msg->type = LOGIN;
+// 	msg->data.login_t.user = "vicky";
+// 	msg->data.login_t.pass = "PASS123";
+// 	communicate(msg);
 		
-	msg->type = TRADE_SHOW;
-	msg->data.show_t.ID = atoi("12");
-	communicate(msg);
+// 	msg->type = TRADE_SHOW;
+// 	msg->data.show_t.ID = atoi("12");
+// 	communicate(msg);
 	
-	msg->type = TRADE;
-	msg->data.trade_t.from = "soyFrom";
-	msg->data.trade_t.to = "soyFrom";
-	msg->data.trade_t.teamID = atoi("1234");
-	communicate(msg);
+// 	msg->type = TRADE;
+// 	msg->data.trade_t.from = "soyFrom";
+// 	msg->data.trade_t.to = "soyFrom";
+// 	msg->data.trade_t.teamID = atoi("1234");
+// 	communicate(msg);
 		
-	msg->type = TRADE_ACCEPT;
-	msg->data.trade_t.tradeID = atoi("1234");
-	communicate(msg);
+// 	msg->type = TRADE_ACCEPT;
+// 	msg->data.trade_t.tradeID = atoi("1234");
+// 	communicate(msg);
 	
-	Msg_s resp = rcvmessage();
+// 	Msg_s resp = rcvmessage();
 
-	printf("\n");
-	printf("Status %d\n",resp->status);
+// 	printf("\n");
+// 	printf("Status %d\n",resp->status);
 	
-	Element elem;
+// 	Element elem;
 	
-	FOR_EACH(elem, resp->msgList){
-		printf("cadena: %s\n",(char*)(elem->data));
-	}
+// 	FOR_EACH(elem, resp->msgList){
+// 		printf("cadena: %s\n",(char*)(elem->data));
+// 	}
 	
-	return 0;
-}
+// 	return 0;
+// }

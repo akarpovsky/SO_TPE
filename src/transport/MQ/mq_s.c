@@ -6,40 +6,14 @@
 #include <string.h>
 #include <stdlib.h>  
 #include <errno.h>
+
+#include "../../utils/LinkedList.h"
 #include "../../includes/message.h"
 #include "../../includes/defines.h"
-
-#define FTOK_ID 1
-#define FTOK_FILE "/tmp/msgq"
-#define MAIN_SERVER_PRIORITY 1
-#define MAX_STRING 200
+#include "../../includes/mq_s.h"
+#include "../../includes/transport_s.h"
 
 int msgqID;
-
-typedef struct msg_String{
-    long  pid;  
-	struct dataString{
-		int pidFrom;
-		char string[MAX_STRING];
-		}dataString;
-}msg_String;
-
-typedef struct msg_Int{
-	long pid;
-	struct dataInt{
-		int num;
-		int pidFrom;
-	}dataInt;
-}msg_Int;
-
-
-typedef struct channel_t {
-	long pid; /* LO QUE EL THREAD ESCUCHA */
-} channel_t;
-
-typedef channel_t * Channel;
-
-
 
 void uplink(void){
 	
@@ -52,20 +26,39 @@ void uplink(void){
 	}	
 }
 
-Msg_t listen(Channel ch){
+void sigint(){  
+	signal(SIGINT,sigint); /* reset signal */
+	printf("<LOG mq_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
+	msgctl(msgqID, IPC_RMID, NULL);
+	exit(EXIT_FAILURE);
+}
+
+
+Msg_t IPClisten(Channel ch){
 	
+	printf("\nServer listening ...\n\n");
+
 	msg_String string;
 	msg_Int num;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
-	int sizeString, cantStrings;
+	int sizeString;
 	
 	/* Escucho como server */
 	if(ch == NULL){
+
 		/* Escucho el comando CONTACT Y EL PID DEL NUEVO CLIENTE */
-		msgrcv(msgqID,&num, sizeof(msg_Int)- sizeof(long),MAIN_SERVER_PRIORITY,0);
+		if((msgrcv(msgqID, &num, sizeof(msg_Int)- sizeof(long),MAIN_SERVER_PRIORITY,0)) == -1)
+		{
+				perror("Error in msgrcv");
+				exit(EXIT_FAILURE);
+		}
 		if(num.dataInt.num == CONTACT){
 			msg->type = num.dataInt.num;
 			msg->pidFrom = num.dataInt.pidFrom;
+			printf("\nCONTACT message received\n");
+			printf("\n<data>\n");
+			printf("\tCLIENT_PID = %d\n", msg->pidFrom);
+			printf("</data>\n\n");
 			return msg;
 		}else
 			return NULL;
@@ -295,55 +288,55 @@ int sendmessage(Channel ch, Msg_s msg){
 }
 
 	
-int main(void){
+// int main(void){
 	
-	uplink();
+// 	uplink();
 	
 	
-	int i;
+// 	int i;
 
-	Msg_t mess = listen(NULL);
-	printf("MENSAJE DE CONTACTO de %d\n", mess->pidFrom);
+// 	Msg_t mess = listen(NULL);
+// 	printf("MENSAJE DE CONTACTO de %d\n", mess->pidFrom);
 	
-	Channel ch = malloc(sizeof(channel_t));
-	ch->pid = mess->pidFrom + CONVENTION;
+// 	Channel ch = malloc(sizeof(channel_t));
+// 	ch->pid = mess->pidFrom + CONVENTION;
 	
-	mess = listen(ch);
-	printf("\n");
-	printf("MENSAJE REGISTER de user: %s\n", mess->data.register_t.user);
-	printf("MENSAJE REGISTER de pass: %s\n", mess->data.register_t.pass);
+// 	mess = listen(ch);
+// 	printf("\n");
+// 	printf("MENSAJE REGISTER de user: %s\n", mess->data.register_t.user);
+// 	printf("MENSAJE REGISTER de pass: %s\n", mess->data.register_t.pass);
 	
-	mess = listen(ch);
-	printf("\n");
-	printf("MENSAJE LOGGIN de user: %s\n", mess->data.login_t.user);
-	printf("MENSAJE LOGGIN de pass: %s\n", mess->data.login_t.pass);
+// 	mess = listen(ch);
+// 	printf("\n");
+// 	printf("MENSAJE LOGGIN de user: %s\n", mess->data.login_t.user);
+// 	printf("MENSAJE LOGGIN de pass: %s\n", mess->data.login_t.pass);
 	
-	mess = listen(ch);
-	printf("\n");
-	printf("MENSAJE TRADE_SHOW de id: %d\n", mess->data.show_t.ID);
+// 	mess = listen(ch);
+// 	printf("\n");
+// 	printf("MENSAJE TRADE_SHOW de id: %d\n", mess->data.show_t.ID);
 	
-	mess = listen(ch);
-	printf("\n");
-	printf("MENSAJE TRADE from: %s\n", mess->data.trade_t.from);
-	printf("MENSAJE TRADE de to: %s\n", mess->data.trade_t.to);
-	printf("MENSAJE TRADE de ID %d\n", mess->data.trade_t.teamID);
+// 	mess = listen(ch);
+// 	printf("\n");
+// 	printf("MENSAJE TRADE from: %s\n", mess->data.trade_t.from);
+// 	printf("MENSAJE TRADE de to: %s\n", mess->data.trade_t.to);
+// 	printf("MENSAJE TRADE de ID %d\n", mess->data.trade_t.teamID);
 	
-	mess = listen(ch);
-	printf("\n");
-	printf("MENSAJE TRADE_ACCEPT de id: %d\n", mess->data.trade_t.tradeID);
+// 	mess = listen(ch);
+// 	printf("\n");
+// 	printf("MENSAJE TRADE_ACCEPT de id: %d\n", mess->data.trade_t.tradeID);
 
-	Msg_s resp = malloc(sizeof(msg_t));
-	resp->status = 7;
-	resp->msgList = (List)malloc(sizeof(llist));
-	CreateList(resp->msgList);
-	AddToList("UNO",resp->msgList);
-	AddToList("DOS",resp->msgList);
-	AddToList("ULTIMA FRASE - FIN",resp->msgList);
+// 	Msg_s resp = malloc(sizeof(msg_t));
+// 	resp->status = 7;
+// 	resp->msgList = (List)malloc(sizeof(llist));
+// 	CreateList(resp->msgList);
+// 	AddToList("UNO",resp->msgList);
+// 	AddToList("DOS",resp->msgList);
+// 	AddToList("ULTIMA FRASE - FIN",resp->msgList);
 	
-	communicate(ch,resp);
-	return 0;
+// 	communicate(ch,resp);
+// 	return 0;
 	
 	
-}	
+// }	
 	
 	
