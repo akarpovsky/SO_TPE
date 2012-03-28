@@ -2,6 +2,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
+
 #define OK 0
 #define ERROR 1
 
@@ -9,6 +11,23 @@
 #include "../includes/structs.h"
 #include "../includes/message.h"
 #include "../IO/io.h"
+#include "../includes/execute.h"
+
+#ifdef fifo
+	#include "../includes/fifo_s.h"
+#endif
+#ifdef sockets
+	#include "../includes/socket_s.h"
+#endif
+#ifdef msgqueue
+	#include "../includes/mq_s.h"
+#endif
+#ifdef shmm
+	#include "../includes/shmm.h"
+#endif
+
+#define DEFINE_VARIABLES
+#include "../includes/global.h"
 
 
 void reverse(char s[])
@@ -83,7 +102,7 @@ void execute(Msg_t msg, Channel ch, User me){
 					break;
 					
 		case LIST_TRADES:
-					executeListTrades(msg,ch);
+					executeListTrades(msg,ch, me);
 					break;
 					
 		case LEAGUE_SHOW:
@@ -140,12 +159,12 @@ void executeRegister(Msg_t msg, Channel ch){
 	char * pass = (msg->data).login_t.pass;
 	char * toPrint;
 
-	int i,rc;
+	int rc;
 	Element elem;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	FOR_EACH(elem, game->users){
+	FOR_EACH(elem, gameAux->users){
 
 		/* Caso: El usuario ya existe */
 		if(strcmp(((User)(elem->data))->user,user) == 0){
@@ -159,7 +178,7 @@ void executeRegister(Msg_t msg, Channel ch){
 			AddToList(toPrint,answer->msgList);
 			answer->status = ERROR;
 
-			rc = pthread_mutex_unlock(game_mutex);
+			rc = pthread_mutex_unlock(&game_mutex);
 
 			communicate(ch, answer);
 			return;
@@ -211,7 +230,7 @@ void executeRegister(Msg_t msg, Channel ch){
 
 	communicate(ch,answer);
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	return;
 
@@ -226,13 +245,13 @@ void executeLogin(Msg_t msg, Channel ch, User me){
 	char * toPrint;
 	char * usuario;
 
-	int i,rc;
+	int rc;
 	Element elem;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
 	/* Me fijo si ya estoy conectado */
-	FOR_EACH(elem, game->loggedUsers){
+	FOR_EACH(elem, gameAux->loggedUsers){
 
 		/* Caso: El usuario ya esta conectado */
 		if(strcmp((char *)elem->data,user) == 0){
@@ -248,7 +267,7 @@ void executeLogin(Msg_t msg, Channel ch, User me){
 
 			communicate(ch, answer);
 
-			rc = pthread_mutex_unlock(game_mutex);
+			rc = pthread_mutex_unlock(&game_mutex);
 
 			return;
 
@@ -256,7 +275,7 @@ void executeLogin(Msg_t msg, Channel ch, User me){
 	}
 
 	/* Me fijo si el usuario existe y lo loggeo*/
-	FOR_EACH(elem, game->users){
+	FOR_EACH(elem, gameAux->users){
 
 		/* Caso: El usuario existe */
 		if(strcmp(((User)(elem->data))->user,user) == 0 &&
@@ -277,12 +296,12 @@ void executeLogin(Msg_t msg, Channel ch, User me){
 				exit(EXIT_FAILURE);
 			}
 			strcpy(usuario,user);
-			AddToList(usuario,game->loggedUsers);
+			AddToList(usuario,gameAux->loggedUsers);
 			answer->status = OK;
 
 			me = (User)elem->data;
 
-			rc = pthread_mutex_unlock(game_mutex);
+			rc = pthread_mutex_unlock(&game_mutex);
 
 			communicate(ch, answer);
 			return;
@@ -301,7 +320,7 @@ void executeLogin(Msg_t msg, Channel ch, User me){
 	AddToList(toPrint,answer->msgList);
 	answer->status = ERROR;
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	communicate(ch, answer);
 	return;
@@ -314,9 +333,9 @@ void executeListLeagues(Msg_t msg, Channel ch){
 	char * toPrint;
 	int rc;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	if(game->leagues->NumEl == 0){
+	if(gameAux->leagues->NumEl == 0){
 		toPrint = malloc(strlen("There is no league created") + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
@@ -326,7 +345,7 @@ void executeListLeagues(Msg_t msg, Channel ch){
 		AddToList(toPrint,answer->msgList);
 		answer->status = OK;
 
-		rc = pthread_mutex_unlock(game_mutex);
+		rc = pthread_mutex_unlock(&game_mutex);
 
 		communicate(ch, answer);
 		return;
@@ -335,7 +354,7 @@ void executeListLeagues(Msg_t msg, Channel ch){
 	int dim;
 	Element elem;
 
-	FOR_EACH(elem, game->leagues){
+	FOR_EACH(elem, gameAux->leagues){
 
 		/* ID */
 		dim = floor(log10(((League)elem->data)->ID));
@@ -359,7 +378,7 @@ void executeListLeagues(Msg_t msg, Channel ch){
 
 	}
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	answer->status = OK;
 	communicate(ch,answer);
@@ -373,9 +392,9 @@ void executeListTeams(Msg_t msg, Channel ch){
 	char * toPrint;
 	int rc;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	if(game->cantTeams == 0){
+	if(gameAux->cantTeams == 0){
 		toPrint = malloc(strlen("There is no team created") + 1);
 		if(toPrint == NULL){
 				perror("Insufficient memory\n");
@@ -385,7 +404,7 @@ void executeListTeams(Msg_t msg, Channel ch){
 		AddToList(toPrint,answer->msgList);
 		answer->status = OK;
 
-		rc = pthread_mutex_unlock(game_mutex);
+		rc = pthread_mutex_unlock(&game_mutex);
 
 		communicate(ch, answer);
 		return;
@@ -395,7 +414,7 @@ void executeListTeams(Msg_t msg, Channel ch){
 	Element elem;
 	Element elemTeam;
 
-	FOR_EACH(elem, game->leagues){
+	FOR_EACH(elem, gameAux->leagues){
 
 		dim = strlen("In League:");
 		toPrint = malloc(dim + 1);
@@ -441,13 +460,13 @@ void executeListTeams(Msg_t msg, Channel ch){
 	answer->status = OK;
 	communicate(ch,answer);
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	return;
 
 }
 
-void executeListTrades(Msg_t msg, Channel ch){
+void executeListTrades(Msg_t msg, Channel ch, User me){
 
 	Msg_s answer = createMsg_s();
 	char * toPrint;
@@ -456,9 +475,9 @@ void executeListTrades(Msg_t msg, Channel ch){
 	Element elem;
 	Element elemTrade;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	FOR_EACH(elem, game->leagues){
+	FOR_EACH(elem, gameAux->leagues){
 		/* Agrego la frase "In League" */
 		dim = strlen("In League:");
 		toPrint = malloc(dim + 1);
@@ -499,7 +518,7 @@ void executeListTrades(Msg_t msg, Channel ch){
 
 	}
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	answer->status = OK;
 	communicate(ch,answer);
@@ -517,9 +536,9 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 	Element elem;
 	Element elemItem;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	FOR_EACH(elem, game->leagues){
+	FOR_EACH(elem, gameAux->leagues){
 
 		if(((League)(elem->data))->ID == input){
 			/* Imprimo el nombre de la league */
@@ -618,7 +637,7 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 
 			}
 
-			rc = pthread_mutex_unlock(game_mutex);
+			rc = pthread_mutex_unlock(&game_mutex);
 
 			answer->status = OK;
 			communicate(ch,answer);
@@ -636,7 +655,7 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 	strcpy(toPrint,"Incorrect ID");
 	AddToList(toPrint,answer->msgList);
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	answer->status = ERROR;
 	communicate(ch,answer);
@@ -655,9 +674,9 @@ void executeTeamShow(Msg_t msg, Channel ch){
 	Element elemTeam;
 	Element elemPlayer;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	FOR_EACH(elemLeague, game->leagues){
+	FOR_EACH(elemLeague, gameAux->leagues){
 
 		FOR_EACH(elemTeam, ((League)elemLeague->data)->teams){
 
@@ -758,7 +777,7 @@ void executeTeamShow(Msg_t msg, Channel ch){
 
 				}
 
-				rc = pthread_mutex_unlock(game_mutex);
+				rc = pthread_mutex_unlock(&game_mutex);
 
 				answer->status = ERROR;
 				communicate(ch,answer);
@@ -775,7 +794,7 @@ void executeTeamShow(Msg_t msg, Channel ch){
 	strcpy(toPrint,"Incorrect ID");
 	AddToList(toPrint,answer->msgList);
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	answer->status = ERROR;
 	communicate(ch,answer);
@@ -792,9 +811,9 @@ void executeTradeShow(Msg_t msg, Channel ch){
 	Element elemLeague;
 	Element elemTrade;
 
-	rc = pthread_mutex_lock(game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-	FOR_EACH(elemLeague, game->leagues){
+	FOR_EACH(elemLeague, gameAux->leagues){
 
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 
@@ -880,7 +899,7 @@ void executeTradeShow(Msg_t msg, Channel ch){
 				strcpy(toPrint,((Trade)elemTrade->data)->playerTo);
 				AddToList(toPrint,answer->msgList);
 
-				rc = pthread_mutex_unlock(game_mutex);
+				rc = pthread_mutex_unlock(&game_mutex);
 
 				answer->status = OK;
 					communicate(ch,answer);
@@ -899,7 +918,7 @@ void executeTradeShow(Msg_t msg, Channel ch){
 	strcpy(toPrint,"Incorrect ID");
 	AddToList(toPrint,answer->msgList);
 
-	rc = pthread_mutex_unlock(game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 
 	answer->status = ERROR;
 	communicate(ch,answer);

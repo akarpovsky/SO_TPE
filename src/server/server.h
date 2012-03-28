@@ -1,10 +1,11 @@
- #if !defined( server_h )
-#define server_h
+#ifndef SERVER_H_
+#define SERVER_H_
+
+#include <pthread.h>
 
 #include "../includes/structs.h"
 #include "../IO/io.h"
 #include "../includes/message.h"
-
 #include "../utils/LinkedList.h"
 
 /* Structure of a single request. */
