@@ -1,5 +1,5 @@
 CC = gcc
-FILES = ./src/server/server.c ./src/IO/io.c ./src/utils/LinkedList.c
+FILES = ./src/server/server.c ./src/IO/io.c ./src/utils/LinkedList.c 
 OUT_DIR=./run
 OUT_EXE = server
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)

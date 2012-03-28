@@ -67,7 +67,6 @@ void login_c(char * user, char * pass){
 	
 	strcpy(msg->data.login_t.user,user);
 	strcpy(msg->data.login_t.pass,pass);
-
 	response = communicate(msg);
 
 	Element elem;

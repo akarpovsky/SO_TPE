@@ -33,7 +33,6 @@ void sigint(){
 	exit(EXIT_FAILURE);
 }
 
-
 Msg_t IPClisten(Channel ch){
 	
 	printf("\nServer listening ...\n\n");
@@ -45,13 +44,13 @@ Msg_t IPClisten(Channel ch){
 	
 	/* Escucho como server */
 	if(ch == NULL){
-
 		/* Escucho el comando CONTACT Y EL PID DEL NUEVO CLIENTE */
 		if((msgrcv(msgqID, &num, sizeof(msg_Int)- sizeof(long),MAIN_SERVER_PRIORITY,0)) == -1)
 		{
 				perror("Error in msgrcv");
 				exit(EXIT_FAILURE);
 		}
+		
 		if(num.dataInt.num == CONTACT){
 			msg->type = num.dataInt.num;
 			msg->pidFrom = num.dataInt.pidFrom;
@@ -60,8 +59,9 @@ Msg_t IPClisten(Channel ch){
 			printf("\tCLIENT_PID = %d\n", msg->pidFrom);
 			printf("</data>\n\n");
 			return msg;
-		}else
+		}else{
 			return NULL;
+		}
 	}else{
 		/* Escucho como thread */
 		

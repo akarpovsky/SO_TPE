@@ -464,37 +464,15 @@ void connectToServer(void){
 	com.data.socket_client_t.socket_family = client_address->sun_family;
 	com.data.socket_client_t.client_pid = pid;
 
-	// msg_t com2;
-	// com2.type = REGISTER;
-	// com2.data.register_t.user = "A";
-	// com2.data.register_t.pass = "B";
+	Msg_s response;
+	response = communicate(&com);
 
-	// msg_t com3;
-	// com3.type = TEAM_SHOW;
-	// com3.data.show_t.ID = 23;
-
-	// msg_t com4;
-	// com4.type = TRADE_NEGOTIATE;
-	// com4.data.trade_t.from = "Palermo";
-	// com4.data.trade_t.to = "Messi";
-	// com4.data.trade_t.teamID = 15;
-	// com4.data.trade_t.tradeID = 1;
-
-	// msg_t com4;
-	// com4.type = TRADE_NEGOTIATE;
-	// sprintf(com4.data.trade_t.from, "A");
-	// sprintf(com4.data.trade_t.to, "B");
-	// com4.data.trade_t.teamID = 15;
-	// com4.data.trade_t.tradeID = 1;
-
-	// msg_t com5;
-	// com5.type = LOGOUT;
-
-	// communicate(&com);
-	// communicate(&com2);
-	// communicate(&com3);
-	// communicate(&com4);
-	communicate(&com);
+	Element elem;
+	
+	/* Imprimo todos los msjs */
+	FOR_EACH(elem, response->msgList){
+		printf("%s\n",(char*)(elem->data));
+	}
 
 	return ;
 

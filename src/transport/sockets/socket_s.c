@@ -138,24 +138,24 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	Element e;
 
-	printf("Empiezo a armar las listas\n");
+	// printf("Empiezo a armar las listas\n");
 	FOR_EACH(e, msg->msgList)
 	{
-		printf("\tProcesando _%s_\n", (char *) e->data);
+		// printf("\tProcesando _%s_\n", (char *) e->data);
 		sizes[i] = strlen(e->data)+1;
-		printf("Guardo en sizes[i] = %d\n", sizes[i]);
+		// printf("Guardo en sizes[i] = %d\n", sizes[i]);
 
 		strings[i] = e->data;
 		msgListSize += sizes[i];
 		i+=1;
 	}
 
-	printf("Terminé de armar las listas de mensajes\n");
-	printf("msgListSize = %d\n", msgListSize);
+	// printf("Terminé de armar las listas de mensajes\n");
+	// printf("msgListSize = %d\n", msgListSize);
 	msgSize = 2*sizeof(int) + (i*sizeof(int)) + msgListSize ;
 	msgstr = msgstraux = calloc(msgSize, sizeof(char));
 
-	printf("Tamaño del mensaje a enviar = %d\n", msgSize);
+	// printf("Tamaño del mensaje a enviar = %d\n", msgSize);
 
 	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);

@@ -6,6 +6,7 @@
 #include <stdlib.h>  
 #include "../../includes/message.h"
 #include "../../includes/mq_c.h"
+#include "../../includes/transport_c.h"
 
 int msgqID;
 int pid;
@@ -29,7 +30,7 @@ typedef struct msg_Int{
 Msg_s communicate(Msg_t msg){
 	
 	if(sendmessage(msg) == SUCCESSFUL){
-		//return rcvmessage();
+		return rcvmessage();
 	}
 	
 	return NULL;
@@ -51,7 +52,15 @@ void connectToServer(void){
 	msg_t com;
 	com.type = CONTACT;	
 	com.pidFrom = pid;
-	communicate(&com);
+	Msg_s response;
+	response = communicate(&com);
+
+	Element elem;
+	
+	/* Imprimo todos los msjs */
+	FOR_EACH(elem, response->msgList){
+		printf("%s\n",(char*)(elem->data));
+	}
 }
 
 int sendmessage(Msg_t msg){
