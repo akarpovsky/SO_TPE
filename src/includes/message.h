@@ -5,8 +5,8 @@
 #include "../utils/LinkedList.h"
 #include "./structs.h"
 
-#define MAX_LENGTH 20
-#define CONTACT 1012
+
+#define CONTACT 0
 #define REGISTER 1
 #define LOGIN 2
 #define LIST_LEAGUES 3
@@ -20,9 +20,14 @@
 #define TRADE_ACCEPT 11
 #define TRADE_NEGOTIATE 12
 #define LOGOUT 13
+#define JOIN_LEAGUE 14
+#define CREATE_LEAGUE 15
+#define DRAFT 16
+#define DRAFT_OUT 17
 
+
+#define CONVENTION 50000
 #define MAX_LENGHT 50
-
 
 typedef struct msg_t{
 	
@@ -30,29 +35,32 @@ typedef struct msg_t{
 	union data{
 		char * tempnam;
 		int ping;
+		int ID;
+		char * name;
 		struct register_t{
-			char *user;
-			char *pass;
+			char * user;
+			char * pass;
 		}register_t;
 		struct login_t{
-			char *user;
-			char *pass;
+			char * user;
+			char * pass;
 		}login_t;
 		struct show_t{
 			int ID; /* league, team o trade */
 		}show_t;
 		struct trade_t{
-			char *from;
-			char *to;
+			char * from;
+			char * to;
 			int teamID;
 			int tradeID;
 		}trade_t;
 		struct socket_client_t{
 			int client_pid;
 			int socket_family;
-			char socket_path[MAX_LENGHT];
+			char * socket_path;
 		}socket_client_t;
 	}data;
+	int pidFrom;
 }msg_t;
 
 typedef msg_t * Msg_t;

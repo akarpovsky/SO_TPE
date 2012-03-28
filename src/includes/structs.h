@@ -3,6 +3,8 @@
 #define STRUCTS_H
 
 #include "../utils/LinkedList.h"
+#include <pthread.h>
+
 #define MAX_PLAYERS 5
 
 typedef struct trade{
@@ -85,8 +87,9 @@ typedef game * Game;
 typedef struct client_t{
 	
 	int clientID;
+	pthread_t client_thread;
 	
-	}client_t;
+	} client_t;
 
 typedef client_t * Client;
 
