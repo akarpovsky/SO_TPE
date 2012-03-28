@@ -93,6 +93,16 @@ void parseCommand(char * cmd){
 		tradeAccept_c(param1);
 	}else if(strcmp(commandName,"tradeNegotiate") == 0){
 		tradeNegotiate_c(param1,param2,param3);
+	}else if(strcmp(commandName,"joinLeague") == 0){
+		joinLeague_c(param1);
+	}else if(strcmp(commandName,"createLeague") == 0){
+		createLeague_c(param1);
+	}else if(strcmp(commandName,"draft") == 0){
+		draft_c(param1);
+	}else if(strcmp(commandName,"logout") == 0){
+		logout_c();
+	}else if(strcmp(commandName,"draftout") == 0){
+		draftout_c();
 	}else{
 		printf("Command not found \n");
 		return;

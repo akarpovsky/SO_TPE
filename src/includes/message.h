@@ -20,6 +20,12 @@
 #define TRADE_ACCEPT 11
 #define TRADE_NEGOTIATE 12
 #define LOGOUT 13
+#define JOIN_LEAGUE 14
+#define CREATE_LEAGUE 15
+#define DRAFT 16
+#define DRAFT_OUT 17
+
+
 #define CONVENTION 50000
 #define MAX_LENGHT 50
 
@@ -29,6 +35,8 @@ typedef struct msg_t{
 	union data{
 		char * tempnam;
 		int ping;
+		int ID;
+		char * name;
 		struct register_t{
 			char * user;
 			char * pass;
