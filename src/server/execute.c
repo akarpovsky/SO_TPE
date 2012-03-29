@@ -79,7 +79,7 @@ void * createMsg_s(){
 
 }
 
-void execute(Msg_t msg, Channel ch, User me){
+void execute(Msg_t msg, Channel ch, User * me){
 	
 	int type = msg->type;
 	
@@ -102,10 +102,10 @@ void execute(Msg_t msg, Channel ch, User me){
 					break;
 					
 		case LIST_TRADES:
-					executeListTrades(msg,ch, me);
+					executeListTrades(msg,ch,me);
 					break;
 					
-		case LEAGUE_SHOW:
+		case LEAGUE_SHOW: /* FALTA TESTEAR DESDE AQUI */
 					executeLeagueShow(msg,ch);
 					break;
 				
@@ -218,6 +218,8 @@ void executeRegister(Msg_t msg, Channel ch){
 	strcpy(newUser->pass,pass);
 	newUser->leagues = 0;
 	CreateList(newUser->leaguesIDs);
+	
+	AddToList(newUser,gameAux->users);
 		
 	toPrint = malloc(strlen("Successful registration")+1);
 	if(toPrint == NULL){
@@ -237,7 +239,7 @@ void executeRegister(Msg_t msg, Channel ch){
 }
 
 
-void executeLogin(Msg_t msg, Channel ch, User me){
+void executeLogin(Msg_t msg, Channel ch, User * me){
 
  	Msg_s answer = createMsg_s();
 	char * user = (msg->data).login_t.user;
@@ -245,81 +247,95 @@ void executeLogin(Msg_t msg, Channel ch, User me){
 	char * toPrint;
 	char * usuario;
 
-	int rc;
+	int rc,dim;
 	Element elem;
 
 	rc = pthread_mutex_lock(&game_mutex);
 
-	/* Me fijo si ya estoy conectado */
-	FOR_EACH(elem, gameAux->loggedUsers){
+	if( (*me) == NULL){
 
-		/* Caso: El usuario ya esta conectado */
-		if(strcmp((char *)elem->data,user) == 0){
+		/* Me fijo si ya estoy conectado */
+		FOR_EACH(elem, gameAux->loggedUsers){
 
-			toPrint = malloc(strlen("You are already logged")+1);
-			if(toPrint == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
-			}	
-			strcpy(toPrint,"You are already logged");
-			AddToList(toPrint,answer->msgList);
-			answer->status = ERROR;
+			/* Caso: El usuario ya esta conectado */
+			if(strcmp((char *)elem->data,user) == 0){
 
-			communicate(ch, answer);
+				toPrint = malloc(strlen("You are already logged")+1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}	
+				strcpy(toPrint,"You are already logged");
+				AddToList(toPrint,answer->msgList);
+				answer->status = ERROR;
 
-			rc = pthread_mutex_unlock(&game_mutex);
+				communicate(ch, answer);
 
-			return;
+				rc = pthread_mutex_unlock(&game_mutex);
 
-		}
-	}
+				return;
 
-	/* Me fijo si el usuario existe y lo loggeo*/
-	FOR_EACH(elem, gameAux->users){
-
-		/* Caso: El usuario existe */
-		if(strcmp(((User)(elem->data))->user,user) == 0 &&
-		 			strcmp(((User)(elem->data))->pass,pass) == 0){
-
-			toPrint = malloc(strlen("Welcome! You are logged in") + 1);
-			if(toPrint == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
-			}	
-			strcpy(toPrint,"Welcome! You are logged in");
-			AddToList(toPrint,answer->msgList);
-
-			/* Agrego el usuario a la lista de loggeados */
-			usuario = malloc(strlen(user) + 1);
-			if(usuario == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
 			}
-			strcpy(usuario,user);
-			AddToList(usuario,gameAux->loggedUsers);
-			answer->status = OK;
-
-			me = (User)elem->data;
-
-			rc = pthread_mutex_unlock(&game_mutex);
-
-			communicate(ch, answer);
-			return;
-
 		}
-	}
+		int i = 0;
+		/* Me fijo si el usuario existe y lo loggeo*/
+		FOR_EACH(elem, gameAux->users){
+			
+			printf("entre %d\n", i++);
 
-	/* Usuario o contraseña incorrectos */
+			/* Caso: El usuario existe */
+			if(strcmp(((User)elem->data)->user,user) == 0 &&
+		 				strcmp(((User)elem->data)->pass,pass) == 0){
+						toPrint = malloc(strlen("Welcome! You are logged in") + 1);
+				if(toPrint == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}	
+				strcpy(toPrint,"Welcome! You are logged in");
+				AddToList(toPrint,answer->msgList);
+				/* Agrego el usuario a la lista de loggeados */
+				usuario = malloc(strlen(user) + 1);
+				if(usuario == NULL){
+					perror("Insufficient memory\n");
+					exit(EXIT_FAILURE);
+				}
+				strcpy(usuario,user);
+				AddToList(usuario,gameAux->loggedUsers);
+				answer->status = OK;
+				
+				*me = (User)elem->data;
+				
 
-	toPrint = malloc(strlen("User or Password incorrects") + 1);
-	if(toPrint == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);
-	}
-	strcpy(toPrint,"User or Password incorrects");
-	AddToList(toPrint,answer->msgList);
-	answer->status = ERROR;
+				rc = pthread_mutex_unlock(&game_mutex);
 
+				communicate(ch, answer);
+				return;
+
+			}
+		}
+
+		/* Usuario o contraseña incorrectos */
+
+		toPrint = malloc(strlen("User or Password incorrects") + 1);
+		if(toPrint == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(toPrint,"User or Password incorrects");
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+
+	}else{
+		/* Ya hay alguien loggeado */
+		dim = strlen("There's already someone logged.");
+		toPrint = malloc(dim + 1);
+		if(toPrint == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(toPrint,"There's already someone logged.");
+		AddToList(toPrint,answer->msgList);
+	}	
 	rc = pthread_mutex_unlock(&game_mutex);
 
 	communicate(ch, answer);
@@ -466,7 +482,7 @@ void executeListTeams(Msg_t msg, Channel ch){
 
 }
 
-void executeListTrades(Msg_t msg, Channel ch, User me){
+void executeListTrades(Msg_t msg, Channel ch, User * me){
 
 	Msg_s answer = createMsg_s();
 	char * toPrint;
@@ -476,46 +492,70 @@ void executeListTrades(Msg_t msg, Channel ch, User me){
 	Element elemTrade;
 
 	rc = pthread_mutex_lock(&game_mutex);
-
+	
+	if(*me != NULL){
+	
 	FOR_EACH(elem, gameAux->leagues){
-		/* Agrego la frase "In League" */
-		dim = strlen("In League:");
-		toPrint = malloc(dim + 1);
-		if(toPrint == NULL){
-			perror("Insufficient memory\n");
-			exit(EXIT_FAILURE);
-		}
-		strcpy(toPrint,"In League:");
-		AddToList(toPrint,answer->msgList);
-
-		/* Agrego el nombre de la League */
-		dim = strlen(((League)elem->data)->name);
-		toPrint = malloc(dim + 1);
-		if(toPrint == NULL){
-			perror("Insufficient memory\n");
-			exit(EXIT_FAILURE);
-		}
-		strcpy(toPrint,((League)elem->data)->name);
-		AddToList(toPrint,answer->msgList);
-
 
 		FOR_EACH(elemTrade, ((League)elem->data)->trades){
 
-			if(strcmp(me->user,((Trade)elemTrade->data)->userFrom) == 0 ||
-				strcmp(me->user,((Trade)elemTrade->data)->userTo) == 0){
+				if(strcmp((*me)->user,((Trade)elemTrade->data)->userFrom) == 0 ||
+					strcmp((*me)->user,((Trade)elemTrade->data)->userTo) == 0){
 				
-				dim = floor(log10(((Trade)elemTrade->data)->ID));
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
+					/* Agrego la frase "In League" */
+					dim = strlen("In League:");
+					toPrint = malloc(dim + 1);
+					if(toPrint == NULL){
+						perror("Insufficient memory\n");
+						exit(EXIT_FAILURE);
+					}
+					strcpy(toPrint,"In League:");
+					AddToList(toPrint,answer->msgList);
+
+					/* Agrego el nombre de la League */
+					dim = strlen(((League)elem->data)->name);
+					toPrint = malloc(dim + 1);
+					if(toPrint == NULL){
+						perror("Insufficient memory\n");
+						exit(EXIT_FAILURE);
+					}
+					strcpy(toPrint,((League)elem->data)->name);
+					AddToList(toPrint,answer->msgList);
+						
+					printf("LLEGUE\n");
+					
+					dim = floor(log10(((Trade)elemTrade->data)->ID));
+					toPrint = malloc(dim + 1);
+					if(toPrint == NULL){
+						perror("Insufficient memory\n");
+						exit(EXIT_FAILURE);
+					}
+					itoa(((Team)elemTrade->data)->ID,toPrint);
+					AddToList(toPrint,answer->msgList);
 				}
-				itoa(((Team)elemTrade->data)->ID,toPrint);
-				AddToList(toPrint,answer->msgList);
-			}
-
 		}
-
+	}
+	
+		if(answer->msgList->NumEl == 0){
+			dim = strlen("You don't have any thread");
+			toPrint = malloc(dim + 1);
+			if(toPrint == NULL){
+				perror("Insufficient memory\n");
+				exit(EXIT_FAILURE);
+			}
+			strcpy(toPrint,"You don't have any thread");
+			AddToList(toPrint,answer->msgList);
+		}
+	
+	}else{
+		toPrint = malloc(strlen("You have to be logged") + 1);
+		if(toPrint == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(toPrint,"You have to be logged");
+		AddToList(toPrint,answer->msgList);
+		answer->status = OK;
 	}
 
 	rc = pthread_mutex_unlock(&game_mutex);

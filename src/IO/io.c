@@ -30,7 +30,7 @@ User loadUser(char * path){
 	char aux[BUFFER_SIZE]; // For reading the file line by line
 	int dim, num, auxNum;
 	
-	auxUser = calloc(sizeof(user),1);
+	auxUser = malloc(sizeof(user));
 	
 	if(auxUser == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
@@ -43,7 +43,7 @@ User loadUser(char * path){
 		printf("<LOG - io.c>\n\tFile not found.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	/* Load username */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);
@@ -52,8 +52,12 @@ User loadUser(char * path){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
+	aux[dim-1] = 0;
 	strcpy(auxUser->user,aux);
-	auxUser->user[dim-1] = '\0';
+
+
+	printf("STRLEN USER %d %s\n",strlen(auxUser->user),auxUser->user );
+
 	
 	/* Load password */
 	fgets(aux,BUFFER_SIZE,file);
@@ -63,8 +67,9 @@ User loadUser(char * path){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
+	aux[dim-1] = 0;
 	strcpy(auxUser->pass,aux);
-	auxUser->pass[dim-1] = '\0';	
+
 	
 	/* Load number of Leagues */
 	fgets(aux,BUFFER_SIZE,file);
@@ -88,7 +93,7 @@ User loadUser(char * path){
 		AddToList(id,auxUser->leaguesIDs);
 	}
 	
-	// printUser(auxUser);
+	 printUser(auxUser);
 	
 	return auxUser;
 }
@@ -152,8 +157,9 @@ Trade loadTrade(char * path){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
+	aux[dim-1] = 0;
 	strcpy(auxTrade->userFrom,aux);
-	auxTrade->userFrom[dim-1] = '\0';
+
 	
 	/* Load userTo */
 	fgets(aux,BUFFER_SIZE,file);
@@ -163,8 +169,9 @@ Trade loadTrade(char * path){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
+	aux[dim-1] = 0;
 	strcpy(auxTrade->userTo,aux);
-	auxTrade->userTo[dim-1] = '\0';
+
 	
 	/* Load playerFrom */
 	fgets(aux,BUFFER_SIZE,file);
@@ -174,8 +181,9 @@ Trade loadTrade(char * path){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
+	aux[dim-1] = 0;
 	strcpy(auxTrade->playerFrom,aux);
-	auxTrade->playerFrom[dim-1] = '\0';
+
 	
 	/* Load playerTo */
 	fgets(aux,BUFFER_SIZE,file);
@@ -185,8 +193,9 @@ Trade loadTrade(char * path){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
+	aux[dim-1] = 0;
 	strcpy(auxTrade->playerTo,aux);
-	auxTrade->playerTo[dim-1] = '\0';
+
 	
 	return auxTrade;
 }
@@ -236,9 +245,9 @@ Team loadTeam(char * path){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 		exit(EXIT_FAILURE);
 	}
-
+	aux[dim-1] = 0;
 	strcpy(auxTeam->owner,aux);
-	auxTeam->owner[dim-1] = '\0';
+
 	
 
 	/* Load points */
@@ -281,8 +290,9 @@ Team loadTeam(char * path){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
+		aux[dim-1] = 0;
 		strcpy(auxPlayer->name,aux);
-		auxPlayer->name[dim-1] = '\0';
+
 
 		/* Load points */
 		fgets(aux,BUFFER_SIZE,file);
@@ -403,6 +413,7 @@ List loadUsers(char * path){
     }
 
 	printf("<LOG - io.c> Fin de la carga de usuarios - Usuarios cargados: %d <end>\n", usersList->NumEl);
+	
 
 	return usersList;
 }
@@ -584,8 +595,8 @@ League loadLeague(char * path){
 						printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 						exit(EXIT_FAILURE);
 					}
+					aux[dim-1] = 0;
 					strcpy(auxLeague->name,aux);
-					auxLeague->name[dim-1] = '\0';
 
 					/* Load status */
 					fgets(aux,BUFFER_SIZE,file);
@@ -621,8 +632,9 @@ League loadLeague(char * path){
 							printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
 							exit(EXIT_FAILURE);
 						}
+						aux[dim-1] = 0;
 						strcpy(auxPlayer->name,aux);
-						auxPlayer->name[dim-1] = '\0';
+
 						/* Load Player points */ 
 						fgets(aux,BUFFER_SIZE,file);
 						num = atoi(aux);
@@ -749,7 +761,7 @@ Game loadGame(void){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	game->users = loadUsers("./res/users/");
 	game->leagues = loadLeagues("./res/leagues/");
 	game->loggedUsers = (List) malloc(sizeof(llist));
@@ -758,17 +770,20 @@ Game loadGame(void){
 		exit(EXIT_FAILURE);
 	}
 	CreateList(game->loggedUsers);
-
-	game->cantTeams = 0;
-	game->cantTrades = 0;
-
-	Element league_ptr;
 	
+	game->cantTrades = 0;
+	game->cantTeams = 0;
+	
+
+		
+	Element league_ptr;
 	FOR_EACH(league_ptr, game->leagues){
 	
 		game->cantTeams += ((League)league_ptr->data)->teams->NumEl;
 		game->cantTrades += ((League)league_ptr->data)->trades->NumEl;		
 	}
+	
+
 
 	
 	return game;

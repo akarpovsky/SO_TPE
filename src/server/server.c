@@ -179,7 +179,7 @@ void handle_request(Request a_request){
 void * client_thread(void * ch){
 	printf("Inside client_thread\n");
 	establishChannel((Channel) ch);
-	User me;
+	User me = NULL;
 
 	// Mando la respuesta de CONTACT
 	Msg_s serverMsg = createMsg_s();
@@ -192,7 +192,7 @@ void * client_thread(void * ch){
 		
 		fromClient = IPClisten(ch);
 		printf("Type que me llego: %d\n", fromClient->type);
-		execute(fromClient, ch, me);
+		execute(fromClient, ch, &me);
 	}
 
 	// TO DO: Close thread

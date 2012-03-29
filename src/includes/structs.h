@@ -75,7 +75,6 @@ typedef struct game{
 	
 	List users;
 	List leagues;
-	List teams;
 	List loggedUsers;
 	int cantTeams;
 	int cantTrades;
