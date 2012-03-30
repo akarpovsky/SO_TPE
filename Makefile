@@ -1,5 +1,5 @@
 CC = gcc
-FILES = ./src/server/server.c ./src/IO/io.c ./src/utils/LinkedList.c ./src/server/execute.c
+FILES = ./src/server/server.c ./src/IO/io.c ./src/utils/hashmap.c ./src/utils/LinkedList.c ./src/server/execute.c
 OUT_DIR=./run
 OUT_EXE = server
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)
@@ -20,7 +20,7 @@ mq_server: $(FILES)
 
 
 CLIENT_CC =  gcc
-CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/marshalling/marshalling.c ./src/utils/LinkedList.c 
+CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/utils/hashmap.c ./src/marshalling/marshalling.c ./src/utils/LinkedList.c 
 #CLIENT_OUT_DIR=./run
 CLIENT_OUT_EXE = client
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)

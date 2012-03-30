@@ -59,7 +59,7 @@ void itoa(int n, char s[])
      reverse(s);
 }
 
-void * createMsg_s(){
+void * createMsg_s(void){
 
 	Msg_s msg = (Msg_s) malloc(sizeof(msg_s));
 	if(msg == NULL){
@@ -82,7 +82,6 @@ void * createMsg_s(){
 void execute(Msg_t msg, Channel ch, User * me){
 	
 	int type = msg->type;
-	
 	switch(type){
 		
 		case REGISTER:
@@ -105,7 +104,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					executeListTrades(msg,ch,me);
 					break;
 					
-		case LEAGUE_SHOW: /* FALTA TESTEAR DESDE AQUI */
+		case LEAGUE_SHOW: 
 					executeLeagueShow(msg,ch);
 					break;
 				
@@ -169,12 +168,12 @@ void executeRegister(Msg_t msg, Channel ch){
 		/* Caso: El usuario ya existe */
 		if(strcmp(((User)(elem->data))->user,user) == 0){
 
-			toPrint = malloc(strlen("The user already exists") + 1);
+			toPrint = malloc(strlen("The user already exists.") + 1);
 			if(toPrint == NULL){
 				perror("Insufficient memory\n");
 				exit(EXIT_FAILURE);
 			}	
-			strcpy(toPrint,"The user already exists");
+			strcpy(toPrint,"The user already exists.");
 			AddToList(toPrint,answer->msgList);
 			answer->status = ERROR;
 
@@ -221,12 +220,12 @@ void executeRegister(Msg_t msg, Channel ch){
 	
 	AddToList(newUser,gameAux->users);
 		
-	toPrint = malloc(strlen("Successful registration")+1);
+	toPrint = malloc(strlen("Successful registration.")+1);
 	if(toPrint == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}	
-	strcpy(toPrint,"Successful registration");
+	strcpy(toPrint,"Successful registration.");
 	AddToList(toPrint,answer->msgList);
 	answer->status = OK;
 
@@ -260,12 +259,12 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 			/* Caso: El usuario ya esta conectado */
 			if(strcmp((char *)elem->data,user) == 0){
 
-				toPrint = malloc(strlen("You are already logged")+1);
+				toPrint = malloc(strlen("You are already logged.")+1);
 				if(toPrint == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}	
-				strcpy(toPrint,"You are already logged");
+				strcpy(toPrint,"You are already logged.");
 				AddToList(toPrint,answer->msgList);
 				answer->status = ERROR;
 
@@ -280,18 +279,16 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 		int i = 0;
 		/* Me fijo si el usuario existe y lo loggeo*/
 		FOR_EACH(elem, gameAux->users){
-			
-			printf("entre %d\n", i++);
 
 			/* Caso: El usuario existe */
 			if(strcmp(((User)elem->data)->user,user) == 0 &&
 		 				strcmp(((User)elem->data)->pass,pass) == 0){
-						toPrint = malloc(strlen("Welcome! You are logged in") + 1);
+						toPrint = malloc(strlen("Welcome! You are logged in.") + 1);
 				if(toPrint == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}	
-				strcpy(toPrint,"Welcome! You are logged in");
+				strcpy(toPrint,"Welcome! You are logged in.");
 				AddToList(toPrint,answer->msgList);
 				/* Agrego el usuario a la lista de loggeados */
 				usuario = malloc(strlen(user) + 1);
@@ -316,24 +313,24 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 		/* Usuario o contraseña incorrectos */
 
-		toPrint = malloc(strlen("User or Password incorrects") + 1);
+		toPrint = malloc(strlen("Incorrect user or password.") + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"User or Password incorrects");
+		strcpy(toPrint,"Incorrect user or password.");
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
 
 	}else{
 		/* Ya hay alguien loggeado */
-		dim = strlen("There's already someone logged.");
+		dim = strlen("There is already someone logged.");
 		toPrint = malloc(dim + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"There's already someone logged.");
+		strcpy(toPrint,"There is already someone logged.");
 		AddToList(toPrint,answer->msgList);
 	}	
 	rc = pthread_mutex_unlock(&game_mutex);
@@ -352,12 +349,12 @@ void executeListLeagues(Msg_t msg, Channel ch){
 	rc = pthread_mutex_lock(&game_mutex);
 
 	if(gameAux->leagues->NumEl == 0){
-		toPrint = malloc(strlen("There is no league created") + 1);
+		toPrint = malloc(strlen("There is no league created.") + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"There is no league created");
+		strcpy(toPrint,"There is no league created.");
 		AddToList(toPrint,answer->msgList);
 		answer->status = OK;
 
@@ -411,12 +408,12 @@ void executeListTeams(Msg_t msg, Channel ch){
 	rc = pthread_mutex_lock(&game_mutex);
 
 	if(gameAux->cantTeams == 0){
-		toPrint = malloc(strlen("There is no team created") + 1);
+		toPrint = malloc(strlen("There is no team created.") + 1);
 		if(toPrint == NULL){
 				perror("Insufficient memory\n");
 				exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"There is no team created");
+		strcpy(toPrint,"There is no team created.");
 		AddToList(toPrint,answer->msgList);
 		answer->status = OK;
 
@@ -521,8 +518,6 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 					}
 					strcpy(toPrint,((League)elem->data)->name);
 					AddToList(toPrint,answer->msgList);
-						
-					printf("LLEGUE\n");
 					
 					dim = floor(log10(((Trade)elemTrade->data)->ID));
 					toPrint = malloc(dim + 1);
@@ -537,23 +532,23 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 	}
 	
 		if(answer->msgList->NumEl == 0){
-			dim = strlen("You don't have any thread");
+			dim = strlen("You don't have any thread.");
 			toPrint = malloc(dim + 1);
 			if(toPrint == NULL){
 				perror("Insufficient memory\n");
 				exit(EXIT_FAILURE);
 			}
-			strcpy(toPrint,"You don't have any thread");
+			strcpy(toPrint,"You don't have any thread.");
 			AddToList(toPrint,answer->msgList);
 		}
 	
 	}else{
-		toPrint = malloc(strlen("You have to be logged") + 1);
+		toPrint = malloc(strlen("You have to be logged.") + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"You have to be logged");
+		strcpy(toPrint,"You have to be logged.");
 		AddToList(toPrint,answer->msgList);
 		answer->status = OK;
 	}

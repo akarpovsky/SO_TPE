@@ -1,7 +1,0 @@
-client
-Makefile
-README.md
-res
-server
-src
-vicky.txt

@@ -249,11 +249,13 @@ int communicate(Channel ch, Msg_s msg){
 	return sendmessage(ch,msg);
 }
 
-int establishChannel(Channel ch){
+Msg_s establishChannel(Channel ch){
 	
-	return SUCCESSFUL;
+	Msg_s serverMsg = createMsg_s();
+	AddToList("Connection established.", serverMsg->msgList);
+	return serverMsg;
 }
-
+	
 Channel createChannel(Msg_t msg){
 	
 	Channel ch = (Channel) malloc(sizeof(channel_t));

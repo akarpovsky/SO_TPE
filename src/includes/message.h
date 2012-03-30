@@ -2,9 +2,10 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/LinkedList.h"
-#include "./structs.h"
-
+#include "structs.h"
 
 #define CONTACT 0
 #define REGISTER 1
@@ -24,6 +25,8 @@
 #define CREATE_LEAGUE 15
 #define DRAFT 16
 #define DRAFT_OUT 17
+
+#define MSG_T_MAX_COMMANDS 18
 
 
 #define CONVENTION 50000
@@ -56,8 +59,7 @@ typedef struct msg_t{
 		}trade_t;
 		struct socket_client_t{
 			int client_pid;
-			int socket_family;
-			char * socket_path;
+			struct sockaddr_in * client;
 		}socket_client_t;
 	}data;
 	int pidFrom;
