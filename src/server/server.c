@@ -181,12 +181,11 @@ void * client_thread(void * ch){
 	Channel client_channel = (Channel) ch;
 	
 	printf("Inside client_thread\n");
-	establishChannel((Channel) client_channel);
+	Msg_s serverMsg = establishChannel((Channel) client_channel);
 	User me = NULL;
 
-	// Mando la respuesta de CONTACT
-	Msg_s serverMsg = createMsg_s();
-	AddToList("Connection established.", serverMsg->msgList);
+	// Send the CONTACT response created by establishChannel
+	
 	communicate(client_channel, serverMsg);
 
 	Msg_t fromClient;

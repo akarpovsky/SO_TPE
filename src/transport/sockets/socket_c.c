@@ -26,10 +26,11 @@
 
 #define SERVER_PATH "/tmp/socket_server"
 
-int sockfd;
+static int sockfd;
 int newsockfd = 0; // Server socket file descriptor
 struct sockaddr_in * client_address;
-struct sockaddr_in * server_address;	
+struct sockaddr_in * server_address;
+struct sockaddr_in * new_server_address;	
 
 struct sockaddr_in * fillServerData(){
 
@@ -72,27 +73,27 @@ void sigpipe(){
 	exit(EXIT_FAILURE);
 }
 
-void bindToAssignedSocket(void){
+void bindToAssignedSocket(int port){
 	
-	struct sockaddr_in * address = malloc(sizeof(struct sockaddr_in));
-
-	address->sin_family = AF_INET;
-	address->sin_port = 7000 + getpid();
-	address->sin_addr.s_addr = htonl(INADDR_ANY);
-	
-		/* Transport endpoint */
-	if( (newsockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
-		perror("<LOG socket_c.c> Socket call failed <end>");
-		sigint();
-		exit(EXIT_FAILURE);
-	}		
-
 	printf("Haciendo bind a nueva dirección ... \n");
-	if( (bind( newsockfd, (struct sockaddr *) address, sizeof(struct sockaddr_in))) == -1 ){
-		perror("<LOG socket_s.c> Bind call failed <end>");
-		exit(EXIT_FAILURE);
-	}
-	printf("Bindeado a PORT = %d\n", address->sin_port);
+	new_server_address = malloc(sizeof(struct sockaddr_in));
+
+	new_server_address->sin_family = AF_INET;
+	new_server_address->sin_port = port;
+	new_server_address->sin_addr.s_addr = htonl(INADDR_ANY);
+	
+	// 	/* Transport endpoint */
+	// if( (newsockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
+	// 	perror("<LOG socket_c.c> Socket call failed <end>");
+	// 	sigint();
+	// 	exit(EXIT_FAILURE);
+	// }		
+
+	// if( (bind( newsockfd, (struct sockaddr *) address, sizeof(struct sockaddr_in))) == -1 ){
+	// 	perror("<LOG socket_s.c> Bind call failed <end>");
+	// 	exit(EXIT_FAILURE);
+	// }
+	// printf("Bindeado a PORT = %d\n", address->sin_port);
 
 	return ;
 }
@@ -110,15 +111,16 @@ Msg_s rcvmessage(void){
 		void * aux;
 
 		int listenFD;
-		if(newsockfd == 0){
+		if(newsockfd == NULL){
 			listenFD = sockfd;
 		}else{
+			printf("Uso new sock fd :)\n");
 			listenFD = newsockfd;
 		}
 		
 		printf("Recibiendo mensaje en el FD = %d ...\n", listenFD);	
 
-		if( (recv(listenFD, &msgSize, sizeof(int), 0)) == -1){
+		if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, (socklen_t *) &client_len)) == -1){
 			perror("Error while receiving data");
 			return NULL;
 		}
@@ -180,10 +182,6 @@ Msg_s rcvmessage(void){
 		}
 	}while(!rcvFlag);
 
-	if(msg->status == 115){
-		bindToAssignedSocket();
-	}
-
 	return msg;
 }
 
@@ -239,6 +237,34 @@ int sendmessage(Msg_t msg)
 			msgstraux += sizeof(int);
 			
 			memcpy(msgstraux, msg->data.register_t.pass, pass_len);
+			msgstraux += user_len;
+
+			break;
+
+		case LOGIN:
+			
+			user_len = strlen(msg->data.login_t.user)+1;
+			pass_len = strlen(msg->data.login_t.pass)+1;
+			
+			msgSize = 3*sizeof(int) + user_len + pass_len;
+
+			// REGISTER message: [MSG_TYPE USER_LEN USER PASS_LEN PASS]
+
+			msgstraux = msgstr = calloc(msgSize, sizeof(char));
+			
+			memcpy(msgstraux, &(msg->type), sizeof(int));
+			msgstraux += sizeof(int);
+			
+			memcpy(msgstraux, &user_len, sizeof(int));
+			msgstraux += sizeof(int);
+			
+			memcpy(msgstraux, msg->data.login_t.user, user_len);
+			msgstraux += user_len;
+
+			memcpy(msgstraux, &pass_len, sizeof(int));
+			msgstraux += sizeof(int);
+			
+			memcpy(msgstraux, msg->data.login_t.pass, pass_len);
 			msgstraux += user_len;
 
 			break;
@@ -424,16 +450,40 @@ int sendmessage(Msg_t msg)
 
 	}
 
-	if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-		perror("Error while trying to send a message to server.");
-		printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
-		exit(EXIT_FAILURE);
-	}
+	// printf("SOCKFD =  %d\n", sockfd);
 
-	if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-		perror("Error while trying to send a message to server.\n");
-		printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
-		exit(EXIT_FAILURE);
+	if(new_server_address != NULL){
+
+		// printf("SOCKFD =  %d\n", sockfd);
+		// printf("SENDING STH TO PORT = %d\n", new_server_address->sin_port);
+
+		if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, SOCKET_SIZE)) == -1){
+			perror("Error while trying to send a message to server.");
+			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) new_server_address, SOCKET_SIZE)) == -1){
+			perror("Error while trying to send a message to server.\n");
+			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
+			exit(EXIT_FAILURE);
+		}
+	}else{
+
+		printf("SENDING STH TO PORT = %d\n", server_address->sin_port);
+
+		printf("SOCKFD2 =  %d\n", sockfd);
+		if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+			perror("Error while trying to send a message to server.");
+			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+			perror("Error while trying to send a message to server.\n");
+			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
+			exit(EXIT_FAILURE);
+		}		
 	}
 
 	// free(msgstr);
@@ -495,62 +545,8 @@ void connectToServer(void){
 		printf("%s\n",(char*)(elem->data));
 	}
 
+	bindToAssignedSocket(response->status);
+
 	return ;
 
 }
-
-// int main(void){
-
-// 	signal(SIGINT,sigint);
-// 	signal(SIGPIPE,sigpipe);
-
-// 	connectToServer();
-
-// 	rcvmessage();
-
-// 	// /* Connect the socket to the server's address and then
-// 	// 	send and receive information from the server */
-
-	
-// 	// if( (connect(sockfd, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
-// 	// 	perror("<LOG socket_c.c> Connect call failed <end>");
-// 	// 	printf("<LOG socket_c.c> Tried to open the server first? <end>\n");
-// 	// 	exit(EXIT_FAILURE);
-// 	// }
-
-// 	/* Send and receive information with the server */
-
-// 	// First of all we will send our PID so the server can create an
-// 	// exclusive socket for listening me :)
-
-// 	// int clientPID = getpid();
-// 	// send(sockfd, &clientPID, sizeof(clientPID), 0);	
-	
-// 	// int ping = 0;
-
-// 	// if(recv(sockfd, &ping, sizeof(int), 0) > 0)
-// 	// 	printf("Recibí: %d\n", ping);
-// 	// else
-// 	// 	printf("Server has died\n");
-
-// 	// char c, rc;
-// 	// for( rc = '\n'; ; ){
-// 	// 	if(rc == '\n')
-// 	// 		printf("Input a lower case character\n");
-
-// 	// 	c = getchar();
-
-// 	// 	send(sockfd, &c, 1, 0);
-// 	// 	if(recv(sockfd, &rc, 1, 0) > 0)
-// 	// 		printf("Recibí: %c\n", rc);
-// 	// 	else{
-// 	// 		printf("Server has died\n");
-// 	// 		close(sockfd);
-// 	// 		exit(EXIT_FAILURE);
-// 	// 	}
-
-// 	// }
-// 	// sleep(3);
-// 	closeClient(client_address->sun_path);
-
-// }

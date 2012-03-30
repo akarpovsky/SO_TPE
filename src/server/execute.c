@@ -315,24 +315,24 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 		/* Usuario o contraseña incorrectos */
 
-		toPrint = malloc(strlen("User or Password incorrects") + 1);
+		toPrint = malloc(strlen("Incorrect user or password.") + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"User or Password incorrects");
+		strcpy(toPrint,"Incorrect user or password.");
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
 
 	}else{
 		/* Ya hay alguien loggeado */
-		dim = strlen("There's already someone logged.");
+		dim = strlen("You are already logged.");
 		toPrint = malloc(dim + 1);
 		if(toPrint == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		strcpy(toPrint,"There's already someone logged.");
+		strcpy(toPrint,"You are already logged.");
 		AddToList(toPrint,answer->msgList);
 	}	
 	rc = pthread_mutex_unlock(&game_mutex);

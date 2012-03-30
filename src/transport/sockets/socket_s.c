@@ -25,6 +25,7 @@
 
 int sockfd; // Server socket file descriptor
 void * sockets_hmap;
+int openedSockets = 1;
 
 
  struct sockaddr_in * getClientChannel(int pid){
@@ -112,7 +113,7 @@ Channel createChannel(Msg_t msg)
 {
 	int newsockfd;
 
-	if( (newsockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP) == -1){
+	if( (newsockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
 		perror("<LOG socket_s.c> Socket call failed <end>");
 		exit(EXIT_FAILURE);
 	}
@@ -120,24 +121,27 @@ Channel createChannel(Msg_t msg)
 	Channel ch = malloc(sizeof(channel_t));
 	ch->client = msg->data.socket_client_t.client;
 	ch->port = ch->client->sin_port;
-	
+	ch->client->sin_port += openedSockets++;
+
 	if( (bind( newsockfd, (struct sockaddr *) ch->client, SOCKET_SIZE)) == -1 ){
 		perror("<LOG socket_s.c> Bind call failed in createChannel() <end>");
 		exit(EXIT_FAILURE);
 	}
+	
 
+	// printf("Creado un channel para el nuevo cliente\n");
+	// printf("Guardo el FD %d en el hashmap\n", newsockfd);
 	hashmap_insert(sockets_hmap, (void *) newsockfd , ch->port);
-	printf("Creado un channel para el nuevo cliente\n");
 	return ch;
 }
 
-int establishChannel(Channel ch)
+Msg_s establishChannel(Channel ch)
 {
 	Msg_s serverMsg = createMsg_s();
-	serverMsg->status = 115;
-	communicate(ch, serverMsg);
+	AddToList("Connection established.", serverMsg->msgList);
+	serverMsg->status = ch->client->sin_port;
 	
-	return 0;
+	return serverMsg;
 }
 
 int communicate(Channel ch, Msg_s msg){
@@ -194,24 +198,21 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	}
 
-	struct sockaddr_in * client;
+	struct sockaddr_in * client = ch->client;
+	///////
+	client->sin_port = ch->port;
+	//
 	int cli_size = SOCKET_SIZE;
 
-	int listenFD;
-	client = ch->client;
+	int listenFD = 0;
 
-	if(msg->status == 115){
+	listenFD = (int) hashmap_get(sockets_hmap , ch->port);
+	
+	if(listenFD == 0)
 		listenFD = sockfd;
-
-	}else{
-		listenFD = (int) hashmap_get( sockets_hmap , ch->port);
 		
-	}
-	printf("Using %d FD in sendMessage()\n", listenFD);
-	printf("Tengo client: port - %d\n", client->sin_port);
 
 	// sendto(listenFD, &c, 1,0, msg->data.socket_client_t.client, SOCKET_SIZE);
-	printf("Enviando mensaje..\n");
 	if((sendto(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, cli_size) == -1)){
 		perror("<LOG socket_s.c> Server: Could not write message size <end>");
 		return !SUCCESSFUL;
@@ -226,7 +227,7 @@ int sendmessage(Channel ch, Msg_s msg){
 		printf("<LOG socket_s.c> Server: Envio la lista de mensajes al cliente <end>\n");
 	}
 
-	// free(msgstr);
+	free(msgstr);
 	return SUCCESSFUL;
 }
 
@@ -234,9 +235,9 @@ Msg_t IPClisten(Channel ch){
 
 
 	if(ch == NULL){
-		printf("\nServer listening ...\n\n");
+		printf("\nServer listening on port 7000 ...\n\n");
 	}else{
-		printf("Client server listening ... \n");
+		printf("Client server listening on port %d ... \n", ch->port);
 	}
 
 	int rcvFlag = FALSE;
@@ -267,7 +268,7 @@ Msg_t IPClisten(Channel ch){
 
 			// printf("<LOG socket_s.c> Server - Message header received OK. Full message size = %d <end>\n", msgSize);
 
-			if( (recvfrom(listenFD, aux, msgSize * sizeof(char), MSG_WAITALL, NULL, NULL)) == -1){
+			if( (recvfrom(listenFD, aux, msgSize * sizeof(char), MSG_WAITALL, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
 				perror("Reading client message failed");
 				return NULL;
 			}else{
@@ -275,7 +276,7 @@ Msg_t IPClisten(Channel ch){
 				memcpy(&(msg->type), aux, sizeof(int));
 				aux += sizeof(int);
 
-				// printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
+				printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
 
 				int type = msg->type;
 				switch(type){
@@ -331,18 +332,18 @@ Msg_t IPClisten(Channel ch){
 						memcpy(&(user_len), aux, sizeof(int));	
 						aux += sizeof(int);
 
-						msg->data.register_t.user = calloc(user_len,sizeof(char));
-						memcpy(msg->data.register_t.user, aux, user_len);
-						printf("\tUsername = %s \n", msg->data.register_t.user);
+						msg->data.login_t.user = calloc(user_len,sizeof(char));
+						memcpy(msg->data.login_t.user, aux, user_len);
+						printf("\tUsername = %s \n", msg->data.login_t.user);
 						aux += user_len;
 
 						pass_len = 0;
 						memcpy(&(pass_len), aux, sizeof(int));	
 						aux += sizeof(int);
 
-						msg->data.register_t.pass = calloc(pass_len,sizeof(char));
-						memcpy(msg->data.register_t.pass, aux, pass_len);
-						printf("\tPassword = %s \n", msg->data.register_t.pass);
+						msg->data.login_t.pass = calloc(pass_len,sizeof(char));
+						memcpy(msg->data.login_t.pass, aux, pass_len);
+						printf("\tPassword = %s \n", msg->data.login_t.pass);
 						aux += pass_len;
 
 						printf("</data>\n\n");
@@ -501,54 +502,5 @@ Msg_t IPClisten(Channel ch){
 		}
 	}while(!rcvFlag);
 	
-	printf("RETURN IPCListen !!!!!!\n");
-	
 	return msg;
 }
-
-
-// 		msg_t test;
-
-// 		int client_len = strlen(client->sun_path) + 1;
-// 		test.data.socket_client_t.socket_path = calloc(client_len, sizeof(char));
-// 		test.data.socket_client_t.socket_path = client->sun_path;
-// 		test.data.socket_client_t.socket_family = client->sun_family;
-		
-// 		Channel ch = createChannel(&test);
-// 		establishChannel(ch);
-
-// 		IPClisten(ch);
-
-
-// 		/*
-// 			*
-// 			* Mensaje de prueba para create channel
-// 			*
-
-// 		*/
-// 		// msg_t test;
-
-
-
-
-// 		// List l = (List) malloc(sizeof(llist));
-
-// 		// CreateList(l);
-// 		// AddToList("Coca-Cola", l);
-// 		// AddToList("Naranja", l);
-// 		// AddToList("", l);
-// 		// AddToList("El anterior era vacio!!!", l);
-// 		// Element e;
-
-// 		// msg_s mymen;
-// 		// mymen.status = 38;
-// 		// mymen.msgList = l;
-// 		// printf("Mensaje de prueba creado:\n");
-// 		// FOR_EACH(e, mymen.msgList)
-// 		// {
-// 		// 	printf("\t%s\n", (char *) e->data);
-// 		// }
-
-
-
-// 		// sendmessage(ch, &mymen);

@@ -40,7 +40,7 @@ Msg_t IPClisten(Channel ch);
 
 int communicate(Channel ch, Msg_s msg);
 
-int establishChannel(Channel ch);
+Msg_s establishChannel(Channel ch);
 
 int sendmessage(Channel ch, Msg_s msg);
 
