@@ -56,8 +56,7 @@ typedef struct msg_t{
 		}trade_t;
 		struct socket_client_t{
 			int client_pid;
-			int socket_family;
-			char * socket_path;
+			struct sockaddr_in * client;
 		}socket_client_t;
 	}data;
 	int pidFrom;

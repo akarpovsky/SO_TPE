@@ -59,7 +59,7 @@ void itoa(int n, char s[])
      reverse(s);
 }
 
-void * createMsg_s(){
+void * createMsg_s(void){
 
 	Msg_s msg = (Msg_s) malloc(sizeof(msg_s));
 	if(msg == NULL){
@@ -82,7 +82,6 @@ void * createMsg_s(){
 void execute(Msg_t msg, Channel ch, User * me){
 	
 	int type = msg->type;
-	
 	switch(type){
 		
 		case REGISTER:

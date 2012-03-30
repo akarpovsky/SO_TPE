@@ -9,6 +9,8 @@
 #include "../includes/defines.h"
 #include "../includes/structs.h"
 #include "../includes/message.h"
+#include "../includes/execute.h"
+
 
 
 #ifdef fifo
@@ -67,7 +69,6 @@ Request last_request = NULL; /* Pointer to last request.         */
  */
 void add_request(Msg_t msg, pthread_mutex_t* p_mutex, pthread_cond_t*  p_cond_var){
 
-	printf("Agregando request\n");
 	int rc;
     Request a_request;      /* 'Pointer to newly added request */
 
@@ -98,7 +99,7 @@ void add_request(Msg_t msg, pthread_mutex_t* p_mutex, pthread_cond_t*  p_cond_va
     /* Increase total number of pending requests */
     num_requests++;
 
-    printf("add_request: New added requestd\n");
+    printf("add_request: New request added in the request queue\n");
 
     /* Signal the condition variable because there's a new request to handle */
     rc = pthread_cond_signal(p_cond_var);
@@ -117,6 +118,7 @@ void add_request(Msg_t msg, pthread_mutex_t* p_mutex, pthread_cond_t*  p_cond_va
  *
  */
 Request get_request(pthread_mutex_t * p_mutex){
+    
     int rc;	                   
 	Request a_request;
 
@@ -152,7 +154,6 @@ Request get_request(pthread_mutex_t * p_mutex){
  *
  */
 void handle_request(Request a_request){
-   
     if (a_request) { // Check if a_request is not NULL 
 
 		printf("Handling new client request\n");
@@ -177,26 +178,29 @@ void handle_request(Request a_request){
 }
 
 void * client_thread(void * ch){
+	Channel client_channel = (Channel) ch;
+	
 	printf("Inside client_thread\n");
-	establishChannel((Channel) ch);
+	establishChannel((Channel) client_channel);
 	User me = NULL;
 
 	// Mando la respuesta de CONTACT
 	Msg_s serverMsg = createMsg_s();
 	AddToList("Connection established.", serverMsg->msgList);
-	communicate(ch, serverMsg);
+	communicate(client_channel, serverMsg);
 
 	Msg_t fromClient;
-	
+
 	for(;;){
-		
-		fromClient = IPClisten(ch);
+
+		fromClient = IPClisten(client_channel);
 		printf("Type que me llego: %d\n", fromClient->type);
-		execute(fromClient, ch, &me);
+		execute(fromClient, client_channel, &me);
 	}
 
 	// TO DO: Close thread
 }
+
 
 /*
  * function request_listener()
@@ -216,16 +220,9 @@ void * creator_client_main(void * data)
     /* Lock the mutex, to access the requests list exclusively. */
     rc = pthread_mutex_lock(&request_mutex);
 
-
- //   printf("thread '%d' after pthread_mutex_lock\n", thread_id);
-
     while (1) {
-
-  //  	printf("thread '%d', num_requests =  %d\n", thread_id, num_requests);
-
 		if (num_requests > 0) { /* A request is pending */
 			a_request = get_request(&request_mutex);
-
 			if (a_request) { /* Got a request - handle it and free it */
  				rc = pthread_mutex_unlock(&request_mutex);
 				handle_request(a_request);
@@ -235,13 +232,8 @@ void * creator_client_main(void * data)
 		}else{
 	    /* wait for a request to arrive. note the mutex will be */
 
-    	 //   printf("thread '%d' before pthread_cond_wait\n", thread_id);
-    	  //  fflush(stdout);
 			printf("In the request listener waiting for new clients to arrive .... \n");
 			rc = pthread_cond_wait(&got_request, &request_mutex);
-
-    	    //printf("thread '%d' after pthread_cond_wait\n", thread_id);
-    	   // fflush(stdout);
 		}
 	}
 }
@@ -279,8 +271,10 @@ int main(void){
 	for ( ; ; ){
 
 		auxMsg = IPClisten(NULL);
+
 		// Encolar msg
-		add_request(auxMsg, &request_mutex, &got_request);
+		if(auxMsg->type == CONTACT)
+			add_request(auxMsg, &request_mutex, &got_request);
 
 	}
 	

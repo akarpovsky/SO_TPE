@@ -16,32 +16,25 @@
 #include "../includes/message.h"
 #include "../includes/defines.h"
 
-#define SAME_MACHINE_CONNECTION AF_UNIX
+#define SAME_MACHINE_CONNECTION AF_INET
 #define QUEUE_CONNECTION_SIZE 5
-#define SOCKET_SIZE sizeof(struct sockaddr_un)
+#define SOCKET_SIZE sizeof(struct sockaddr_in)
 
 #define UNIX_PATH_MAX    108
 #define SERVER_PATH "/tmp/socket_server"
 
 typedef struct channel_t {
-	struct sockaddr_un * client;
-	int sockfd;
+	struct sockaddr_in * client;
+	int port;
 } channel_t;
 
 typedef channel_t * Channel;
 
-
-struct sockaddr_un {
-	sa_family_t sun_family;               /* AF_UNIX */
-    char        sun_path[UNIX_PATH_MAX];  /* pathname */
- };
-
-
 void closeServer(char * server_path);
 
-struct sockaddr_un * getClientChannel(char * path, int socket_family);
+struct sockaddr_in * getClientChannel(int pid);
 
-struct sockaddr_un * getServerAddress();
+struct sockaddr_in * getServerAddress();
 
 Msg_t IPClisten(Channel ch);
 
