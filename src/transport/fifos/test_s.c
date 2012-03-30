@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../includes/fifo_s.h"
+#include "../../includes/message.h"
 
 int readyFlag = FALSE;
 

@@ -85,5 +85,6 @@ void closeMainServer(void);
 
 void closeConnection(Channel ch);
 
+Msg_t deserialize_contact (Msg_t msg, void * stream);
 
 #endif /* FIFO_S_H_ */

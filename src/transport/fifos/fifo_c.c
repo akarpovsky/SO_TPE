@@ -2,15 +2,6 @@
  * fifo.c
  *
  */
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include "../../includes/message.h"
-#include "../../includes/marshalling.h"
-#include "../../includes/defines.h"
 
 #include "../../includes/fifo_c.h"
 
@@ -55,7 +46,8 @@ Msg_s rcvmessage(void)
 			}
 			else if(nread > 0)
 			{
-				memcpy(&(msg->status), aux, sizeof(int));
+				msg = deserialize_s(aux);
+				/*memcpy(&(msg->status), aux, sizeof(int));
 				aux += sizeof(int);
 
 				List l = malloc(sizeof(llist));
@@ -82,7 +74,7 @@ Msg_s rcvmessage(void)
 
 					AddToList(str, msg->msgList);
 				}
-				rcvFlag = TRUE;
+				rcvFlag = TRUE;*/
 			}
 		}
 
@@ -95,129 +87,10 @@ int sendmessage(Msg_t msg)
 {
 	int msgSize;
 	void * msgstr;
-	void * msgstraux;
 	int tempnamSize, passSize, userSize, fromSize, toSize;
 
-	switch(msg->type)
-	{
-	case CONTACT:
-		tempnamSize = strlen(msg->data.tempnam)+1;
-		msgSize = 2*sizeof(int) + tempnamSize;
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		printf("%d\n", msgSize);
-		printf("tempnamSize: %d\n", tempnamSize);
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &tempnamSize, sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.tempnam, tempnamSize);
-		break;
-	case REGISTER:
-		passSize = strlen(msg->data.register_t.pass)+1;
-		userSize = strlen(msg->data.register_t.user)+1;
-		msgSize = 3*sizeof(int)+passSize+userSize;
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(userSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.register_t.user, userSize);
-		msgstraux += userSize;
-		memcpy(msgstraux, &passSize, sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.register_t.pass, passSize);
-		break;
-	case LOGIN:
-		passSize = strlen(msg->data.login_t.pass)+1;
-		userSize = strlen(msg->data.login_t.user)+1;
-		msgSize = 3*sizeof(int)+passSize+userSize;
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(userSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.login_t.user, userSize);
-		msgstraux += userSize;
-		memcpy(msgstraux, &passSize, sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.login_t.pass, passSize);
-		break;
-	case LIST_LEAGUES:
-	case LIST_TEAMS:
-	case LIST_TRADES:
-	case LOGOUT:
-		msgSize = sizeof(int);
-		msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstr, &(msg->type), sizeof(int));
-		break;
-	case LEAGUE_SHOW:
-	case TEAM_SHOW:
-	case TRADE_SHOW:
-		msgSize = 2*sizeof(int);
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
-		break;
-	case TRADE:
-		fromSize = strlen(msg->data.trade_t.from)+1;
-		toSize = strlen(msg->data.trade_t.to)+1;
-		msgSize = 4*sizeof(int) + fromSize + toSize;
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(fromSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.trade_t.from, fromSize);
-		msgstraux += fromSize;
-		memcpy(msgstraux, &(toSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.trade_t.to, toSize);
-		msgstraux += toSize;
-		memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
-		break;
-	case TRADE_WITHDRAW:
-	case TRADE_ACCEPT:
-		msgSize = 2*sizeof(int);
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
-		break;
-	case TRADE_NEGOTIATE:
-		fromSize = strlen(msg->data.trade_t.from)+1;
-		toSize = strlen(msg->data.trade_t.to)+1;
-		msgSize = 4*sizeof(int) + fromSize + toSize;
-		msgstraux = msgstr = malloc(msgSize+sizeof(int));
-		memcpy(msgstraux, &(msgSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(msg->type), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, &(fromSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.trade_t.from, fromSize);
-		msgstraux += fromSize;
-		memcpy(msgstraux, &(toSize), sizeof(int));
-		msgstraux += sizeof(int);
-		memcpy(msgstraux, msg->data.trade_t.to, toSize);
-		msgstraux += toSize;
-		memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
-		break;
-	}
+	msgstr = serializeMsg(msg);
+	memcpy(&msgSize, msg, sizeof(int));
 
 	int nwrite;
 	/*if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
@@ -320,4 +193,25 @@ void closeConnection(void)
 
 	unlink(fifoIn);
 	unlink(fifoOut);
+}
+
+void * serialize_contact (Msg_t msg){
+	int tempnamSize;
+	int msgSize;
+	void * msgstraux;
+	void * msgstr;
+
+	tempnamSize = strlen(msg->data.tempnam)+1;
+	msgSize = sizeof(int) + tempnamSize;
+	if((msgstraux = msgstr = calloc(msgSize+sizeof(int), sizeof(char))) == NULL){
+		perror("code_contact: Not enough memory");
+		exit(1);
+	}
+	memcpy(msgstraux, &(msgSize), sizeof(int));
+	msgstraux += sizeof(int);
+	memcpy(msgstraux, &(msg->type), sizeof(int));
+	msgstraux += sizeof(int);
+	strcpy(msgstraux+1, msg->data.tempnam);
+
+	return msgstr;
 }

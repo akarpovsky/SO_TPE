@@ -2,6 +2,7 @@
  * fifo_s.c
  *
  */
+
 #include "../../includes/fifo_s.h"
 
 int fdIn;
@@ -37,7 +38,7 @@ void uplink(void)
 Msg_t listen(Channel ch)
 {
 	int rcvFlag = FALSE;
-	Msg_t msg = malloc(sizeof(msg_t));
+	Msg_t msg;
 	int msgSize;
 	int auxfdIn = ((ch == NULL)? fdIn : ch->fdIn);
 
@@ -60,86 +61,7 @@ Msg_t listen(Channel ch)
 			}
 			else if(nread > 0)
 			{
-				int type;
-				int size;
-				memcpy(&type, stream, sizeof(int));
-				stream += sizeof(int);
-				msg->type = type;
-
-				switch(type)
-				{
-				case CONTACT:
-					memcpy(&size, stream, sizeof(int));
-					stream += sizeof(int);
-					msg->data.tempnam = malloc(size);
-					memcpy(&(msg->data.tempnam), stream, size-1);
-					break;
-				case REGISTER:
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.register_t.user = malloc(size);
-					memcpy(&(msg->data.register_t.user), stream, size);
-					stream+=size;
-					memcpy(&size, stream, sizeof(int));
-					msg->data.register_t.pass = malloc(size);
-					stream+=sizeof(int);
-					memcpy(&(msg->data.register_t.pass), stream, size);
-					break;
-				case LOGIN:
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.login_t.user = malloc(size);
-					memcpy(&(msg->data.login_t.user), stream, size);
-					stream+=size;
-					memcpy(&size, stream, sizeof(int));
-					msg->data.login_t.pass = malloc(size);
-					stream+=sizeof(int);
-					memcpy(&(msg->data.login_t.pass), stream, size);
-					break;
-				case LIST_LEAGUES:
-				case LIST_TEAMS:
-				case LIST_TRADES:
-					break;
-				case LEAGUE_SHOW:
-				case TEAM_SHOW:
-				case TRADE_SHOW:
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					memcpy(&(msg->data.show_t.ID), stream, sizeof(int));
-					break;
-				case TRADE:
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.trade_t.from = malloc(size);
-					memcpy(&(msg->data.trade_t.from), stream, size);
-					stream+=size;
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.trade_t.to = malloc(size);
-					memcpy(&(msg->data.trade_t.to), stream, size);
-					stream+=size;
-					memcpy(&(msg->data.trade_t.teamID), stream, sizeof(int));
-					break;
-				case TRADE_WITHDRAW:
-				case TRADE_ACCEPT:
-					memcpy(&size, stream, sizeof(int));
-					stream += sizeof(int);
-					memcpy(&(msg->data.trade_t.tradeID), stream, sizeof(int));
-					break;
-				case TRADE_NEGOTIATE:
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.trade_t.from = malloc(size);
-					memcpy(&(msg->data.trade_t.from), stream, size);
-					stream+=size;
-					memcpy(&size, stream, sizeof(int));
-					stream+=sizeof(int);
-					msg->data.trade_t.to = malloc(size);
-					memcpy(&(msg->data.trade_t.to), stream, size);
-					stream+=size;
-					memcpy(&(msg->data.trade_t.tradeID), stream, sizeof(int));
-					break;
-				}
+				msg = deserializeMsg(stream);
 				free(streamAux);
 				rcvFlag = TRUE;
 			}
@@ -219,7 +141,10 @@ int sendmessage(Channel ch, Msg_s msg){
 	int msgListSize = 0;
 	int i;
 
-	Element e;
+	msgstr = serialize_s(msg);
+	memcpy(&(msgSize), msgstr, sizeof(int));
+
+	/*Element e;
 
 	FOR_EACH(e, msg->msgList)
 	{
@@ -248,21 +173,21 @@ int sendmessage(Channel ch, Msg_s msg){
 		memcpy(msgstraux, strings[i], sizes[i]);
 		msgstraux += sizes[i];
 	}
-
+*/
 	int nwrite;
 
-	if((nwrite = write(ch->fdOut, &msgSize, sizeof(int)) == -1))
+/*	if((nwrite = write(ch->fdOut, &msgSize, sizeof(int)) == -1))
 	{
 		perror("Could not write message size");
 		return !SUCCESSFUL;
-	}
-	if((nwrite = write(ch->fdOut, msgstr, msgSize)) == -1)
+	}*/
+	if((nwrite = write(ch->fdOut, msgstr, msgSize+sizeof(int))) == -1)
 	{
 		perror("Could not write message");
 		return !SUCCESSFUL;
 	}
 
-	FOR_EACH(e, msg->msgList){
+	/*FOR_EACH(e, msg->msgList){
 		if(msg->msgList->pFirst != e){
 			free(e->prev);
 		}
@@ -271,7 +196,7 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	free(msg->msgList->pLast);
 	free(msg->msgList);
-	free(msg);
+	free(msg);*/
 
 	free(msgstr);
 	return SUCCESSFUL;
