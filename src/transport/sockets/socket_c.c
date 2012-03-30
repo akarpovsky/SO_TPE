@@ -416,8 +416,7 @@ int sendmessage(Msg_t msg)
 		exit(EXIT_FAILURE);
 	}
 
-	free(msgstr);
-	printf("ACA\n");
+	// free(msgstr);
 	return SUCCESSFUL;
 }
 

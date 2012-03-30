@@ -1,7 +1,6 @@
 #ifndef TRANSPORT_C_H_
 #define TRANSPORT_C_H_
 
-
 /**
  * Sends a message Msg_t msg to a server. Returns a Msg_s from the server.
  */

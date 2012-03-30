@@ -5,16 +5,30 @@
 
 #include "./server.h"
 #include "../includes/transport_s.h"
-#include "../includes/mq_s.h"
+
 #include "../includes/defines.h"
 #include "../includes/structs.h"
 #include "../includes/message.h"
 
 
+#ifdef fifo
+	#include "../includes/fifo_s.h"
+#endif
+#ifdef sockets
+	#include "../includes/socket_s.h"
+#endif
+#ifdef msgqueue
+	#include "../includes/mq_s.h"
+#endif
+#ifdef shmm
+	#include "../includes/shmm.h"
+#endif
+
+#define DEFINE_VARIABLES
+#include "../includes/global.h"
 
 /* Number of threads used to service requests */
 #define NUM_HANDLER_THREADS 1
-
 
 /* List for mantaining clients threads */
 List clientThreadsList;
@@ -162,30 +176,11 @@ void handle_request(Request a_request){
 	}
 }
 
-void * createMsg_s(){
-
-	Msg_s msg = (Msg_s) malloc(sizeof(msg_s));
-	if(msg == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);	
-	}
-
-	msg->msgList = (List) malloc(sizeof(llist));
-		if(msg->msgList == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);	
-	}
-
-	CreateList(msg->msgList);
-
-	return msg;
-
-}
-
 void * client_thread(void * ch){
 	printf("Inside client_thread\n");
 	establishChannel((Channel) ch);
-	
+	User me = NULL;
+
 	// Mando la respuesta de CONTACT
 	Msg_s serverMsg = createMsg_s();
 	AddToList("Connection established.", serverMsg->msgList);
@@ -197,7 +192,7 @@ void * client_thread(void * ch){
 		
 		fromClient = IPClisten(ch);
 		printf("Type que me llego: %d\n", fromClient->type);
-		// execute_c()
+		execute(fromClient, ch, &me);
 	}
 
 	// TO DO: Close thread
@@ -261,10 +256,8 @@ int main(void){
 
 	int rc;
 
-	Game game; /* Game structure; will store all the game data */
-
 	// First of all take some time to load all the files inside the memory
-	game = loadGame();
+	gameAux = loadGame();
 
 	// Initialize the threadList
 	clientThreadsList = (List) malloc(sizeof(client_t));

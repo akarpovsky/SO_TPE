@@ -11,5 +11,10 @@ void trade_c(char * id, char * from, char * to);
 void tradeWithdraw_c(char * id);
 void tradeAccept_c(char * id);
 void tradeNegotiate_c(char * id, char * from, char * to);
+void joinLeague_c(char * id);
+void createLeague_c(char * name);
+void draft_c(char * id);
+void logout_c();
+void draftout_c();
 
 #endif
