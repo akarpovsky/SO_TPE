@@ -24,3 +24,11 @@
 
 #define TRUE 1
 #define FALSE 0
+
+/* TYPEDEFS */
+
+typedef struct msg_s msg_s;
+typedef struct msg_t msg_t;
+
+typedef msg_t * Msg_t;
+typedef msg_s * Msg_s;
