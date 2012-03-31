@@ -1,0 +1,2 @@
+gcc -o fifo_test_s src/transport/fifos/test_c.c src/transport/fifos/fifo_c.c src/utils/LinkedList.c src/marshalling/message.c -g
+/tmp/ccMhgfFi.o:(.rodata+0x0): undefined reference to `deserialize_contact'

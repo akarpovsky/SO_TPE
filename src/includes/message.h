@@ -30,7 +30,7 @@
 #define CONVENTION 50000
 #define MAX_LENGHT 50
 
-struct msg_t{
+typedef struct msg_t{
 	
 	int type;
 	union data{
@@ -57,23 +57,21 @@ struct msg_t{
 		}trade_t;
 		struct socket_client_t{
 			int client_pid;
-			int socket_family;
-			char * socket_path;
+			struct sockaddr_in * client;
 		}socket_client_t;
 	}data;
 	int pidFrom;
-};
+} msg_t;
 
-struct msg_s {
+typedef struct msg_s {
 	int status;
 	List msgList;
 
-};
+}msg_s;
 
-typedef struct msg_s msg_s;
-typedef struct msg_t msg_t;
 
 typedef msg_t * Msg_t;
+
 typedef msg_s * Msg_s;
 
 #endif
