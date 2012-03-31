@@ -29,9 +29,11 @@ int main(void)
 				ch = createChannel(incoming);
 				establishChannel(ch);
 				printf("Ready!\n");
+			} else {
+				outcoming = doCommand(ch, incoming);
+				communicate(ch, outcoming);
+
 			}
-			outcoming = doCommand(ch, incoming);
-			communicate(ch, outcoming);
 
 		}
 	}while(readyFlag == FALSE);
@@ -46,6 +48,7 @@ Msg_s doCommand(Channel ch, Msg_t incoming)
 	outcoming->status = SUCCESSFUL;
 	List l = malloc(sizeof(llist));
 	CreateList(l);
+	outcoming->msgList = l;
 	char * rStr;
 	switch(incoming->type)
 	{

@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../../includes/message.h"
+#include "../../includes/fifo_contact_serialization.h"
+#include "../../includes/message_serialization.h"
 #include "../../includes/fifo_c.h"
 
 #define USER "FACUNDO"
@@ -23,35 +25,39 @@
 int main(void){
 
 	msg_t outcoming;
+	Msg_t fromStr;
 	Msg_s incoming;
+	void * msgstr;
+	int msgSize;
 	Element e;
 
 	connectToServer();
 
 	//XXX: Register
 
-	printf("Executing: Register\n");
 	outcoming.type = REGISTER;
 
-	outcoming.data.register_t.user = calloc(strlen(USER), sizeof(char));
+	outcoming.data.register_t.user = calloc(strlen(USER)+1, sizeof(char));
 	strcpy(outcoming.data.register_t.user, USER);
-	outcoming.data.register_t.pass = calloc(strlen(PASS), sizeof(char));
+	outcoming.data.register_t.pass = calloc(strlen(PASS)+1, sizeof(char));
 	strcpy(outcoming.data.register_t.pass, PASS);
 
 	incoming = communicate(&outcoming);
+
 
 	printf("Recieved:\n");
 	FOR_EACH(e, incoming->msgList){
 		printf("%s\n", (char*)(e->data));
 	}
 
+
 	//XXX: Login
 
 	outcoming.type = LOGIN;
 
-	outcoming.data.login_t.user = calloc(strlen(USER), sizeof(char));
+	outcoming.data.login_t.user = calloc(strlen(USER)+1, sizeof(char));
 	strcpy(outcoming.data.login_t.user, USER);
-	outcoming.data.login_t.pass = calloc(strlen(PASS), sizeof(char));
+	outcoming.data.login_t.pass = calloc(strlen(PASS)+1, sizeof(char));
 	strcpy(outcoming.data.login_t.pass, PASS);
 
 	incoming = communicate(&outcoming);
@@ -64,22 +70,23 @@ int main(void){
 
 	outcoming.type = LIST_LEAGUES;
 
+
+
 	incoming = communicate(&outcoming);
 
 	FOR_EACH(e, incoming->msgList){
 		printf("%s\n", (char*)(e->data));
 	}
-
 	//XXX: List Teams
 
 	outcoming.type = LIST_TEAMS;
 
+
 	incoming = communicate(&outcoming);
 
 	FOR_EACH(e, incoming->msgList){
 		printf("%s\n", (char*)(e->data));
 	}
-
 
 	//XXX: List Trades
 
@@ -90,7 +97,6 @@ int main(void){
 	FOR_EACH(e, incoming->msgList){
 		printf("%s\n", (char*)(e->data));
 	}
-
 	//XXX: League Show
 
 	outcoming.type = LEAGUE_SHOW;
@@ -131,9 +137,9 @@ int main(void){
 
 	outcoming.type = TRADE;
 
-	outcoming.data.trade_t.from = calloc(strlen(FROM), sizeof(char));
+	outcoming.data.trade_t.from = calloc(strlen(FROM)+1, sizeof(char));
 	strcpy(outcoming.data.trade_t.from, FROM);
-	outcoming.data.trade_t.to = calloc(strlen(TO), sizeof(char));
+	outcoming.data.trade_t.to = calloc(strlen(TO)+1, sizeof(char));
 	strcpy(outcoming.data.trade_t.to, TO);
 	outcoming.data.trade_t.teamID = TEAM_ID;
 
@@ -167,13 +173,14 @@ int main(void){
 		printf("%s\n", (char*)(e->data));
 	}
 
+
 	//XXX: Trade Negotiate
 
 	outcoming.type = TRADE_NEGOTIATE;
 
-	outcoming.data.trade_t.from = calloc(strlen(FROM), sizeof(char));
+	outcoming.data.trade_t.from = calloc(strlen(FROM)+1, sizeof(char));
 	strcpy(outcoming.data.trade_t.from, FROM);
-	outcoming.data.trade_t.to = calloc(strlen(TO), sizeof(char));
+	outcoming.data.trade_t.to = calloc(strlen(TO)+1, sizeof(char));
 	strcpy(outcoming.data.trade_t.to, TO);
 	outcoming.data.trade_t.tradeID = TRADE_ID;
 
@@ -199,7 +206,7 @@ int main(void){
 
 	outcoming.type = CREATE_LEAGUE;
 
-	outcoming.data.name= calloc(strlen(LEAGUE_NAME), sizeof(char));
+	outcoming.data.name= calloc(strlen(LEAGUE_NAME)+1, sizeof(char));
 	strcpy(outcoming.data.name, FROM);
 
 	incoming = communicate(&outcoming);

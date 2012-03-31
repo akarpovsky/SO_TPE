@@ -52,6 +52,4 @@ void connectToServer(void);
 
 void closeConnection(void);
 
-void * serialize_contact (Msg_t msg);
-
 #endif /* FIFO_C_H_ */
