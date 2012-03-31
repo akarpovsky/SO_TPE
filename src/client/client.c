@@ -8,8 +8,6 @@
 #include "../includes/transport_c.h"
 
 
-
-
 int main(void){
 	
 	char input[COMMAND_MAX_LENGHT];
@@ -23,10 +21,7 @@ int main(void){
 			parseCommand(input);
 		}
 	}
-
-	
 }
-
 
 void readPrompt(char * s, int size){
 	
@@ -41,7 +36,5 @@ void readPrompt(char * s, int size){
 	if(input == EOF){
 		printf("\n");
 	}
-	
 	*s = 0;
-	
 }
