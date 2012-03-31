@@ -17,10 +17,13 @@ MQ_SERVER = ./src/transport/MQ/mq_s.c
 mq_server: $(FILES)
 	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(MQ_SERVER) $(LDOPTS) -D msgqueue $(MATH)
 
+FIFO_SERVER = ./src/transport/fifos/fifo_s.c ./src/transport/fifos/fifo_contact_serialization.c ./src/marshalling/message_serialization.c
 
+fifo_server: $(FILES)
+	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(MQ_SERVER) $(LDOPTS) -D fifo $(MATH)
 
 CLIENT_CC =  gcc
-CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/utils/hashmap.c ./src/marshalling/marshalling.c ./src/utils/LinkedList.c 
+CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/utils/hashmap.c ./src/marshalling/marshalling.c ./src/utils/LinkedList.c
 #CLIENT_OUT_DIR=./run
 CLIENT_OUT_EXE = client
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)
@@ -35,6 +38,11 @@ socket_client: $(CLIENT_FILES)
 MQ_CLIENT = ./src/transport/MQ/mq_c.c
 
 mq_client: $(CLIENT_FILES)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) $(CLIENT_LDOPTS)
+
+FIFO_CLIENT = ./src/transport/fifos/fifo_c.c ./src/transport/fifos/fifo_contact_serialization.c ./src/marshalling/message_serialization.c
+
+fifo_client: $(CLIENT_FILES)
 	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) $(CLIENT_LDOPTS)
 
 clean:

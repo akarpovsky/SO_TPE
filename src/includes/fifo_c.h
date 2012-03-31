@@ -6,12 +6,15 @@
 #ifndef FIFO_C_H_
 #define FIFO_C_H_
 
+#include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include "message.h"
+#include "message_serialization.h"
 #include "marshalling.h"
 #include "defines.h"
 

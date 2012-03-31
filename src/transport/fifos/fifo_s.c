@@ -24,9 +24,6 @@ void uplink(void)
 		exit(1);
 	}
 
-	//TODO
-	printf("Uplinked\n");
-
 	if((fdIn = open(fifoIn, O_RDONLY | O_NONBLOCK)) == -1)
 	{
 		perror("Input FIFO couldn't be opened");
@@ -71,8 +68,6 @@ Channel createChannel(Msg_t msg)
 {
 	Channel ch = malloc(sizeof(channel_t));
 
-	//TODO
-	printf("tempnam: %s\n", msg->data.tempnam);
 	ch->fifoOut = msg->data.tempnam;
 
 	if((ch->fdOut = open(ch->fifoOut, O_WRONLY | O_NONBLOCK)) == -1)
@@ -122,12 +117,6 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	int msgSize;
 	void * msgstr;
-	void * msgstraux;
-	int NumEl = msg->msgList->NumEl;
-	int * sizes = malloc(NumEl * sizeof(int ));
-	char ** strings = malloc(NumEl * sizeof(char *));
-	int msgListSize = 0;
-	int i;
 
 	msgstr = serialize_s(msg);
 	memcpy(&(msgSize), msgstr, sizeof(int));

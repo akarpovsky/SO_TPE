@@ -12,11 +12,7 @@ int fdIn, fdOut;
 Msg_s communicate(Msg_t msg)
 {
 
-	//TODO:
-	printf("Sending message type %d\n", msg->type);
 	if(sendmessage(msg) == SUCCESSFUL){
-		//todo
-		printf("Waiting for message\n");
 		return rcvmessage();
 	}
 
@@ -50,12 +46,9 @@ int sendmessage(Msg_t msg)
 {
 	int msgSize;
 	void * msgstr;
-	int tempnamSize, passSize, userSize, fromSize, toSize;
 
 	msgstr = serializeMsg(msg);
 	memcpy(&msgSize, msgstr, sizeof(int));
-
-	printf("%d\n", msgSize);
 
 	int nwrite;
 	if((nwrite = write(fdOut, msgstr, msgSize+sizeof(int))) == -1)
@@ -71,9 +64,6 @@ int sendmessage(Msg_t msg)
 
 void connectToServer(void)
 {
-	//TODO:
-	printf("initilizing to server\n");
-	int readyFlag = FALSE;
 	if((fifoIn = tempnam("/tmp/", "client")) == NULL)
 	{
 		perror("Input FIFO name couldn't be made");
@@ -99,9 +89,6 @@ void connectToServer(void)
 		exit(1);
 	}
 
-	//TODO
-	printf("opened fifoOut: %s\n", fifoOut);
-
 	if((fdIn = open(fifoIn, O_RDONLY | O_NONBLOCK)) == -1)
 	{
 		perror("Input FIFO couldn't be opened");
@@ -110,14 +97,9 @@ void connectToServer(void)
 		exit(1);
 	}
 
-	printf("openend fifoIn: %s\n", fifoIn);
-
 	msg_t com;
 	com.type = CONTACT;
 	com.data.tempnam = fifoIn;
-
-	//TODO
-	printf("sending CONTACT to server\n");
 
 	Msg_s response = communicate(&com);
 
