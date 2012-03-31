@@ -26,5 +26,6 @@ void executeListTrades(Msg_t msg, Channel ch, User * me);
 void executeLeagueShow(Msg_t msg, Channel ch);
 void executeTeamShow(Msg_t msg, Channel ch);
 void executeTradeShow(Msg_t msg, Channel ch);
+void executeTrade(Msg_t msg, Channel ch, User * me);
 
 #endif

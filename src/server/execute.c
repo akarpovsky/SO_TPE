@@ -6,6 +6,7 @@
 
 #define OK 0
 #define ERROR 1
+#define WAIT 2
 
 #include "../utils/LinkedList.h"
 #include "../includes/structs.h"
@@ -117,7 +118,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 					
 		case TRADE:
-//					executeTrade(msg,ch);
+					executeTrade(msg,ch,me);
 					break;
 					
 		case TRADE_WITHDRAW:
@@ -276,7 +277,7 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 			}
 		}
-		int i = 0;
+
 		/* Me fijo si el usuario existe y lo loggeo*/
 		FOR_EACH(elem, gameAux->users){
 
@@ -960,4 +961,196 @@ void executeTradeShow(Msg_t msg, Channel ch){
 	return;
 
 }
+
+void executeTrade(Msg_t msg, Channel ch, User * me){
+
+	Msg_s answer = createMsg_s();
+	char * toPrint;
+
+
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		toPrint = malloc(strlen("You have to be logged.") + 1);
+		if(toPrint == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(toPrint,"You have to be logged.");
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+	}
+
+	int teamID = msg->data.trade_t.teamID;
+	char * from = (msg->data).trade_t.from;
+	char * to = (msg->data).trade_t.to;
+	int rc;
+	Element elemLeague,elemTeam,elemPlayer, elemID, myTeam, myPlayer;
+	int flag = 0;
+	Trade trade = (Trade)malloc(sizeof(trade));
+	if(trade == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	rc = pthread_mutex_lock(&game_mutex);
+	
+	/* Si el ID es incorrecto */
+	if(teamID > gameAux->cantTeams){
+		toPrint = malloc(strlen("Incorrect ID") + 1);
+		if(toPrint == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(toPrint,"Incorrect ID");
+		AddToList(toPrint,answer->msgList);
+		
+		rc = pthread_mutex_unlock(&game_mutex);
+
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+	}else{
+		
+		/* Me fijo si los usuarios tienen los jugadores a tradear */
+		
+		FOR_EACH(elemLeague, gameAux->leagues){
+			FOR_EACH(elemTeam, ((League)elemLeague->data)->teams){
+				/* Busco al team con el ID ingresado */
+				if(((Team)elemTeam->data)->ID == teamID){
+					/* Me fijo si el usuario tambien pertenece a la liga */
+					FOR_EACH(elemID, (*me)->leaguesIDs){
+						if((int)elemID->data == ((League)elemLeague->data)->ID){
+							
+							flag = 1;
+							break;
+						}
+					}
+					if(flag == 0){
+						toPrint = malloc(strlen("You don't have a team in the same league.") + 1);
+						if(toPrint == NULL){
+							perror("Insufficient memory\n");
+							exit(EXIT_FAILURE);
+						}
+						strcpy(toPrint,"You don't have a team in the same league.");
+						AddToList(toPrint,answer->msgList);
+
+						rc = pthread_mutex_unlock(&game_mutex);
+
+						answer->status = ERROR;
+						communicate(ch,answer);
+						return;
+					}
+					
+					flag = 0;
+					/* Si a el jugador que quiero adquirir lo tiene el otro equipo */
+					FOR_EACH(elemPlayer, ((Team)elemTeam->data)->players){
+						if(strcmp(((Player)elemPlayer->data)->name,to) == 0){
+							flag = 1;
+							break;
+						}
+					}
+					if(flag == 0){
+						toPrint = malloc(strlen("The team doesn't have that player.") + 1);
+						if(toPrint == NULL){
+							perror("Insufficient memory\n");
+							exit(EXIT_FAILURE);
+						}
+						strcpy(toPrint,"The team doesn't have that player.");
+						AddToList(toPrint,answer->msgList);
+
+						rc = pthread_mutex_unlock(&game_mutex);
+
+						answer->status = ERROR;
+						communicate(ch,answer);
+						return;
+					}
+					
+					flag = 0;
+					
+					/* Me fijo si el usuario ingreso el jugador que quiere cambiar */
+					FOR_EACH(myTeam, ((League)elemLeague->data)->teams){
+						if(((Team)myTeam->data)->ID == (int)elemID->data){
+							FOR_EACH(myPlayer, ((Team)myTeam->data)->players){
+								if(strcmp(((Player)myPlayer->data)->name,from) == 0){
+									flag = 1;
+									break;
+								}
+							}
+							if(flag == 0){
+								toPrint = malloc(strlen("Your team doesn't have that player.") + 1);
+								if(toPrint == NULL){
+									perror("Insufficient memory\n");
+									exit(EXIT_FAILURE);
+								}
+								strcpy(toPrint,"Your team doesn't have that player.");
+								AddToList(toPrint,answer->msgList);
+
+								rc = pthread_mutex_unlock(&game_mutex);
+
+								answer->status = ERROR;
+								communicate(ch,answer);
+								return;
+							}
+						}else{
+							
+							trade->ID = ++(gameAux->cantTrades);
+							trade->state = WAIT;
+							
+							trade->playerFrom = (char*) malloc(strlen(from)+1);
+							if(trade->playerFrom == NULL){
+								perror("Insufficient memory\n");
+								exit(EXIT_FAILURE);
+							}
+							strcpy(trade->playerFrom,from);
+							
+							trade->playerTo = (char*) malloc(strlen(to)+1);
+							if(trade->playerTo == NULL){
+								perror("Insufficient memory\n");
+								exit(EXIT_FAILURE);
+							}
+							strcpy(trade->playerTo,to);
+							
+							trade->userFrom = (char*) malloc(strlen(((Team)myTeam->data)->owner)+1);
+							if(trade->userFrom == NULL){
+								perror("Insufficient memory\n");
+								exit(EXIT_FAILURE);
+							}
+							strcpy(trade->userFrom,((Team)myTeam->data)->owner);
+		
+							trade->userTo = (char*) malloc(strlen(((Team)elemTeam->data)->owner)+1);
+							if(trade->userTo == NULL){
+								perror("Insufficient memory\n");
+								exit(EXIT_FAILURE);
+							}
+							strcpy(trade->userTo,((Team)elemTeam->data)->owner);
+							
+							AddToList(trade,((League)elemLeague->data)->trades);
+							
+							toPrint = malloc(strlen("Trade created successfully.") + 1);
+							if(toPrint == NULL){
+								perror("Insufficient memory\n");
+								exit(EXIT_FAILURE);
+							}
+							strcpy(toPrint,"Trade created successfully.");
+							AddToList(toPrint,answer->msgList);
+
+							rc = pthread_mutex_unlock(&game_mutex);
+
+							answer->status = OK;
+							communicate(ch,answer);
+							return;
+						}
+						
+					}
+					
+				}
+			}
+		}
+		
+	}
+}	
+	
+	
 
