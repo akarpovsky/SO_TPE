@@ -6,12 +6,15 @@
 #ifndef FIFO_S_H_
 #define FIFO_S_H_
 
+#include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include "message.h"
+#include "message_serialization.h"
 #include "defines.h"
 
 #define FIFO_IN "/tmp/fifo"
@@ -85,6 +88,5 @@ void closeMainServer(void);
 
 void closeConnection(Channel ch);
 
-Msg_t deserialize_contact (Msg_t msg, void * stream);
 
 #endif /* FIFO_S_H_ */

@@ -12,11 +12,7 @@ int fdIn, fdOut;
 Msg_s communicate(Msg_t msg)
 {
 
-	//TODO:
-	printf("Sending message type %d\n", msg->type);
 	if(sendmessage(msg) == SUCCESSFUL){
-		//todo
-		printf("Waiting for message\n");
 		return rcvmessage();
 	}
 
@@ -31,54 +27,17 @@ Msg_s rcvmessage(void)
 		int nread, msgSize;
 		void * bytestring;
 		void * aux;
-		if((nread = read(fdIn, &(msgSize), sizeof(int))) == -1)
-		{
-			perror("Reading server message size failed");
-			return NULL;
-		}
-		else if(nread > 0)
+		if((nread = read(fdIn, &(msgSize), sizeof(int))) > 0)
 		{
 			aux = bytestring = malloc(msgSize);
-			if((nread = read(fdIn, aux, msgSize)) == -1)
-			{
-				perror("Reading server message failed");
-				return NULL;
-			}
-			else if(nread > 0)
+			if((nread = read(fdIn, aux, msgSize)) > 0)
 			{
 				msg = deserialize_s(aux);
-				/*memcpy(&(msg->status), aux, sizeof(int));
-				aux += sizeof(int);
-
-				List l = malloc(sizeof(llist));
-				CreateList(l);
-
-				msg->msgList = l;
-
-				int cantElem;
-				memcpy(&(cantElem), aux, sizeof(int));
-				aux += sizeof(int);
-
-				int i;
-				int strsize;
-				char * str;
-
-				for(i = 0; i < cantElem; i++)
-				{
-					memcpy(&(strsize), aux, sizeof(int));
-					aux += sizeof(int);
-
-					str = malloc(strsize);
-					memcpy(str, aux, strsize);
-					aux += strsize;
-
-					AddToList(str, msg->msgList);
-				}
-				rcvFlag = TRUE;*/
+				rcvFlag = TRUE;
 			}
 		}
 
-	}while(!rcvFlag);
+	}while(rcvFlag != TRUE);
 
 	return msg;
 }
@@ -87,17 +46,11 @@ int sendmessage(Msg_t msg)
 {
 	int msgSize;
 	void * msgstr;
-	int tempnamSize, passSize, userSize, fromSize, toSize;
 
 	msgstr = serializeMsg(msg);
-	memcpy(&msgSize, msg, sizeof(int));
+	memcpy(&msgSize, msgstr, sizeof(int));
 
 	int nwrite;
-	/*if((nwrite = write(fdOut, &msgSize, sizeof(int))) == -1)
-	{
-		perror("Could not write message size");
-		return !SUCCESSFUL;
-	}*/
 	if((nwrite = write(fdOut, msgstr, msgSize+sizeof(int))) == -1)
 	{
 		perror("Could not write message");
@@ -111,9 +64,6 @@ int sendmessage(Msg_t msg)
 
 void connectToServer(void)
 {
-	//TODO:
-	printf("initilizing to server\n");
-	int readyFlag = FALSE;
 	if((fifoIn = tempnam("/tmp/", "client")) == NULL)
 	{
 		perror("Input FIFO name couldn't be made");
@@ -139,9 +89,6 @@ void connectToServer(void)
 		exit(1);
 	}
 
-	//TODO
-	printf("opened fifoOut: %s\n", fifoOut);
-
 	if((fdIn = open(fifoIn, O_RDONLY | O_NONBLOCK)) == -1)
 	{
 		perror("Input FIFO couldn't be opened");
@@ -150,17 +97,14 @@ void connectToServer(void)
 		exit(1);
 	}
 
-	printf("openend fifoIn: %s\n", fifoIn);
-
 	msg_t com;
 	com.type = CONTACT;
 	com.data.tempnam = fifoIn;
 
-	//TODO
-	printf("sending CONTACT to server\n");
-
 	Msg_s response = communicate(&com);
 
+	close(fdOut);
+	unlink(fifoOut);
 	free(fifoOut);
 
 	fifoOut = response->msgList->pFirst->data;
@@ -169,10 +113,7 @@ void connectToServer(void)
 	free(response->msgList);
 	free(response);
 
-	close(fdOut);
-	unlink(fifoOut);
-
-	if((fdOut = open(fifoOut, O_WRONLY | O_NONBLOCK)) == -1)
+	if((fdOut = open(fifoOut, O_WRONLY /*| O_NONBLOCK**/)) == -1)
 	{
 		perror("Input FIFO from server couldn't be opened");
 		closeConnection();
@@ -195,23 +136,3 @@ void closeConnection(void)
 	unlink(fifoOut);
 }
 
-void * serialize_contact (Msg_t msg){
-	int tempnamSize;
-	int msgSize;
-	void * msgstraux;
-	void * msgstr;
-
-	tempnamSize = strlen(msg->data.tempnam)+1;
-	msgSize = sizeof(int) + tempnamSize;
-	if((msgstraux = msgstr = calloc(msgSize+sizeof(int), sizeof(char))) == NULL){
-		perror("code_contact: Not enough memory");
-		exit(1);
-	}
-	memcpy(msgstraux, &(msgSize), sizeof(int));
-	msgstraux += sizeof(int);
-	memcpy(msgstraux, &(msg->type), sizeof(int));
-	msgstraux += sizeof(int);
-	strcpy(msgstraux+1, msg->data.tempnam);
-
-	return msgstr;
-}

@@ -2,8 +2,6 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <stdlib.h>
-#include <string.h>
 #include "../utils/LinkedList.h"
 #include "structs.h"
 
@@ -63,15 +61,16 @@ typedef struct msg_t{
 		}socket_client_t;
 	}data;
 	int pidFrom;
-}msg_t;
-
-typedef msg_t * Msg_t;
+} msg_t;
 
 typedef struct msg_s {
 	int status;
 	List msgList;
 
 }msg_s;
+
+
+typedef msg_t * Msg_t;
 
 typedef msg_s * Msg_s;
 

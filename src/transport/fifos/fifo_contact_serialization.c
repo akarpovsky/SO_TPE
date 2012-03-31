@@ -9,9 +9,9 @@
 
 Msg_t deserialize_contact (Msg_t msg, void * stream){
 
-	msg->data.tempnam = malloc(strlen(stream));
+	msg->data.tempnam = (char*)malloc(strlen((char*)stream));
 
-	strcpy(msg->data.tempnam, stream);
+	strcpy(msg->data.tempnam, (char*)stream);
 
 	return msg;
 
@@ -33,7 +33,7 @@ void * serialize_contact (Msg_t msg){
 	msgstraux += sizeof(int);
 	memcpy(msgstraux, &(msg->type), sizeof(int));
 	msgstraux += sizeof(int);
-	strcpy(msgstraux+1, msg->data.tempnam);
+	strcpy((char*)msgstraux, msg->data.tempnam);
 
 	return msgstr;
 }
