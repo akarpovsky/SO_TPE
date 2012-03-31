@@ -496,7 +496,6 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 	FOR_EACH(elem, gameAux->leagues){
 
 		FOR_EACH(elemTrade, ((League)elem->data)->trades){
-
 				if(strcmp((*me)->user,((Trade)elemTrade->data)->userFrom) == 0 ||
 					strcmp((*me)->user,((Trade)elemTrade->data)->userTo) == 0){
 				
@@ -967,6 +966,8 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 	Msg_s answer = createMsg_s();
 	char * toPrint;
 
+	printf("EN TRADE!!\n");
+
 
 	if((*me) == NULL){
 		/* Si no esta loggeado el usuario */
@@ -1021,7 +1022,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 				if(((Team)elemTeam->data)->ID == teamID){
 					/* Me fijo si el usuario tambien pertenece a la liga */
 					FOR_EACH(elemID, (*me)->leaguesIDs){
-						if((int)elemID->data == ((League)elemLeague->data)->ID){
+						if(((League)(elemID->data))->ID == ((League)elemLeague->data)->ID){
 							
 							flag = 1;
 							break;
@@ -1046,18 +1047,20 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					flag = 0;
 					/* Si a el jugador que quiero adquirir lo tiene el otro equipo */
 					FOR_EACH(elemPlayer, ((Team)elemTeam->data)->players){
+						printf("Comparando a %s con SUS jugadores %s\n", ((Player)elemPlayer->data)->name, ((Player)elemPlayer->data)->name);
+
 						if(strcmp(((Player)elemPlayer->data)->name,to) == 0){
 							flag = 1;
 							break;
 						}
 					}
 					if(flag == 0){
-						toPrint = malloc(strlen("The team doesn't have that player.") + 1);
+						toPrint = malloc(strlen("The other team doesn't have that player.") + 1);
 						if(toPrint == NULL){
 							perror("Insufficient memory\n");
 							exit(EXIT_FAILURE);
 						}
-						strcpy(toPrint,"The team doesn't have that player.");
+						strcpy(toPrint,"The team other doesn't have that player.");
 						AddToList(toPrint,answer->msgList);
 
 						rc = pthread_mutex_unlock(&game_mutex);
@@ -1071,8 +1074,10 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					
 					/* Me fijo si el usuario ingreso el jugador que quiere cambiar */
 					FOR_EACH(myTeam, ((League)elemLeague->data)->teams){
-						if(((Team)myTeam->data)->ID == (int)elemID->data){
+						
+						if(((Team)myTeam->data)->ID == (int) ((*me)->leaguesIDs)){
 							FOR_EACH(myPlayer, ((Team)myTeam->data)->players){
+								printf("Comparando con mis jugadores %s\n", ((Player)myPlayer->data)->name);
 								if(strcmp(((Player)myPlayer->data)->name,from) == 0){
 									flag = 1;
 									break;
@@ -1098,12 +1103,12 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 							trade->ID = ++(gameAux->cantTrades);
 							trade->state = WAIT;
 							
-							trade->playerFrom = (char*) malloc(strlen(from)+1);
+							trade->playerFrom = (char*) malloc(strlen(to)+1);
 							if(trade->playerFrom == NULL){
 								perror("Insufficient memory\n");
 								exit(EXIT_FAILURE);
 							}
-							strcpy(trade->playerFrom,from);
+							strcpy(trade->playerFrom,to);
 							
 							trade->playerTo = (char*) malloc(strlen(to)+1);
 							if(trade->playerTo == NULL){

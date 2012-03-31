@@ -377,10 +377,6 @@ Msg_t IPClisten(Channel ch){
 						printf("\nTRADE message received\n");
 						printf("\n<data>\n");
 
-						memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
-						printf("\tTradeID = %d \n", msg->data.trade_t.tradeID);
-						aux += sizeof(int);
-
 						memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
 						printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
 						aux += sizeof(int);

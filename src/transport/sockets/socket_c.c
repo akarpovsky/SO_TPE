@@ -306,16 +306,13 @@ int sendmessage(Msg_t msg)
 
 			from_len = strlen(msg->data.trade_t.from)+1;
 			to_len = strlen(msg->data.trade_t.to)+1;
-			msgSize = 5*sizeof(int) + from_len + to_len;
+			msgSize = 4*sizeof(int) + from_len + to_len;
 			
-			// TRADE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
+			// TRADE message: [MSG_TYPE TEAM_ID FROM_LEN from TO_LEN to]
 
 			msgstraux = msgstr = calloc(msgSize, sizeof(char));
 			
 			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
 			msgstraux += sizeof(int);
 
 			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));

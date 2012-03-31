@@ -191,7 +191,7 @@ void * client_thread(void * ch){
 	Msg_t fromClient;
 
 	for(;;){
-
+		printf("ME = %d\n", (int) me);
 		fromClient = IPClisten(client_channel);
 		printf("Type que me llego: %d\n", fromClient->type);
 		execute(fromClient, client_channel, &me);
