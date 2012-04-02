@@ -727,6 +727,8 @@ List loadLeagues(char * path){
 */
 char * objToFile(int OBJ_TYPE, void * obj){
 	User auxUser;
+	char * obj_to_save = NULL;
+
 	switch(OBJ_TYPE){
 		case USER_OBJ:
 		
@@ -751,6 +753,8 @@ char * objToFile(int OBJ_TYPE, void * obj){
 			printf("<LOG - io.c>\n\tUnrecognized data type.\n<end>\n");
 		break;
 	}
+
+	return obj_to_save;
 		
 }
 
