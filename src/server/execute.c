@@ -7,6 +7,8 @@
 #define OK 0
 #define ERROR 1
 #define WAIT 2
+#define ACTIVE 3
+#define INACTIVE 4
 
 #include "../utils/LinkedList.h"
 #include "../includes/structs.h"
@@ -966,8 +968,6 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 	Msg_s answer = createMsg_s();
 	char * toPrint;
 
-	printf("EN TRADE!!\n");
-
 
 	if((*me) == NULL){
 		/* Si no esta loggeado el usuario */
@@ -1020,6 +1020,24 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 			FOR_EACH(elemTeam, ((League)elemLeague->data)->teams){
 				/* Busco al team con el ID ingresado */
 				if(((Team)elemTeam->data)->ID == teamID){
+					
+					/* Me fijo si la liga esta activa */
+					if(((League)elemLeague->data)->status == INACTIVE){
+						toPrint = malloc(strlen("The league is inactive.") + 1);
+						if(toPrint == NULL){
+							perror("Insufficient memory\n");
+							exit(EXIT_FAILURE);
+						}
+						strcpy(toPrint,"The league is inactive.");
+						AddToList(toPrint,answer->msgList);
+
+						rc = pthread_mutex_unlock(&game_mutex);
+
+						answer->status = ERROR;
+						communicate(ch,answer);
+						return;
+					}
+					
 					/* Me fijo si el usuario tambien pertenece a la liga */
 					FOR_EACH(elemID, (*me)->leaguesIDs){
 						if(((League)(elemID->data))->ID == ((League)elemLeague->data)->ID){
