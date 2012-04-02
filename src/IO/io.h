@@ -6,6 +6,7 @@
 #define IO_H
 
 #include <limits.h>
+#include <math.h>
 #include "../includes/structs.h"
 #include "../utils/LinkedList.h"
 
@@ -40,5 +41,11 @@ int isExt(char * nameFile, char * ext);
 int isTeamsFolder(char * nameFile);
 int isTradesFolder(char * nameFile);
 void printUser(User user);
+
+char * userToString(User usr);
+char * leagueToString(League lg);
+char * tradeToString(Trade tr);
+char * teamToString(Team t);
+
 
 #endif
