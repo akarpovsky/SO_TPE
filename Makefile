@@ -20,7 +20,12 @@ mq_server: $(FILES)
 FIFO_SERVER = ./src/transport/fifos/fifo_s.c ./src/transport/fifos/fifo_contact_serialization.c ./src/marshalling/message_serialization.c
 
 fifo_server: $(FILES)
-	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(MQ_SERVER) $(LDOPTS) -D fifo $(MATH)
+	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(FIFO_SERVER) $(LDOPTS) -D fifo $(MATH)
+
+SHMM_SERVER = ./src/transport/shmm/shmm_s.c ./src/transport/shmm/shmm_contact_serialization.c ./src/marshalling/message_serialization.c
+
+shmm_server: $(FILES)
+	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(SHMM_SERVER) $(LDOPTS) -D shmm $(MATH)
 
 CLIENT_CC =  gcc
 CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/utils/hashmap.c ./src/marshalling/marshalling.c ./src/utils/LinkedList.c
@@ -43,7 +48,12 @@ mq_client: $(CLIENT_FILES)
 FIFO_CLIENT = ./src/transport/fifos/fifo_c.c ./src/transport/fifos/fifo_contact_serialization.c ./src/marshalling/message_serialization.c
 
 fifo_client: $(CLIENT_FILES)
-	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) $(CLIENT_LDOPTS)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(FIFO_CLIENT) $(CLIENT_LDOPTS)
+
+SHMM_CLIENT = ./src/transport/shmm/shmm_c.c ./src/transport/shmm/shmm_contact_serialization.c ./src/marshalling/message_serialization.c
+
+shmm_client: $(CLIENT_FILES)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SHMM_CLIENT) $(CLIENT_LDOPTS)
 
 clean:
 	rm -f *.o core

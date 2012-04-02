@@ -23,6 +23,8 @@
 
 #include "share_ex.h"
 
+char SEM_NAME[]= "viik";
+
 #define SERVER_BUF_SIZE (10 * BUFSIZ)
 #define CLIENT_BUF_SIZE BUFSIZ;
 #define SHMM_NAME "/shared_memory"
@@ -92,22 +94,53 @@ void * MapSharedMem(int size, int fdShMem)
 	return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fdShMem, 0);
 }
 
+void down(sem_t * sem){
+	sem_wait(sem);
+	return ;
+}
+
+void up(sem_t * sem){
+	sem_post(sem);
+	return ;
+}
+
 int main(void){
 	int fdShMem; // Shared memory handle.
 	void * bufferShMem;
+	sem_t * server_sem;
+	// printf("Sem está en %d\n", (int) server_sem);
+	server_sem = sem_open(SEM_NAME, 0, 0644, 0); /* Open a preexisting semaphore. */
+	if(server_sem == SEM_FAILED)
+    {
+      perror("unable to create semaphore");
+      sem_unlink(SERVER_SEM);
+      exit(EXIT_FAILURE);
+    }
+
+	// printf("Sem está en %d\n", (int) server_sem);
 
 	// char * dir = "/shared_memory";
 
-		printf("keyy %d\n", SHMKEY);
+	printf("keyy %d\n", SHMKEY);
 
 	fdShMem = AllocateSharedMemory(SHMKEY, SERVER_BUF_SIZE);
 	bufferShMem = MapSharedMemory(fdShMem);
 	ftruncate(fdShMem, SERVER_BUF_SIZE);
 	printf("Created and mapped shared memory in FD %d ; SHMM size = %d ; buffer = %d\n", fdShMem, BUFSIZ, (int) bufferShMem);
 	
-	while(1){	
-		printf("1) %s\n", (char *) bufferShMem);
-	}
+
+	// printf("Sem está en %d\n", (int) server_sem);
+	int value = -1;
+	sem_getvalue(server_sem, &value); 
+    printf("The value of the semaphors ANTES del UP %d\n", value);
+    value = -1;
+
+	up(server_sem);
+	// printf("Luego del down %d\n", (int) server_sem);
+	printf("1) %s\n", (char *) bufferShMem);
+	// up(server_sem);
+	// while(1){	
+	// }
 }
 
 

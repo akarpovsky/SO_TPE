@@ -1,8 +1,6 @@
 /*
  * message_serialization.h
  *
- *  Created on: 30/03/2012
- *      Author: neon
  */
 
 #ifndef MESSAGE_SERIALIZATION_H_
@@ -11,7 +9,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "defines.h"
-#include "fifo_contact_serialization.h"
+
+#ifdef fifo
+	#include "./fifo_contact_serialization.h"
+#endif
+#ifdef shmm
+	#include "./shmm_contact_serialization.h"
+#endif
+
+
 #include "message.h"
 #include "../utils/LinkedList.h"
 #include "structs.h"

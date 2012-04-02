@@ -1,35 +1,16 @@
 
 /*
 * 
-* Shared memory server
+* Shared memory server header
 *
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <assert.h>
-#include <syslog.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <sys/shm.h>
-#include <errno.h>
-
-#include "share_ex.h"
+#include "../../includes/share_ex.h"
 
 #define SERVER_BUF_SIZE (10 * BUFSIZ)
 #define CLIENT_BUF_SIZE BUFSIZ;
-#define SHMM_NAME "/shared_memory"
 
-
-
+char SEM_NAME[]= "viik";
 
 /**
 * Allocates a shared memory segment.
@@ -95,9 +76,38 @@ void * MapSharedMem(int size, int fdShMem)
 	return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fdShMem, 0);
 }
 
+void down(sem_t * sem){
+	sem_wait(sem);
+	return ;
+}
+
+void up(sem_t * sem){
+	sem_post(sem);
+	return ;
+}
+
 int main(void){
 	int fdShMem; // Shared memory handle.
 	void * bufferShMem;
+	// server_sem = (Sem) malloc(sizeof(sem_t));
+	
+	sem_t * server_sem; 
+	// printf("Sem está en %d\n", (int) server_sem);
+	sem_unlink(SEM_NAME);
+	server_sem = sem_open(SEM_NAME, O_CREAT | O_EXCL, 0644, 0);
+	if(server_sem == SEM_FAILED)
+    {
+      perror("unable to create semaphore");
+      sem_unlink(SERVER_SEM);
+      exit(EXIT_FAILURE);
+    }	
+
+    int value = -1; 
+    sem_getvalue(server_sem, &value); 
+    printf("The value of the semaphors APENAS lo creo %d\n", value);
+    value = -1;
+
+
 
 	// char * dir = "/shared_memory";
 
@@ -113,12 +123,37 @@ int main(void){
 	// while(1){
 	memcpy(bufferShMem, (void *) hola, strlen(hola)-1);
 	printf("1) %s\n", (char *) bufferShMem);
+	value = -1; 
+    sem_getvalue(server_sem, &value); 
+    printf("The value of the semaphors ANTES DEL down %d\n", value);
+    value = -1;
+	
+	while(1){
+		down(server_sem);
+		sem_getvalue(server_sem, &value); 
+		printf("Me desbloqueó mi cliente!!!!\n");
+    	printf("Valor dsp del desbloqueo %d\n", value);
+    	// printf("Hago up %d\n", value);
+    	// up(server_sem);
+    	// sem_getvalue(server_sem, &value); 
+    	// printf("Valor dsp del UP %d\n", value);
+    }
+	// sem_getvalue(server_sem, &value); 
+ //    value = -1;
+	// // printf("Luego del down sem está en %d\n", (int) server_sem);
+	// printf("Waiting 10 secs to release sem\n");
+	// // sleep(5);
+	// sleep(5);
 
-	sleep(10);
-	// }
-	// sleep(15);
-	memset(bufferShMem, 0, strlen(hola)-1);
-	// printf("2) %s\n", (char *) bufferShMem);
+	// up(server_sem);
+	// sem_getvalue(server_sem, &value); 
+ //    printf("The value of the semaphors despues de UP es %d\n", value);
+ //    value = -1;
+	// printf("Borro y me voy!\n");
+	// // }
+	// // sleep(15);
+	// memset(bufferShMem, 0, strlen(hola)-1);
+	// // printf("2) %s\n", (char *) bufferShMem);
 
 
 }

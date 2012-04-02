@@ -32,7 +32,7 @@ void uplink(void)
 
 }
 
-Msg_t listen(Channel ch)
+Msg_t IPClisten(Channel ch)
 {
 	int rcvFlag = FALSE;
 	Msg_t msg;
@@ -80,7 +80,7 @@ Channel createChannel(Msg_t msg)
 
 }
 
-int establishChannel(Channel ch)
+Msg_s establishChannel(Channel ch)
 {
 	if((ch->fifoIn = tempnam("/tmp/", "server")) == NULL)
 	{
@@ -100,16 +100,11 @@ int establishChannel(Channel ch)
 		//TODO: gracious exit for this error;
 	}
 
-	msg_s response;
-	response.status = SUCCESSFUL;
+	Msg_s serverMsg = createMsg_s();
+	serverMsg->status = SUCCESSFUL;
+	AddToList(ch->fifoIn, serverMsg->msgList);
 
-	List l = malloc(sizeof(llist));
-	CreateList(l);
-	AddToList(ch->fifoIn, l);
-
-	response.msgList = l;
-
-	return communicate(ch, &response);
+	return serverMsg;
 
 }
 
@@ -137,8 +132,17 @@ int sendmessage(Channel ch, Msg_s msg){
 
 void closeMainServer(void)
 {
-	close(fdIn);
 	unlink(fifoIn);
+	close(fdIn);
+}
+
+void sigint(){
+
+	signal(SIGINT,sigint); /* reset signal */
+	printf("<LOG socket_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
+	closeMainServer();
+	exit(EXIT_FAILURE);
+
 }
 
 

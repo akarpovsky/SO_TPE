@@ -730,6 +730,8 @@ List loadLeagues(char * path){
 */
 char * objToFile(int OBJ_TYPE, void * obj){
 	User auxUser;
+	char * obj_to_save = NULL;
+
 	switch(OBJ_TYPE){
 		case USER_OBJ:
 			return userToString((User) obj);
@@ -752,6 +754,8 @@ char * objToFile(int OBJ_TYPE, void * obj){
 			return NULL;
 		break;
 	}
+
+	return obj_to_save;
 		
 	return NULL;
 }
