@@ -1,37 +1,16 @@
 
 /*
 * 
-* Shared memory server
+* Shared memory server header
 *
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <assert.h>
-#include <syslog.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <sys/shm.h>
-#include <errno.h>
-
-#include "share_ex.h"
+#include "../../includes/share_ex.h"
 
 #define SERVER_BUF_SIZE (10 * BUFSIZ)
 #define CLIENT_BUF_SIZE BUFSIZ;
 
 char SEM_NAME[]= "viik";
-
-
-
-
 
 /**
 * Allocates a shared memory segment.

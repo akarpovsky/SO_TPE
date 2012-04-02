@@ -23,7 +23,7 @@
 	#include "../includes/mq_s.h"
 #endif
 #ifdef shmm
-	#include "../includes/shmm.h"
+	#include "../includes/share_ex.h"
 #endif
 
 #define DEFINE_VARIABLES

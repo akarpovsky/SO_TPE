@@ -3,26 +3,31 @@
 #define SHARE_EX_H
 
 #include <stdio.h>
-#include <sys/shm.h>
-#include <sys/sem.h>
-#include <sys/ipc.h>
+#include <string.h>
+#include <unistd.h>
+#include <assert.h>
+#include <syslog.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <semaphore.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <sys/shm.h>
+#include <errno.h>
 
 #define SHMKEY (key_t) 0x10
-#define SERVER_SEM "/server"
+#define SERVER_SEM "/server_lock"
+#define SERVER_MSG_SEM "/server_msg"
 
 #define MAX_CLIENTS 10
-#define SERVER_BUF_SIZE (MAX_CLIENTS * BUFSIZ)
-#define CLIENT_BUF_SIZE BUFSIZ;
+#define SERVER_BUF_SIZE ((MAX_CLIENTS+1) * BUFSIZ)
+#define CLIENT_BUF_SIZE BUFSIZ
 
 typedef sem_t * Sem;
 
-typedef struct channel_t {
-	Sem memory_lock_sem; // Locks the shared memory so no data is corrupted
-	Sem new_msg_sem; // Signals the client or the server saying: "You have data to read"
-	void * buffer; // Where client will read and write data
-} channel_t;
-
-typedef channel_t * Channel;
 
 #endif

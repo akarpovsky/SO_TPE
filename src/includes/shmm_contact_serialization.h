@@ -1,10 +1,10 @@
 /*
- * fifo_contact_serialization.h
+ * shmm_contact_serialization.h
  *
  */
 
-#ifndef FIFO_CONTACT_SERIALIZATION_H_
-#define FIFO_CONTACT_SERIALIZATION_H_
+#ifndef SHMM_CONTACT_SERIALIZATION_H_
+#define SHMM_CONTACT_SERIALIZATION_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,4 +16,4 @@
 void * serialize_contact (Msg_t msg);
 Msg_t deserialize_contact (Msg_t msg, void * stream);
 
-#endif /* FIFO_CONTACT_SERIALIZATION_H_ */
+#endif 

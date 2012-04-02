@@ -11,7 +11,7 @@
 	#include "../includes/mq_s.h"
 #endif
 #ifdef shmm
-	#include "../includes/shmm.h"
+	#include "../includes/shmm_s.h"
 #endif
 
 void reverse(char s[]);
