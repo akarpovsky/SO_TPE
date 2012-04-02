@@ -104,9 +104,10 @@ void connectToServer(void)
 	Msg_s response = communicate(&com);
 
 	close(fdOut);
-	unlink(fifoOut);
-	free(fifoOut);
+	// unlink(fifoOut);
+	// free(fifoOut);
 
+	printf("Connected through %s\n", (char *) response->msgList->pFirst->data);
 	fifoOut = response->msgList->pFirst->data;
 
 	free(response->msgList->pFirst);

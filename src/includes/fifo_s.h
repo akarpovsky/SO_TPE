@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+ #include <signal.h>
 #include "message.h"
 #include "message_serialization.h"
 #include "defines.h"
@@ -25,6 +26,8 @@ typedef struct channel_t {
 	int fdIn;
 	int fdOut;
 } channel_t;
+
+void sigint();
 
 typedef channel_t * Channel;
 
@@ -42,7 +45,7 @@ void uplink(void);
  * In case of ch being NULL it uses the default Channel stablished for the main server.
  */
 
-Msg_t listen(Channel ch);
+Msg_t IPClisten(Channel ch);
 
 /**
  * This function recieves a Msg_s msg to send to the client by a Channel ch. Returns
@@ -56,7 +59,7 @@ int communicate(Channel ch, Msg_s msg);
  * to finish the connection between the server and the client.
  */
 
-int establishChannel(Channel ch);
+Msg_s establishChannel(Channel ch);
 
 /**
  * This function sends a Msg_s msg to a Channel ch, and returns SUCCESSFULL in case of
