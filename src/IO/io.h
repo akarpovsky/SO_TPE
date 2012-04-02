@@ -5,6 +5,7 @@
 #if !defined( IO_H )
 #define IO_H
 
+#include <limits.h>
 #include "../includes/structs.h"
 #include "../utils/LinkedList.h"
 
