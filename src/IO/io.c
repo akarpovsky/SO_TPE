@@ -881,6 +881,9 @@ char * leagueToString(League lg){
 
 	straux[-1] = '\0';
 
+	free(plyrsNamesSizes);
+		free(plyrsPtsSizes);
+
 	return str;
 
 }
@@ -969,6 +972,9 @@ char * teamToString(Team t)
 	}
 
 	straux[-1] = '\0';
+
+	free(plyrsNamesSizes);
+	free(plyrsPtsSizes);
 
 	return str;
 }
