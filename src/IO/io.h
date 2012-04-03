@@ -5,9 +5,12 @@
 #if !defined( IO_H )
 #define IO_H
 
+#include <limits.h>
+#include <math.h>
 #include "../includes/structs.h"
 #include "../utils/LinkedList.h"
 
+#define DIGIT_COUNT(X) ((int)(log10((((X)>0)?(X):-(X)))))
 #define BUFFER_SIZE 100
 
 /* Object types for saving */
@@ -39,5 +42,11 @@ int isExt(char * nameFile, char * ext);
 int isTeamsFolder(char * nameFile);
 int isTradesFolder(char * nameFile);
 void printUser(User user);
+
+char * userToString(User usr);
+char * leagueToString(League lg);
+char * tradeToString(Trade tr);
+char * teamToString(Team t);
+
 
 #endif

@@ -106,7 +106,6 @@ void connectToServer(void)
 
 	close(fdOut);
 
-	printf("Connected through %s\n", (char *) response->msgList->pFirst->data);
 	fifoOut = response->msgList->pFirst->data;
 
 	free(response->msgList->pFirst);

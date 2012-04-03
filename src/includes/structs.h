@@ -15,9 +15,9 @@ typedef struct trade{
 	char * userTo;
 	char * playerFrom;
 	char * playerTo;
-	}trade;
+	}trade_t;
 
-typedef trade * Trade;
+typedef trade_t * Trade;
 
 
 
@@ -26,9 +26,9 @@ typedef struct player{
 	char * name;
 	int points;
 	
-}player;
+}player_t;
 
-typedef player * Player;
+typedef player_t * Player;
 
 
 
@@ -37,9 +37,9 @@ typedef struct user{
 		char * pass;
 		int leagues;
 		List leaguesIDs;
-}user;
+}user_t;
 
-typedef user * User;
+typedef user_t * User;
 
 
 
@@ -51,9 +51,9 @@ typedef struct team{
 	int cantPlayers;
 	List players;
 
-}team;
+}team_t;
 
-typedef team * Team;
+typedef team_t * Team;
 
 
 
@@ -65,9 +65,9 @@ typedef struct league{
 	List availablePlayers;
 	List teams;
 	List trades;
-}league;
+}league_t;
 
-typedef league * League;
+typedef league_t * League;
 
 
 
@@ -79,9 +79,9 @@ typedef struct game{
 	int cantTeams;
 	int cantTrades;
 
-	}game;
+	}game_t;
 
-typedef game * Game;
+typedef game_t * Game;
 
 typedef struct client_t{
 	
