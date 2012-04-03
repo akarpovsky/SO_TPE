@@ -25,7 +25,7 @@ fifo_server: $(FILES)
 SHMM_SERVER = ./src/transport/shmm/shmm_s.c ./src/transport/shmm/shmm_contact_serialization.c ./src/marshalling/message_serialization.c
 
 shmm_server: $(FILES)
-	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(SHMM_SERVER) $(LDOPTS) -D shmm $(MATH)
+	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(SHMM_SERVER) $(LDOPTS) -D shmm $(MATH) -lrt
 
 CLIENT_CC =  gcc
 CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/utils/hashmap.c ./src/marshalling/marshalling.c ./src/utils/LinkedList.c
@@ -38,22 +38,22 @@ CLIENT_LDOPTS= -lpthread
 SOCKET_CLIENT = ./src/transport/sockets/socket_c.c
 
 socket_client: $(CLIENT_FILES)
-	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SOCKET_CLIENT) $(CLIENT_LDOPTS)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SOCKET_CLIENT) -D sockets $(CLIENT_LDOPTS)
 
 MQ_CLIENT = ./src/transport/MQ/mq_c.c
 
 mq_client: $(CLIENT_FILES)
-	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) $(CLIENT_LDOPTS)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) -D msgqueue$(CLIENT_LDOPTS)
 
 FIFO_CLIENT = ./src/transport/fifos/fifo_c.c ./src/transport/fifos/fifo_contact_serialization.c ./src/marshalling/message_serialization.c
 
 fifo_client: $(CLIENT_FILES)
-	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(FIFO_CLIENT) $(CLIENT_LDOPTS)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(FIFO_CLIENT) -D fifo $(CLIENT_LDOPTS)
 
 SHMM_CLIENT = ./src/transport/shmm/shmm_c.c ./src/transport/shmm/shmm_contact_serialization.c ./src/marshalling/message_serialization.c
 
 shmm_client: $(CLIENT_FILES)
-	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SHMM_CLIENT) $(CLIENT_LDOPTS)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SHMM_CLIENT) -D shmm $(CLIENT_LDOPTS) -lrt
 
 clean:
 	rm -f *.o core

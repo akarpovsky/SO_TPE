@@ -104,8 +104,6 @@ void connectToServer(void)
 	Msg_s response = communicate(&com);
 
 	close(fdOut);
-	// unlink(fifoOut);
-	// free(fifoOut);
 
 	printf("Connected through %s\n", (char *) response->msgList->pFirst->data);
 	fifoOut = response->msgList->pFirst->data;
@@ -135,5 +133,9 @@ void closeConnection(void)
 
 	unlink(fifoIn);
 	unlink(fifoOut);
+}
+
+void sigint(){
+	closeConnection();
 }
 

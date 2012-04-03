@@ -12,9 +12,11 @@
 
 int fdShMem; // Shared memory handle file descriptor
 int cantClients = 0; 
+int newconnection = 0;
 void * bufferShMem; // Where shared data will be!
 Sem server_lock_sem; // Pointer to server semaphore
-Sem server_msg_sem; // Pointer to server semaphore
+Sem server_contact_sem; // Pointer to server semaphore
+Sem response_contact_sem;
 
 
 /**
@@ -73,18 +75,24 @@ void closeServer(char * server_path){
 }
 
 void sigint(){  
-	// signal(SIGINT,sigint); /* reset signal */
-	// printf("<LOG shmm_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
+	signal(SIGINT,sigint); /* reset signal */
+	printf("<LOG shmm_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
 	// closeServer(SERVER_PATH);
-	// exit(EXIT_FAILURE);
+	close(fdShMem); // Shared memory handle file descriptor
+	sem_unlink(SERVER_SEM); // Pointer to server semaphore
+	sem_unlink(SERVER_CONTACT_SEM); // Pointer to server semaphore
+	sem_unlink(RESPONSE_CONTACT_SEM); // Pointer to server semaphore
+	exit(EXIT_FAILURE);
 }
 
 void uplink(void){
 
 	sem_unlink(SERVER_SEM); // Just in case server_sem remains open
-	sem_unlink(SERVER_MSG_SEM); // Just in case server_msg_sem remains open
+	sem_unlink(SERVER_CONTACT_SEM); // Just in case server_msg_sem remains open
+	sem_unlink(RESPONSE_CONTACT_SEM); // Just in case response_sem remains open
 
-	server_lock_sem = sem_open(SERVER_SEM, O_CREAT | O_EXCL, 0644, 0);
+
+	server_lock_sem = sem_open(SERVER_SEM, O_CREAT | O_EXCL, 0644, 1);
 	if(server_lock_sem == SEM_FAILED)
     {
       perror("Unable to create semaphore");
@@ -92,8 +100,17 @@ void uplink(void){
       exit(EXIT_FAILURE);
     }
 
-    server_msg_sem = sem_open(SERVER_MSG_SEM, O_CREAT | O_EXCL, 0644, 0);
-	if(server_msg_sem == SEM_FAILED)
+    server_contact_sem = sem_open(SERVER_CONTACT_SEM, O_CREAT | O_EXCL, 0644, 0);
+	if(server_contact_sem == SEM_FAILED)
+    {
+      perror("Unable to create semaphore");
+      sem_unlink(SERVER_CONTACT_SEM);
+      exit(EXIT_FAILURE);
+    }
+
+
+	response_contact_sem = sem_open(RESPONSE_CONTACT_SEM, O_CREAT | O_EXCL, 0644, 0);
+	if(response_contact_sem == SEM_FAILED)
     {
       perror("Unable to create semaphore");
       sem_unlink(SERVER_SEM);
@@ -112,14 +129,20 @@ Channel createChannel(Msg_t msg)
 {
 	if(msg->type == CONTACT){
 		
+		Channel ch = malloc(sizeof(channel_t));
 		if(++cantClients <= MAX_CLIENTS){
 
-			Channel ch = malloc(sizeof(channel_t));
 			char sem_name[20];
-			sprintf(sem_name, "/client_sem_%d", cantClients);
+			sprintf(sem_name, "/clitoserv_sem_%d", cantClients);
+			
+			char sem_name2[20];
+			sprintf(sem_name2, "/servtocli_sem_%d", cantClients);
 
 			Sem client_sem; // Pointer to client semaphore
 			sem_unlink(sem_name); // Just in case client_sem remains open
+
+			Sem client_sem2; // Pointer to client semaphore
+			sem_unlink(sem_name2); // Just in case client_sem remains open
 
 			client_sem = sem_open(sem_name, O_CREAT | O_EXCL, 0644, 0);
 			if(client_sem == SEM_FAILED)
@@ -129,19 +152,27 @@ Channel createChannel(Msg_t msg)
 		      exit(EXIT_FAILURE);
 		    }
 
-		    ch->new_msg_sem = client_sem;
+		    client_sem2 = sem_open(sem_name2, O_CREAT | O_EXCL, 0644, 0);
+			if(client_sem2 == SEM_FAILED)
+	    	{
+		      perror("Unable to create semaphore");
+		      sem_unlink(sem_name2);
+		      exit(EXIT_FAILURE);
+		    }
+
+		    ch->clitoserv_sem = client_sem;
+		    ch->servtocli_sem = client_sem2;
 		    ch->memory_lock_sem = server_lock_sem;
+
 			printf("Created \"%s\" and filled sem channel data\n", sem_name);
 		    
 		    ch->buffer = bufferShMem+((cantClients)*BUFSIZ);
 
 		    printf("Now client has a unique offset inside the shared memory space: %d\n", (cantClients-1)*BUFSIZ);
 
+		}
 			return ch;
 
-		}else{
-			return NULL; // No more slots for new clients
-		}
 	}
 
 	return NULL;
@@ -149,10 +180,16 @@ Channel createChannel(Msg_t msg)
 
 Msg_s establishChannel(Channel ch)
 {
+
 	Msg_s serverMsg = (Msg_s) createMsg_s();
-	AddToList("Connection established.", serverMsg->msgList);
-	// serverMsg->status = ch->client->sin_port;
-	
+	if(cantClients > MAX_CLIENTS){
+		serverMsg->status = -1;
+	}else{
+		char * cliNum = calloc(25, sizeof(char));
+		itoa(cantClients, cliNum);
+		AddToList(cliNum, serverMsg->msgList);
+	}
+	newconnection = 1;
 	return serverMsg;
 }
 
@@ -162,106 +199,91 @@ int communicate(Channel ch, Msg_s msg){
 
 int sendmessage(Channel ch, Msg_s msg){
 
-	printf("Starting msg send\n");
+	printf("Starting msg send ... \n");
+
 	int msgSize;
 	void * msgstr;
-	void * msgstraux;
-	int NumEl = msg->msgList->NumEl;
-	int * sizes = malloc(NumEl * sizeof(int));
-	char ** strings = malloc(NumEl * sizeof(char *));
-	int msgListSize = 0;
-	int i = 0;
 
+	msgstr = serialize_s(msg);
+	memcpy(&(msgSize), msgstr, sizeof(int));
 
-	Element e;
+	Sem auxBlockSem, auxResponseSem;
+	void * msg_buffer;
 
-	// printf("Empiezo a armar las listas\n");
-	FOR_EACH(e, msg->msgList)
-	{
-		// printf("\tProcesando _%s_\n", (char *) e->data);
-		sizes[i] = strlen(e->data)+1;
-		// printf("Guardo en sizes[i] = %d\n", sizes[i]);
-
-		strings[i] = e->data;
-		msgListSize += sizes[i];
-		i+=1;
+	if(newconnection){
+		newconnection = 0;
+		auxBlockSem = server_lock_sem;
+		auxResponseSem = response_contact_sem;
+		msg_buffer = bufferShMem;
+	}else{
+		auxBlockSem = ch->memory_lock_sem;
+		auxResponseSem = ch->servtocli_sem;
+		msg_buffer = ch->buffer;
+		printf("SERVTOCLI !!! \n");
 	}
 
-	// printf("Terminé de armar las listas de mensajes\n");
-	// printf("msgListSize = %d\n", msgListSize);
-	msgSize = 2*sizeof(int) + (i*sizeof(int)) + msgListSize ;
-	msgstr = msgstraux = calloc(msgSize, sizeof(char));
+	down(auxBlockSem); // ---> Start blocking the buffer
 
-	printf("Tamaño del mensaje a enviar = %d\n", msgSize);
-
-	memcpy(msgstraux, &(msg->status), sizeof(int));
-	msgstraux += sizeof(int);
-
-
-	memcpy(msgstraux, &(msg->msgList->NumEl), sizeof(int));
-	msgstraux += sizeof(int);
-
-	for(i = 0; i < msg->msgList->NumEl; i++)
-	{
-		memcpy(msgstraux, &(sizes[i]), sizeof(int));
-		msgstraux += sizeof(int);
-
-		memcpy(msgstraux, strings[i], sizes[i]);
-		msgstraux += sizes[i];
-
-	}
-
-	down(ch->memory_lock_sem);
-
-		printf("<LOG shmm_s.c> Server: Envio el message size = %d <end>\n", msgSize);
-		memcpy(ch->buffer, &msgSize, sizeof(int));
 		printf("<LOG shmm_s.c> Server: Envio la lista de mensajes al cliente <end>\n");
-		memcpy((ch->buffer)+sizeof(int), msgstr, msgSize);
+		printf("<LOG shmm_s.c> Server: Tamaño a enviar = %d en dir %d<end>\n", msgSize+sizeof(int), msg_buffer);
+		memcpy(msg_buffer, msgstr, msgSize+sizeof(int));
 
-	up(ch->memory_lock_sem);
+	up(auxBlockSem); // <--- End blocking the buffer
 
-	up(ch->new_msg_sem); // Tell the client that there is a new msg
+	up(auxResponseSem); // Tell the client that there is a new msg
 	
-	free(msgstr);
+	printf("Signaling the client... \n");
+
+
+	// free(msgstr);
 	return SUCCESSFUL;
 
 }
 
 Msg_t IPClisten(Channel ch){
 
+	printf("Waiting in IPC listen with ");
 	Sem msg_signal_sem;
 	void * offset;
 	if(ch == NULL){
-		msg_signal_sem = server_msg_sem;
+		printf("null channel ");
+		msg_signal_sem = server_contact_sem;
 		offset = bufferShMem;
 	}else{
-		msg_signal_sem = ch->new_msg_sem;
+		printf("NOT null channel ");
+		msg_signal_sem = ch->clitoserv_sem;
 		offset = ch->buffer;
 	}
 
-	int rcvFlag = FALSE;
-	Msg_t msg;
-	int msgSize;
+	printf("in buffer %d\n", offset);
 
+	int rcvFlag = FALSE;
+	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
+	int msgSize = 0;
 	do{
 		down(msg_signal_sem);
 		printf("Me despertaron en IPCListen\n");
-		
-		void * stream;
+		void * stream;	
 		void * streamAux;
 
 		down(server_lock_sem);
 		
 			memcpy(&msgSize, offset, sizeof(int));
-
-			stream = streamAux = malloc(sizeof(msgSize));
+			printf("Message size %d\n", msgSize);
+			stream = streamAux = calloc(1, 10*sizeof(msgSize));
 			memcpy(stream, offset+sizeof(int), msgSize);
 		
 		up(server_lock_sem);
+
+		int ti = 0;
+		memcpy(&ti, stream, sizeof(int));
+		printf("Msg type %d\n", ti);
 		
 		msg = deserializeMsg(stream);
+		printf("Deserialization end!\n");
 		// free(streamAux);
 		rcvFlag = TRUE;
+
 
 	}while(rcvFlag != TRUE);
 

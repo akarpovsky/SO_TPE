@@ -172,10 +172,10 @@ Msg_s rcvmessage(void){
 
 					// memcpy(str, aux, strsize);
 					aux += strsize;
-					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
+					// printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 
 					AddToList(str, msg->msgList);
-					free(str);
+					// free(str);
 				}
 				rcvFlag = TRUE;
 			}

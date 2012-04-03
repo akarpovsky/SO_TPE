@@ -35,3 +35,4 @@ void * serialize_contact (Msg_t msg){
 
 	return msgstr;
 }
+

@@ -4,19 +4,22 @@
 *
 */
 
-#include "../includes/share_ex.h"
-#include "../includes/shmm_c.h"
+#include "../../includes/share_ex.h"
+#include "../../includes/shmm_c.h"
 
-#include "../../includes/message.h"
-#include "../../utils/LinkedList.h"
-#include "../../includes/defines.h"
-#include "../../includes/transport_s.h"
 
 int fdShMem; // Shared memory handle file descriptor
 void * bufferShMem; // Where shared data will be stored!
 void * offset; 
-Sem memory_lock_sem;
-Sem new_msg_sem;
+Sem memory_lock_sem; // Locks all the shared memory space
+Sem server_contact_sem; // Tells the server we want to connect
+Sem response_contact_sem; // Just for waiting the server response
+
+Sem clitoserv_sem; // Assigned once the connection is established tells the client that he has new msgs
+Sem servtocli_sem;
+
+char servtocli_sem_name[20]; // Stores the sem name so we can make a clean exit if signaled
+char clitoserv_sem_name[20];
 
 /**
 * Allocates a shared memory segment.
@@ -54,10 +57,28 @@ void * MapSharedMemory(int id)
     return addr;
 }
 
+void down(sem_t * sem){
+	sem_wait(sem);
+	return ;
+}
+
+void up(sem_t * sem){
+	sem_post(sem);
+	return ;
+}
+
+void sigint(){  
+	signal(SIGINT,sigint); /* reset signal */
+	printf("<LOG shmm_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
+	sem_unlink(servtocli_sem_name);
+	sem_unlink(clitoserv_sem_name);
+	// closeServer(SERVER_PATH);
+	exit(EXIT_FAILURE);
+}
+
 
 Msg_s communicate(Msg_t msg)
 {
-
 	if(sendmessage(msg) == SUCCESSFUL){
 		return rcvmessage();
 	}
@@ -68,24 +89,39 @@ Msg_s communicate(Msg_t msg)
 Msg_s rcvmessage(void)
 {
 	
-	down(new_msg_sem);
+	Sem new_msg;
+
+
+	if(servtocli_sem == NULL){
+		new_msg = response_contact_sem;
+	}else{
+		new_msg = servtocli_sem;
+	}
+
+	printf("En rcv msg esperando nuevo mensaje ... \n");
+	down(new_msg);
 
 	int rcvFlag = FALSE;
 
 	Msg_s msg = malloc(sizeof(msg_s));
 
 	do{
-		int nread, msgSize;
+		int msgSize;
 		void * bytestring;
 		void * aux;
 
 		down(memory_lock_sem);
-			aux = bytestring = malloc(msgSize);
 			memcpy(&msgSize, offset, sizeof(int));
-			memcpy(aux, offset, msgSize);
+			aux = bytestring = malloc(msgSize);
+			memcpy(aux, offset+sizeof(int), msgSize);
 			msg = deserialize_s(aux);
 		up(memory_lock_sem);
-		
+
+		if(msg->status == -1){ // Server cant handle my connection
+			printf("\nERROR: No more slots available in server for new clients. Closing connection.\n");
+			exit(EXIT_FAILURE);
+		}
+
 		rcvFlag = TRUE;
 
 	}while(rcvFlag != TRUE);
@@ -95,18 +131,22 @@ Msg_s rcvmessage(void)
 
 int sendmessage(Msg_t msg)
 {
+	printf("Sending message to the server ...\n" );
 	int msgSize;
 	void * msgstr;
 
 	msgstr = serializeMsg(msg);
 	memcpy(&msgSize, msgstr, sizeof(int));
 
-	int nwrite;
 	down(memory_lock_sem);
-		memcpy(offset, msgstr, msgSzie+sizepf(int));
+		memcpy(offset, msgstr, msgSize+sizeof(int));
 	up(memory_lock_sem);
 
-	up(new_msg_sem);
+	if(clitoserv_sem == NULL){
+		up(server_contact_sem);
+	}else{
+   		up(clitoserv_sem);
+	}
 
 	// free(msgstr);
 
@@ -116,7 +156,7 @@ int sendmessage(Msg_t msg)
 void connectToServer(void)
 {
 
-	server_contact_sem = sem_open(SERVER_MSG_SEM, 0, 0644, 0);
+	server_contact_sem = sem_open(SERVER_CONTACT_SEM, 0, 0644, 0);
 	if(server_contact_sem == SEM_FAILED)
     {
       perror("Unable to open CONTACT semaphore. Maybe the server is down");
@@ -124,43 +164,65 @@ void connectToServer(void)
       exit(EXIT_FAILURE);
     }
 
-    up(server_contact_sem);
+    memory_lock_sem = sem_open(SERVER_SEM, 0, 0644, 0); /* Open a preexisting semaphore. */
+	if(memory_lock_sem == SEM_FAILED)
+    {
+      perror("unable to open memory_lock_sem semaphore");
+      sem_unlink(SERVER_SEM);
+      exit(EXIT_FAILURE);
+    }
 
-	msg_t com;
-	com.type = CONTACT;
-	com.data.tempnam = fifoIn;
-
-	Msg_s response = communicate(&com);
-
-	int client_number = response->status;
-	if(status == -1){
-		perror("No more slots available. Closing connection ...");
-		exit(EXIT_FAILURE);
-	}
+	response_contact_sem = sem_open(RESPONSE_CONTACT_SEM, 0, 0644, 0); /* Open a preexisting semaphore. */
+	if(response_contact_sem == SEM_FAILED)
+    {
+      perror("unable to open response_contact_sem semaphore");
+      sem_unlink(RESPONSE_CONTACT_SEM);
+      exit(EXIT_FAILURE);
+    }
 
 	fdShMem = AllocateSharedMemory(SHMKEY, SERVER_BUF_SIZE);
 	bufferShMem = MapSharedMemory(fdShMem);
 	ftruncate(fdShMem, SERVER_BUF_SIZE);
 
-	memory_lock_sem = sem_open(SERVER_SEM, 0, 0644, 0); /* Open a preexisting semaphore. */
-	if(SERVER_SEM == SEM_FAILED)
-    {
-      perror("unable to create memory_lock_sem semaphore");
-      sem_unlink(SERVER_SEM);
+    offset = bufferShMem;
+
+	msg_t com;
+	com.type = CONTACT;
+
+	Msg_s response = communicate(&com);
+
+	int client_number = atoi( (char *) response->msgList->pFirst->data );
+	printf("I am the client number \"%d\"\n", client_number);
+	
+	if(client_number == -1){
+		perror("No more slots available. Closing connection ...");
+		exit(EXIT_FAILURE);
+	}
+
+
+	sprintf(servtocli_sem_name, "/servtocli_sem_%d", client_number);
+
+	servtocli_sem = sem_open(servtocli_sem_name, 0, 0644, 0);
+	if(servtocli_sem == SEM_FAILED)
+	{
+      perror("Unable to open server to client semaphore");
+      sem_unlink(servtocli_sem_name);
       exit(EXIT_FAILURE);
     }
 
-	char sem_name[20];
-	sprintf(sem_name, "/client_sem_%d", client_number);
+   
+	sprintf(clitoserv_sem_name, "/clitoserv_sem_%d", client_number);
 
-	new_msg_sem = sem_open(sem_name, 0, 0644, 0);
-	if(new_msg_sem == SEM_FAILED)
+    clitoserv_sem = sem_open(clitoserv_sem_name, 0, 0644, 0);
+	if(clitoserv_sem == SEM_FAILED)
 	{
-      perror("Unable to create mew_msg_sem semaphore");
-      sem_unlink(sem_name);
+      perror("Unable to open client to server semaphore");
+      sem_unlink(clitoserv_sem_name);
       exit(EXIT_FAILURE);
     }
 
     offset = bufferShMem+(client_number*CLIENT_BUF_SIZE);
+
+	return ;
 
 }

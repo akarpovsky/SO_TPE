@@ -282,15 +282,17 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 		FOR_EACH(elem, gameAux->users){
 
 			/* Caso: El usuario existe */
-			if(strcmp(((User)elem->data)->user,user) == 0 &&
-		 				strcmp(((User)elem->data)->pass,pass) == 0){
-						toPrint = malloc(strlen("Welcome! You are logged in.") + 1);
+			if((strcmp(((User)elem->data)->user,user) == 0) &&
+		 				(strcmp(((User)elem->data)->pass,pass) == 0)){
+				
+				toPrint = malloc(strlen("Welcome! You are logged in.") + 1);
 				if(toPrint == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}	
 				strcpy(toPrint,"Welcome! You are logged in.");
 				AddToList(toPrint,answer->msgList);
+				
 				/* Agrego el usuario a la lista de loggeados */
 				usuario = malloc(strlen(user) + 1);
 				if(usuario == NULL){

@@ -7,7 +7,6 @@
 
 Msg_t deserialize_contact (Msg_t msg, void * stream){
 
-
 	return msg;
 
 }

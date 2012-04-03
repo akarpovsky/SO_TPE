@@ -248,8 +248,6 @@ Msg_s rcvmessage(void){
 	}
 	CreateList(response->msgList);
 	
-	
-	
 	/* Recibo el status y lo pongo en response */
 	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
 		perror("Could not communicate to server. In msgsnd");

@@ -30,4 +30,11 @@ int sendmessage(Msg_t msg);
 void connectToServer(void);
 
 
+/**
+ *  Removes all the opened file descriptors and IPC stuff for making a
+ *  clean exit.
+ */
+void sigint();
+
+
 #endif /* TRANSPORT_C_H_ */
