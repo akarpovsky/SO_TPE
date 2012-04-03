@@ -188,7 +188,7 @@ void executeRegister(Msg_t msg, Channel ch){
 		}
 	}
 	/* Creo nueva estructura user */
-	User newUser = (User) malloc(sizeof(user));
+	User newUser = (User) malloc(sizeof(user_t));
 		if(newUser == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);	

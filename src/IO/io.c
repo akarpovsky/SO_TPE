@@ -977,7 +977,7 @@ char * teamToString(Team t)
 
 Game loadGame(void){
 
-	Game game = (Game) malloc(sizeof(game));
+	Game game = (Game) malloc(sizeof(game_t));
 	if(game == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
