@@ -861,8 +861,8 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 	int rc;
 	int flag = 0;
 	Element elemLeague,elemTeam,elemPlayer, elemID, myTeam;
-	Trade trade = (Trade)malloc(sizeof(trade));
-	if(trade == NULL){
+	Trade t = (Trade)malloc(sizeof(trade_t));
+	if(t == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
@@ -961,38 +961,38 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 				}
 				
 				/* CREO EL TRADE */
-				trade->ID = ++(gameAux->cantTrades);
-				trade->state = WAIT;
-				trade->playerFrom = (char*) malloc(strlen(from)+1);
-				if(trade->playerFrom == NULL){
+				t->ID = ++(gameAux->cantTrades);
+				t->state = WAIT;
+				t->playerFrom = (char*) malloc(strlen(from)+1);
+				if(t->playerFrom == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}
-				strcpy(trade->playerFrom,from);
+				strcpy(t->playerFrom,from);
 
 				
-				trade->playerTo = (char*) malloc(strlen(to)+1);
-				if(trade->playerTo == NULL){
+				t->playerTo = (char*) malloc(strlen(to)+1);
+				if(t->playerTo == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}
-				strcpy(trade->playerTo,to);
+				strcpy(t->playerTo,to);
 				
-				trade->userFrom = (char*) malloc(strlen(((*me)->user)+1));
-				if(trade->userFrom == NULL){
+				t->userFrom = (char*) malloc(strlen(((*me)->user)+1));
+				if(t->userFrom == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}
-				strcpy(trade->userFrom, (*me)->user);
+				strcpy(t->userFrom, (*me)->user);
 
-				trade->userTo = (char*) malloc(strlen(((Team)elemTeam->data)->owner)+1);
-				if(trade->userTo == NULL){
+				t->userTo = (char*) malloc(strlen(((Team)elemTeam->data)->owner)+1);
+				if(t->userTo == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}
-				strcpy(trade->userTo,((Team)elemTeam->data)->owner);
+				strcpy(t->userTo,((Team)elemTeam->data)->owner);
 				
-				AddToList(trade,((League)elemLeague->data)->trades);
+				AddToList(t,((League)elemLeague->data)->trades);
 
 				
 				toPrint = successfulTrade;

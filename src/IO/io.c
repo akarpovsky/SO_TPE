@@ -29,7 +29,7 @@ User loadUser(char * path){
 	char aux[BUFFER_SIZE]; // For reading the file line by line
 	int dim, num, auxNum;
 	
-	auxUser = malloc(sizeof(user));
+	auxUser = malloc(sizeof(user_t));
 	
 	if(auxUser == NULL){
 		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
@@ -124,7 +124,7 @@ Trade loadTrade(char * path){
 	char aux[BUFFER_SIZE]; // For reading the file line by line
 	int dim, num;
 		
-	auxTrade = malloc(sizeof(trade));
+	auxTrade = malloc(sizeof(trade_t));
 	
 	if(auxTrade == NULL){
 		perror("Insufficient memory\n");
@@ -217,7 +217,7 @@ Team loadTeam(char * path){
 	char aux[BUFFER_SIZE]; // For reading the file line by line
 	int dim, num, i;
 	
-	auxTeam = malloc(sizeof(team));
+	auxTeam = malloc(sizeof(team_t));
 	
 	if(auxTeam == NULL){
 		perror("Insufficient memory\n");
@@ -276,7 +276,7 @@ Team loadTeam(char * path){
 	CreateList(auxTeam->players);
 
 	for(i = 0; i < auxTeam->cantPlayers; i++){
-		auxPlayer = malloc(sizeof(player));
+		auxPlayer = malloc(sizeof(player_t));
 		if(auxPlayer == NULL){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
@@ -548,7 +548,7 @@ League loadLeague(char * path){
 	Player auxPlayer = NULL;
 
 	League auxLeague; // Will store the loaded team
-	auxLeague = malloc(sizeof(league));
+	auxLeague = malloc(sizeof(league_t));
 	
 	if(auxLeague == NULL){
 		perror("Insufficient memory\n");
@@ -616,7 +616,7 @@ League loadLeague(char * path){
 					CreateList(auxLeague->availablePlayers);
 					
 					for(i = 0; i < auxLeague->cantAvailablePlayers; i++){
-						auxPlayer = calloc(1, sizeof(player));
+						auxPlayer = calloc(1, sizeof(player_t));
 
 						if(auxPlayer == NULL){
 							perror("Insufficient memory\n");
