@@ -43,7 +43,7 @@ socket_client: $(CLIENT_FILES)
 MQ_CLIENT = ./src/transport/MQ/mq_c.c
 
 mq_client: $(CLIENT_FILES)
-	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) -D msgqueue$(CLIENT_LDOPTS)
+	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) -D msgqueue $(CLIENT_LDOPTS)
 
 FIFO_CLIENT = ./src/transport/fifos/fifo_c.c ./src/transport/fifos/fifo_contact_serialization.c ./src/marshalling/message_serialization.c
 

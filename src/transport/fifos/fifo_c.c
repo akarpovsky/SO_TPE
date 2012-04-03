@@ -4,6 +4,7 @@
  */
 
 #include "../../includes/fifo_c.h"
+ #include "../../includes/transport_c.h"
 
 char * fifoOut;
 char * fifoIn;
@@ -136,6 +137,8 @@ void closeConnection(void)
 }
 
 void sigint(){
+	signal(SIGINT, sigint);
 	closeConnection();
+	exit(EXIT_FAILURE);
 }
 
