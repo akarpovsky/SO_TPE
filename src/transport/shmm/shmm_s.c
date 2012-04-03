@@ -225,7 +225,7 @@ int sendmessage(Channel ch, Msg_s msg){
 	down(auxBlockSem); // ---> Start blocking the buffer
 
 		printf("<LOG shmm_s.c> Server: Envio la lista de mensajes al cliente <end>\n");
-		printf("<LOG shmm_s.c> Server: Tamaño a enviar = %d en dir %d<end>\n", msgSize+sizeof(int), msg_buffer);
+		printf("<LOG shmm_s.c> Server: Tamaño a enviar = %d en dir %d<end>\n", msgSize+sizeof(int), (int) msg_buffer);
 		memcpy(msg_buffer, msgstr, msgSize+sizeof(int));
 
 	up(auxBlockSem); // <--- End blocking the buffer
@@ -255,7 +255,7 @@ Msg_t IPClisten(Channel ch){
 		offset = ch->buffer;
 	}
 
-	printf("in buffer %d\n", offset);
+	printf("in buffer %d\n", (int) offset);
 
 	int rcvFlag = FALSE;
 	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));

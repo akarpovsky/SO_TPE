@@ -2,6 +2,7 @@
 #include <sys/ipc.h>  
 #include <sys/msg.h>  
 #include <stdio.h>  
+#include <unistd.h>
 #include <string.h>  
 #include <stdlib.h>  
 #include "../../includes/message.h"
