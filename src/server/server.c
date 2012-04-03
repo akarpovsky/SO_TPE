@@ -162,6 +162,16 @@ void handle_request(Request a_request){
 
 		Channel ch = createChannel(msg);
 
+		Msg_s serverMsg = establishChannel((Channel) ch);
+
+		// Send the CONTACT response created by establishChannel
+	
+		communicate(ch, serverMsg);
+
+		if(serverMsg->status == -1){ // If server cant handle connection, dismiss client
+			return ;
+		}
+
 		pthread_t clientThread;
 		
 		AddToList((void *) &clientThread, clientThreadsList);
@@ -178,21 +188,18 @@ void handle_request(Request a_request){
 }
 
 void * client_thread(void * ch){
-	Channel client_channel = (Channel) ch;
-	
 	printf("Inside client_thread\n");
-	Msg_s serverMsg = establishChannel((Channel) client_channel);
+	Channel client_channel = (Channel) ch;
 	User me = NULL;
-
-	// Send the CONTACT response created by establishChannel
-	
-	communicate(client_channel, serverMsg);
 
 	Msg_t fromClient;
 
 	for(;;){
-		printf("ME = %d\n", (int) me);
 		fromClient = IPClisten(client_channel);
+		if(fromClient->type == LOGIN){
+			printf("\tUsername = %s \n", fromClient->data.login_t.user);
+			printf("\tPass = %s \n", fromClient->data.login_t.pass);
+		}
 		printf("Type que me llego: %d\n", fromClient->type);
 		execute(fromClient, client_channel, &me);
 	}

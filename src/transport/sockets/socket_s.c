@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include "../../includes/message.h"
+#include "../../includes/execute.h"
 #include "../../utils/LinkedList.h"
 #include "../../utils/hashmap.h"
 #include "../../includes/defines.h"
@@ -137,7 +138,7 @@ Channel createChannel(Msg_t msg)
 
 Msg_s establishChannel(Channel ch)
 {
-	Msg_s serverMsg = createMsg_s();
+	Msg_s serverMsg = (Msg_s) createMsg_s();
 	AddToList("Connection established.", serverMsg->msgList);
 	serverMsg->status = ch->client->sin_port;
 	
@@ -290,8 +291,7 @@ Msg_t IPClisten(Channel ch){
 						printf("\tCLIENT_PID = %d \n", msg->data.socket_client_t.client_pid);
 						printf("</data>\n\n");
 						msg->data.socket_client_t.client = client;
-						char c = 'a';
-						printf("Tengo22 client: port - %d\n", client->sin_port);
+						printf("Tengo client: port - %d\n", client->sin_port);
 
 						// sendto(listenFD, &c, 1,0, msg->data.socket_client_t.client, SOCKET_SIZE);
 						break;

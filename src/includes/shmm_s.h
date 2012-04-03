@@ -25,7 +25,8 @@
 
 typedef struct channel_t {
 	Sem memory_lock_sem; // Locks the shared memory so no data is corrupted
-	Sem new_msg_sem; // Signals the client or the server saying: "You have data to read"
+	Sem clitoserv_sem;  // Signals the the server saying: "You have data to read"
+	Sem servtocli_sem;  // Signals the the client saying: "You have data to read"
 	void * buffer; // Where client will read and write data
 } channel_t;
 
@@ -34,10 +35,6 @@ typedef channel_t * Channel;
  #include "../includes/execute.h"
 
 void closeServer(char * server_path);
-
-struct sockaddr_in * getClientChannel(int pid);
-
-struct sockaddr_in * getServerAddress();
 
 Msg_t IPClisten(Channel ch);
 
@@ -49,4 +46,4 @@ int sendmessage(Channel ch, Msg_s msg);
 
 Channel createChannel(Msg_t msg);
 
-#endif /* SOCKET_S_H_ */
+#endif /* SHMM_S_H_ */

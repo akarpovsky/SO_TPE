@@ -274,6 +274,7 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 		FOR_EACH(elem, gameAux->users){
 
 			/* Caso: El usuario existe */
+
 			if(strcmp(((User)elem->data)->user,user) == 0 &&
 		 				strcmp(((User)elem->data)->pass,pass) == 0){
 				

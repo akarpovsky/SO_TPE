@@ -2,6 +2,7 @@
 #include <sys/ipc.h>  
 #include <sys/msg.h>  
 #include <stdio.h>  
+#include <unistd.h>
 #include <string.h>  
 #include <stdlib.h>  
 #include "../../includes/message.h"
@@ -248,8 +249,6 @@ Msg_s rcvmessage(void){
 	}
 	CreateList(response->msgList);
 	
-	
-	
 	/* Recibo el status y lo pongo en response */
 	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
 		perror("Could not communicate to server. In msgsnd");
@@ -287,51 +286,7 @@ Msg_s rcvmessage(void){
 	
 }
 
-// int main(void){
-	
-// 	connectToServer();
-// 	printf("YA ME CONECTE\n");
-	
-// 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
-// 	if(msg == NULL){
-// 		perror("Insufficient memory\n");
-// 		exit(EXIT_FAILURE);		
-// 	}
-	
-// 	msg->type = REGISTER;
-// 	msg->data.register_t.user = "vicky";
-// 	msg->data.register_t.pass = "PASS123";
-// 	communicate(msg);
-	
-// 	msg->type = LOGIN;
-// 	msg->data.login_t.user = "vicky";
-// 	msg->data.login_t.pass = "PASS123";
-// 	communicate(msg);
-		
-// 	msg->type = TRADE_SHOW;
-// 	msg->data.show_t.ID = atoi("12");
-// 	communicate(msg);
-	
-// 	msg->type = TRADE;
-// 	msg->data.trade_t.from = "soyFrom";
-// 	msg->data.trade_t.to = "soyFrom";
-// 	msg->data.trade_t.teamID = atoi("1234");
-// 	communicate(msg);
-		
-// 	msg->type = TRADE_ACCEPT;
-// 	msg->data.trade_t.tradeID = atoi("1234");
-// 	communicate(msg);
-	
-// 	Msg_s resp = rcvmessage();
-
-// 	printf("\n");
-// 	printf("Status %d\n",resp->status);
-	
-// 	Element elem;
-	
-// 	FOR_EACH(elem, resp->msgList){
-// 		printf("cadena: %s\n",(char*)(elem->data));
-// 	}
-	
-// 	return 0;
-// }
+void sigint(){
+	signal(SIGINT, sigint);
+	exit(EXIT_FAILURE);
+}

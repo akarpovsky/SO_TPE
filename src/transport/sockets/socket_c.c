@@ -14,6 +14,7 @@
 #include <string.h>
 #include <sys/un.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "../../includes/defines.h"
 #include "../../includes/message.h"
@@ -111,14 +112,14 @@ Msg_s rcvmessage(void){
 		void * aux;
 
 		int listenFD;
-		if(newsockfd == NULL){
+		if(newsockfd == 0){
 			listenFD = sockfd;
 		}else{
 			printf("Uso new sock fd :)\n");
 			listenFD = newsockfd;
 		}
 		
-		printf("Recibiendo mensaje en el FD = %d ...\n", listenFD);	
+		// printf("Recibiendo mensaje en el FD = %d ...\n", listenFD);	
 
 		if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, (socklen_t *) &client_len)) == -1){
 			perror("Error while receiving data");
@@ -136,7 +137,6 @@ Msg_s rcvmessage(void){
 				return NULL;
 			}
 			else{
-				int status;
 				memcpy(&(msg->status), aux, sizeof(int));
 				aux += sizeof(int);
 
@@ -172,10 +172,10 @@ Msg_s rcvmessage(void){
 
 					// memcpy(str, aux, strsize);
 					aux += strsize;
-					printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
+					// printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
 
 					AddToList(str, msg->msgList);
-					free(str);
+					// free(str);
 				}
 				rcvFlag = TRUE;
 			}
@@ -193,7 +193,7 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int pathSize, from_len, to_len, name_len;
+	int from_len, to_len, name_len;
 
 	int pass_len, user_len;
 
