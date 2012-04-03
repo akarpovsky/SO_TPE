@@ -10,6 +10,7 @@
 #include "../includes/structs.h"
 #include "../utils/LinkedList.h"
 
+#define DIGIT_COUNT(X) ((int)(log10((((X)>0)?(X):-(X)))))
 #define BUFFER_SIZE 100
 
 /* Object types for saving */

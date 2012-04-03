@@ -5,6 +5,19 @@
 #include "../includes/marshalling.h"
 #include "../includes/message.h"
 
+#ifdef fifo
+	#include "../includes/fifo_c.h"
+#endif
+#ifdef sockets
+	#include "../includes/socket_c.h"
+#endif
+#ifdef msgqueue
+	#include "../includes/mq_c.h"
+#endif
+#ifdef shmm
+	#include "../includes/shmm_c.h"
+#endif
+
 void register_c(char * user, char * pass){
 
 	Msg_s response;

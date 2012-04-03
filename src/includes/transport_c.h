@@ -1,6 +1,8 @@
 #ifndef TRANSPORT_C_H_
 #define TRANSPORT_C_H_
 
+#include <signal.h>
+
 /**
  * Sends a message Msg_t msg to a server. Returns a Msg_s from the server.
  */
@@ -28,6 +30,13 @@ int sendmessage(Msg_t msg);
  */
 
 void connectToServer(void);
+
+
+/**
+ *  Removes all the opened file descriptors and IPC stuff for making a
+ *  clean exit.
+ */
+void sigint();
 
 
 #endif /* TRANSPORT_C_H_ */

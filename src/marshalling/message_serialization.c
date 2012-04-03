@@ -9,6 +9,9 @@
 
 Msg_t deserializeMsg(void * stream){
 
+	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
+	printf("En deserialize !\n");
+
 	Msg_t (*_deserialize_t[MSG_T_MAX_COMMANDS])(Msg_t msg, void * stream) = {
 			deserialize_contact,
 			deserialize_register,
@@ -30,11 +33,9 @@ Msg_t deserializeMsg(void * stream){
 			deserialize_draftOut
 	};
 
-	Msg_t msg = malloc(sizeof(msg_t));
-
 	memcpy(&(msg->type), stream, sizeof(int));
 	stream += sizeof(int);
-
+	printf("Deserializing a %d message \n", msg->type);
 	return _deserialize_t[msg->type](msg, stream);
 }
 
@@ -73,9 +74,11 @@ void * serialize_s (Msg_s msg){
 	int i=0;
 	Element e;
 
+	// printf("Cantidad de elem en la lista %d (serialize_s)\n", msg->msgList->NumEl);
+
 	FOR_EACH(e, msg->msgList){
 		sizes[i] = strlen(e->data)+1;
-
+		// printf("Size del elemento %d (serialize_s_ \n", sizes[i]);
 		msgListSize += sizes[i];
 		i++;
 	}
@@ -85,17 +88,23 @@ void * serialize_s (Msg_s msg){
 
 	memcpy(msgstraux, &msgSize, sizeof(int));
 	msgstraux += sizeof(int);
+	printf("Size = %d\n", msgSize);
 
 	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);
 
+	printf("Status = %d\n", msg->status);
+
 	memcpy(msgstraux, &(msg->msgList->NumEl), sizeof(int));
 	msgstraux += sizeof(int);
+
+	printf("Cant elem = %d\n", NumEl);
 
 	i = 0;
 
 	FOR_EACH(e, msg->msgList){
 		strcpy(msgstraux, e->data);
+		printf("Mensaje: %s\n", (char *) e->data);
 		msgstraux += sizes[i];
 
 		i++;
@@ -117,12 +126,16 @@ Msg_s deserialize_s (void * stream){
 	memcpy(&(msg->status), stream, sizeof(int));
 	stream += sizeof(int);
 
+	// printf("status = %d \n", msg->status);
+
 	memcpy(&(elemQty), stream, sizeof(int));
 	stream += sizeof(int);
 
+	// printf("Elemqty = %d \n", elemQty);
+
 	for(i=0; i<elemQty; i++){
 		char * str = malloc((size = strlen(stream)+1));
-
+		// printf("Stream: %s\n", (char *) stream);
 		strcpy(str, stream);
 		stream += size;
 
@@ -164,17 +177,22 @@ void * serialize_login (Msg_t msg){
 
 	passSize = strlen(msg->data.login_t.pass)+1;
 	userSize = strlen(msg->data.login_t.user)+1;
+	// printf("User size = %d\n", userSize);
+	// printf("Pass size = %d\n", passSize);
 	msgSize = sizeof(int)+passSize+userSize;
 
-	msgstraux = msgstr = malloc(msgSize+sizeof(int));
+	msgstraux = msgstr = calloc(1, msgSize+sizeof(int));
 
 	memcpy(msgstraux, &(msgSize), sizeof(int));
 	msgstraux += sizeof(int);
 	memcpy(msgstraux, &(msg->type), sizeof(int));
 	msgstraux += sizeof(int);
+	msg->data.login_t.user[userSize-1] = '\0';
 	strcpy(msgstraux, msg->data.login_t.user);
 	msgstraux += userSize;
+	msg->data.login_t.pass[passSize-1] = '\0';
 	strcpy(msgstraux, msg->data.login_t.pass);
+	// printf("\t Pass = %s\n", (char *)msgstraux);
 
 	return msgstr;
 }
@@ -467,15 +485,45 @@ Msg_t deserialize_register (Msg_t msg, void * stream){
 
 Msg_t deserialize_login (Msg_t msg, void * stream){
 	int size;
-
-	msg->data.login_t.user = malloc((size = strlen(stream)+1));
+	msg->data.login_t.user = (char *) calloc(1, (size = strlen(stream)+1));
 	strcpy(msg->data.login_t.user, stream);
+	// printf("Deserialize login user size = %d - user = %s\n", size, msg->data.login_t.user);
 	stream += size;
-	msg->data.login_t.pass = malloc(strlen(stream)+1);
+	msg->data.login_t.pass = (char * ) calloc(1, (strlen(stream)+1));
 	strcpy(msg->data.login_t.pass, stream);
-
+	// printf("Deserialize login pass size = %d - pass = %s\n", strlen(stream)+1, msg->data.login_t.pass);
 	return msg;
 }
+
+// void * serialize_login (Msg_t msg){
+// 	int msgSize;
+// 	void * msgstraux;
+// 	void * msgstr;
+// 	int passSize, userSize;
+
+// 	passSize = strlen(msg->data.login_t.pass)+1;
+// 	userSize = strlen(msg->data.login_t.user)+1;
+// 	msgSize = 3*sizeof(int)+passSize+userSize;
+
+// 	msgstraux = msgstr = calloc(1, msgSize+sizeof(int));
+
+// 	memcpy(msgstraux, &(msgSize), sizeof(int));
+// 	msgstraux += sizeof(int);
+// 	memcpy(msgstraux, &(msg->type), sizeof(int));
+// 	msgstraux += sizeof(int);
+
+// 	memcpy(msgstraux, &userSize, sizeof(int));
+// 	msgstraux += sizeof(int);
+// 	passSize(msgstraux, msg->data.login_t.user, userSize);
+// 	msgstraux += userSize;
+
+// 	memcpy(msgstraux, &passSize, sizeof(int));
+// 	msgstraux += sizeof(int);
+// 	memcpy(msgstraux, msg->data.login_t.pass, passSize);
+// 	msgstraux += passSize;
+
+// 	return msgstr;
+// }
 
 Msg_t deserialize_listLeagues (Msg_t msg, void * stream){
 

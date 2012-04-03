@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 
 #include "../includes/client.h"
@@ -11,6 +12,7 @@
 int main(void){
 	
 	char input[COMMAND_MAX_LENGHT];
+	signal(SIGINT, sigint);
 
 	connectToServer();
 

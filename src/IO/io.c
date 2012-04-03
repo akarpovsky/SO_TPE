@@ -10,10 +10,6 @@
 
 #include "./io.h"
 
-#define DIGIT_COUNT(X) ((int)(log10((X))))
-
-
-
 /*
 * function loadUser
 *

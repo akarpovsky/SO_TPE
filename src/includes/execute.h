@@ -2,16 +2,16 @@
 #define EXECUTE_H
 
 #ifdef fifo
-	#include "../includes/fifo_s.h"
+	#include "fifo_s.h"
 #endif
 #ifdef sockets
-	#include "../includes/socket_s.h"
+	#include "socket_s.h"
 #endif
 #ifdef msgqueue
-	#include "../includes/mq_s.h"
+	#include "mq_s.h"
 #endif
 #ifdef shmm
-	#include "../includes/shmm_s.h"
+	#include "shmm_s.h"
 #endif
 
 void reverse(char s[]);
