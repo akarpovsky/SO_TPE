@@ -918,8 +918,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 				/* Si a el jugador que quiero adquirir lo tiene el otro equipo */
 				flag = 0;
 				FOR_EACH(elemPlayer, ((Team)elemTeam->data)->players){
-					printf("Comparando a %s con SUS jugadores %s\n", ((Player)elemPlayer->data)->name, ((Player)elemPlayer->data)->name);
-
+			
 					if(strcmp(((Player)elemPlayer->data)->name,to) == 0){
 						flag = 1;
 						break;
