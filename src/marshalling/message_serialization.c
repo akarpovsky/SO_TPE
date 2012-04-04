@@ -83,12 +83,15 @@ void * serialize_s (Msg_s msg){
 		i++;
 	}
 
-	msgSize = 2*sizeof(int) + msgListSize;
+	msgSize = 3*sizeof(int) + msgListSize;
 	msgstr = msgstraux = malloc(msgSize + sizeof(int));
 
 	memcpy(msgstraux, &msgSize, sizeof(int));
 	msgstraux += sizeof(int);
 	printf("Size = %d\n", msgSize);
+
+	memcpy(msgstraux, &(msg->responseType), sizeof(int));
+	msgstraux += sizeof(int);
 
 	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);
@@ -122,6 +125,9 @@ Msg_s deserialize_s (void * stream){
 	CreateList(l);
 
 	msg->msgList = l;
+
+	memcpy(&(msg->responseType), stream, sizeof(int));
+	stream += sizeof(int);
 
 	memcpy(&(msg->status), stream, sizeof(int));
 	stream += sizeof(int);

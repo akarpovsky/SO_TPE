@@ -65,6 +65,7 @@ typedef struct msg_t{
 } msg_t;
 
 typedef struct msg_s {
+	int responseType;
 	int status;
 	List msgList;
 

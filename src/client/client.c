@@ -4,9 +4,12 @@
 
 
 #include "../includes/client.h"
+#include "../includes/marshalling.h"
 #include "../includes/message.h"
 #include "../includes/parseCommand.h"
 #include "../includes/transport_c.h"
+
+int draftFlag = FALSE;
 
 
 int main(void){
