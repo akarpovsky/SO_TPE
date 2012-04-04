@@ -1,6 +1,10 @@
 #ifndef MARSHALLING_H
 #define MARSHALLING_H
 
+#define TRUE 1
+#define FALSE 0
+#define OK 0
+
 void register_c(char * user, char * pass);
 void login_c(char * user, char * pass);
 void list_c(int toList);

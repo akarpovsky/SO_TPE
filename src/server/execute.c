@@ -63,7 +63,7 @@ void itoa(int n, char s[]){
      reverse(s);
 }
 
-void * createMsg_s(void){
+void * createMsg_s(int responseType){
 
 	Msg_s msg = (Msg_s) malloc(sizeof(msg_s));
 	if(msg == NULL){
@@ -161,7 +161,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 
 void executeRegister(Msg_t msg, Channel ch){
 
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(REGISTER);
 	char * user = (msg->data).login_t.user;
 	char * pass = (msg->data).login_t.pass;
 	char * toPrint;
@@ -237,7 +237,7 @@ void executeRegister(Msg_t msg, Channel ch){
 
 void executeLogin(Msg_t msg, Channel ch, User * me){
 
- 	Msg_s answer = createMsg_s();
+ 	Msg_s answer = createMsg_s(LOGIN);
 	char * user = (msg->data).login_t.user;
 	char * pass = (msg->data).login_t.pass;
 	char * toPrint;
@@ -321,7 +321,7 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 void executeListLeagues(Msg_t msg, Channel ch){
 
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(LIST_LEAGUES);
 	char * toPrint;
 	int rc;
 
@@ -375,7 +375,7 @@ void executeListLeagues(Msg_t msg, Channel ch){
 
 void executeListTeams(Msg_t msg, Channel ch){
 
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(LIST_TEAMS);
 	char * toPrint;
 	int rc;
 
@@ -444,7 +444,7 @@ void executeListTeams(Msg_t msg, Channel ch){
 
 void executeListTrades(Msg_t msg, Channel ch, User * me){
 
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(LIST_TRADES);
 	char * toPrint;
 
 	int dim,rc;
@@ -510,7 +510,7 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 
 
 	
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(LEAGUE_SHOW);
 	char * toPrint;
 	int input = msg->data.show_t.ID;
 
@@ -625,7 +625,7 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 
 void executeTeamShow(Msg_t msg, Channel ch){
 	
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(TEAM_SHOW);
 	char * toPrint;
 	int input = msg->data.show_t.ID;
 
@@ -734,7 +734,7 @@ void executeTeamShow(Msg_t msg, Channel ch){
 
 void executeTradeShow(Msg_t msg, Channel ch){
 	
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(TRADE_SHOW);
 	char * toPrint;
 	int input = msg->data.show_t.ID;
 
@@ -842,7 +842,7 @@ void executeTradeShow(Msg_t msg, Channel ch){
 
 void executeTrade(Msg_t msg, Channel ch, User * me){
 	
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(TRADE);
 	char * toPrint;
 	
 	if((*me) == NULL){
@@ -1009,7 +1009,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 
 void executeDraft(Msg_t msg, Channel ch, User * me){
 
-	Msg_s answer = createMsg_s();
+	Msg_s answer = createMsg_s(DRAFT);
 	char * toPrint;
 	int input = msg->data.ID;
 	int rc;

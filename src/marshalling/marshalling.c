@@ -366,6 +366,16 @@ void draft_c(char * id){
 	FOR_EACH(elem, response->msgList){
 		printf("%s\n",(char*)(elem->data));
 	}
+
+	//XXX: Let Mordor begin;
+	if(response->status == OK)
+	{
+		draftFlag = TRUE;
+		do
+		{
+
+		}while(draftFlag);
+	}
 }
 
 void logout_c(){

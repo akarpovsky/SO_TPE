@@ -14,14 +14,14 @@ Msg_s communicate(Msg_t msg);
  * the server. Returns a Msg_s.
  */
 
-Msg_s rcvmessage(void);
+Msg_s _rcvmessage(void);
 
 /**
  * This is the low-level function that sends a Msg_t msg to the server. It
  * returns SUCCESSFULL in case of success.
  */
 
-int sendmessage(Msg_t msg);
+int _sendmessage(Msg_t msg);
 
 /**
  * This function contacts to the main server in order to obtain an attention

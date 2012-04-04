@@ -16,7 +16,7 @@
 
 void reverse(char s[]);
 void itoa(int n, char s[]);
-void * createMsg_s();
+void * createMsg_s(int responseType);
 void execute(Msg_t msg, Channel ch, User * me);
 void executeRegister(Msg_t msg, Channel ch);
 void executeLogin(Msg_t msg, Channel ch, User * me);
