@@ -26,7 +26,8 @@
 #define CHOOSE 18
 
 #define MSG_T_MAX_COMMANDS 18
-
+#define DRAFT_STARTED 1
+#define DRAFT_ENDED 2
 
 #define CONVENTION 50000
 #define MAX_LENGHT 50

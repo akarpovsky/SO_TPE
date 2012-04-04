@@ -1015,7 +1015,7 @@ Game loadGame(void){
 	return game;
 }
 
-void checkMatchesDir(Game game)
+void checkMatchesDir(void)
 {
 	DIR * matches_dp;
 	DIR * new_matches_dp;
@@ -1074,17 +1074,15 @@ void checkMatchesDir(Game game)
 			char * f = malloc(strlen(MATCHES_NEW)+strlen(d->d_name)+1);
 			strcpy(f, MATCHES_NEW);
 			strcat(f, d->d_name);
-			if((fp = open(f)) == NULL)
+			if((fp = fopen(f,"r")) == NULL)
 			{
 				printf("Impossible to read file: %s\n", f);
 				close(fp);
 				free(f);
 				continue;
 			}
-			l = malloc(sizeof(llist));
-			CreateList(l);
 			if((l = loadMatch(fp)) != NULL){
-				updatePlayers(l, game);
+				updatePlayers(l);
 				close(fp);
 				Element e;
 				FOR_EACH(e, l)
@@ -1106,5 +1104,100 @@ void checkMatchesDir(Game game)
 			free(f);
 		}
 	}
+}
 
+List loadMatch(File * file){
+	
+	List ret = (List) malloc(sizeof(llist));
+	if(ret == NULL){
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
+		exit(EXIT_FAILURE);
+	}
+	CreateList(ret);
+	
+	Player auxPlayer = NULL;
+	
+	char aux[BUFFER_SIZE]; // For reading the file line by line
+	int cantP,i,dim;
+	
+	/* Cargo la cantidad de jugadores del archivo */
+	fgets(aux,BUFFER_SIZE,file);
+	cantP = atoi(aux);
+	
+	for(i = 0; i < cantP; i++){
+	
+		auxPlayer = calloc(1, sizeof(player_t));
+		if(auxPlayer == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+	
+		/* Load Player Name */ 
+		fgets(aux,BUFFER_SIZE,file);
+		dim = strlen(aux);
+		auxPlayer->name  = (char *) calloc(dim, sizeof(char));
+		if(auxPlayer->name == NULL){
+			printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
+			exit(EXIT_FAILURE);
+		}
+		aux[dim-1] = 0;
+		strcpy(auxPlayer->name,aux);
+
+		/* Load Player points */ 
+		fgets(aux,BUFFER_SIZE,file);
+		num = atoi(aux);
+		auxPlayer->points = num;
+
+		AddToList(auxPlayer, ret);
+		
+	}
+	
+	
+}
+
+void updatePlayers(List l){
+	
+	Element p,league,team,player;
+	int rc;
+	
+	rc = pthread_mutex_lock(&game_mutex);
+	
+	FOR_EACH(p, l){
+		
+		FOR_EACH(league, gameAux->leagues){
+			
+			/* Cargo points en availablePlayers de una league */
+			FOR_EACH(player, ((League)league->data)->availablePlayers){
+				
+				if(strcmp(p->name,player->name) == 0){
+					player->points += p->points;
+				}
+			}
+			
+			/* Cargo points en cada player de un team y en el team */
+			FOR_EACH(team, ((League)league->data)->teams){
+				
+				FOR_EACH(player, ((Team)team->data)->players){
+					
+					if(strcmp(p->name,player->name) == 0){
+						player->points += p->points;
+						team->points += p->points;
+					}	
+				}	
+			}
+		}	
+	}
+	
+	rc = pthread_mutex_unlock(&game_mutex);
+}
+
+void dumpMatch(char * path){
+
+	char string[200];
+	
+	sprintf("mv %s %s",string,path,MATCHES_DUMP);
+	
+	exec(string);
+	
+	
 }

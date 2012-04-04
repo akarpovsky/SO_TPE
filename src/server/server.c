@@ -294,12 +294,11 @@ int main(void){
 void * match_reviewer(void * data)
 {
 	List players;
-	Game game = (Game)data;
 
-	checkMatchesDir(game);
+	checkMatchesDir();
 
 	do
 	{
-		checkMatches(game);
+		checkMatches();
 	}while(1);
 }
