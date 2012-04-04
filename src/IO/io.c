@@ -601,6 +601,11 @@ League loadLeague(char * path){
 					fgets(aux,BUFFER_SIZE,file);
 					num = atoi(aux);
 					auxLeague->status = num;
+					
+					/* Load cantDraft, turn, answer */
+					auxLeague->cantDraft = 0;
+					auxLeague->turn = NULL;
+					auxLeague->answer = 0;
 
 					/* Load available players */
 					fgets(aux,BUFFER_SIZE,file);

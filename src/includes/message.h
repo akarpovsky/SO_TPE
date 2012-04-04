@@ -23,6 +23,7 @@
 #define CREATE_LEAGUE 15
 #define DRAFT 16
 #define DRAFT_OUT 17
+#define CHOOSE 18
 
 #define MSG_T_MAX_COMMANDS 18
 

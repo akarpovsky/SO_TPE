@@ -7,8 +7,10 @@
 #define OK 0
 #define ERROR 1
 #define WAIT 2
-#define ACTIVE 1
+
 #define INACTIVE 0
+#define DRAFT 2
+#define ACTIVE 3
 
 #include "../utils/LinkedList.h"
 #include "../includes/structs.h"
@@ -34,8 +36,7 @@
 #include "../includes/global.h"
 
 
-void reverse(char s[])
-{
+void reverse(char s[]){
      int i, j;
      char c;
 
@@ -47,8 +48,7 @@ void reverse(char s[])
 }
 
 /* itoa:  convert n to characters in s */
-void itoa(int n, char s[])
-{
+void itoa(int n, char s[]){
      int i, sign;
 
      if ((sign = n) < 0)  /* record sign */
@@ -149,7 +149,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 	
 		case DRAFT:
-//					executeDraft(msg,ch);
+//					executeDraft(msg,ch,me);
 					break;		
 									
 		case DRAFT_OUT:
@@ -234,7 +234,6 @@ void executeRegister(Msg_t msg, Channel ch){
 	return;
 
 }
-
 
 void executeLogin(Msg_t msg, Channel ch, User * me){
 
@@ -1006,6 +1005,168 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 			}
 		}		
 	}
+}
+
+void executeDraft(Msg_t msg, Channel ch, User * me){
+
+	Msg_s answer = createMsg_s();
+	char * toPrint;
+	int input = msg->data.ID;
+	int rc;
+	Element elemLeague, elemID;
+	int flag;
+	
+	rc = pthread_mutex_lock(&game_mutex);
+	
+	/* Liga no existente */
+	if(input > gameAux->leagues->NumEl){
+		toPrint = incorrectID;
+		AddToList(toPrint,answer->msgList);
+		
+		rc = pthread_mutex_unlock(&game_mutex);
+
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+	}
+	
+	FOR_EACH(elemLeague, gameAux->leagues){
+		
+		/* En elemLeague cargo la liga que corresponde */
+		if(((League)elemLeague->data)->ID == input){
+			
+			
+			/* Caso que yo no pertenezca a la league */
+			flag = 0;
+			FOR_EACH(elemID, (*me)->leaguesIDs){
+				if(((int*)elemID->data) == ((League)elemLeague->data)->ID){
+					flag = 1;
+					break;
+				}							
+			}
+			if(flag == 0){
+				toPrint = noTeamInLeague;
+				AddToList(toPrint,answer->msgList);
+
+				rc = pthread_mutex_unlock(&game_mutex);
+
+				answer->status = ERROR;
+				communicate(ch,answer);
+				return;
+			}
+			
+			
+			/* Caso de liga que ya se drafteo */
+			if(((League)elemLeague->data)->status == ACTIVE){
+				toPrint = alreadyDrafted;
+				AddToList(toPrint,answer->msgList);
+
+				rc = pthread_mutex_unlock(&game_mutex);
+
+				answer->status = ERROR;
+				communicate(ch,answer);
+				return;
+			}
+			
+			/* No hay teams suficientes para draftear */
+			if(((League)elemLeague->data)->teams->NumEl < CANT_TEAMS){
+				toPrint = notEnoughTeams;
+				AddToList(toPrint,answer->msgList);
+
+				rc = pthread_mutex_unlock(&game_mutex);
+
+				answer->status = ERROR;
+				communicate(ch,answer);
+				return;
+			}
+			
+			if(((League)->elemLeague->data)->status == INACTIVE){
+				
+				((League)->elemLeague->data)->cantDraft++;
+				
+				if(((League)->elemLeague->data)->cantDraft == CANT_TEAMS){
+					
+					/* Creo el thread coordinador */
+					pthread_t coordinatorThread;
+					int iRet;
+					iRet = pthread_create(&coordinatorThread, NULL, coordinator_thread, NULL);
+					if (iRet){
+						printf("ERROR; return code from pthread_create() is %d\n", iRet);
+						exit(EXIT_FAILURE);
+					}
+					
+					makeDraft((League)elemLeague->data, ch, me);
+					
+				}else{
+					//esperar mensaje logout o draft out
+				}
+			}else{
+				makeDraft((League)elemLeague->data, ch, me);
+			}
+			
+		}//IF ES EL ID DE LA LEAGUE
+	}//FOR_EACH
+}
+
+void makeDraft(League league,Channel ch, User * me){
+	
+	Msg_t fromClient;
+	char * player;
+	Element elemPlayer,elemTeam;
+	int flag;
+	
+	while(league->status == DRAFT){
+		
+		fromClient = IPClisten(ch);
+
+		/* Mi turno*/
+		if(strcmp(league->turn, (*me)->user) == 0){
+			
+			if(fromClient->type == DRAFT_OUT){
+				league->cantDraft--;
+				return;
+			}
+			if(fromClient->type == LOGOUT){
+				league->cantDraft--;
+				executeLogout(fromClient,ch,me);
+				
+				return;
+			}
+			
+			if(fromClient->type = CHOOSE){
+				
+				player = fromClient->data->name;
+				flag = 0;
+				
+				FOR_EACH(elemPlayer, league->availablePlayers){
+					/* Encontre el jugador */
+					if(strcmp(player,((Player)elemPlayer->data)->name) == 0){						
+						/* Saco el jugador de availablePlayers */
+						Remove(elemPlayer, league->availablePlayers);
+						
+						/* Busco en que team ponerlo */
+						FOR_EACH(elemTeam, league->teams){
+							if(strcmp(((Team)elemTema->data)->name,(*me)->user) == 0){
+								break;
+							}
+						}
+					
+						AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
+						
+						/* Seteo en la liga la variable que indica que respondi */
+						league->answer = OK;
+						return;
+					}
+				}
+
+			}
+			
+		}
+		
+		
+	}
+	
+	
 }
 	
 	

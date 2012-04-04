@@ -6,6 +6,8 @@
 #include <pthread.h>
 
 #define MAX_PLAYERS 5
+#define CANT_PLAYERS 7
+#define CANT_TEAMS 5
 
 typedef struct trade{
 	
@@ -65,6 +67,11 @@ typedef struct league{
 	List availablePlayers;
 	List teams;
 	List trades;
+	/* Para el draft */
+	int cantDraft;
+	char * turn;
+	int answer;
+	
 }league_t;
 
 typedef league_t * League;
