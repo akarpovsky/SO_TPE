@@ -9,12 +9,9 @@
 #include "../includes/parseCommand.h"
 #include "../includes/transport_c.h"
 
-int draftFlag = FALSE;
-
-
 int main(void){
 	
-	char input[COMMAND_MAX_LENGHT];
+	char input[COMMAND_MAX_LENGTH];
 	signal(SIGINT, sigint);
 
 	connectToServer();

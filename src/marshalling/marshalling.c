@@ -18,6 +18,11 @@
 	#include "../includes/shmm_c.h"
 #endif
 
+int draftFlag = FALSE;
+int draftStarted = FALSE;
+int forDraft[100];
+int item = 0;
+
 void register_c(char * user, char * pass){
 
 	Msg_s response;
