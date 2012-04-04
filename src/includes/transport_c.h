@@ -21,7 +21,13 @@ Msg_s _rcvmessage(void);
  * returns SUCCESSFULL in case of success.
  */
 
-int _sendmessage(Msg_t msg);
+int sendmessage(Msg_t msg);
+
+/**
+ * This is the non-blocking function used in the case of a draft state.
+ */
+
+Msg_s rcvmessage(void);
 
 /**
  * This function contacts to the main server in order to obtain an attention

@@ -14,31 +14,50 @@ Msg_s communicate(Msg_t msg)
 {
 
 	if(sendmessage(msg) == SUCCESSFUL){
-		return rcvmessage();
+		return _rcvmessage();
 	}
 
 	return NULL;
 }
 
-Msg_s rcvmessage(void)
+Msg_s _rcvmessage(void)
 {
 	int rcvFlag = FALSE;
-	Msg_s msg = malloc(sizeof(msg_s));
+	Msg_s msg;
 	do{
 		int nread, msgSize;
 		void * bytestring;
-		void * aux;
 		if((nread = read(fdIn, &(msgSize), sizeof(int))) > 0)
 		{
-			aux = bytestring = malloc(msgSize);
-			if((nread = read(fdIn, aux, msgSize)) > 0)
+			bytestring = malloc(msgSize);
+			if((nread = read(fdIn, bytestring, msgSize)) > 0)
 			{
-				msg = deserialize_s(aux);
+				msg = deserialize_s(bytestring);
 				rcvFlag = TRUE;
 			}
 		}
 
 	}while(rcvFlag != TRUE);
+
+	return msg;
+}
+
+Msg_s rcvmessage(void)
+{
+	int nread, msgSize;
+	Msg_s msg = NULL;
+
+	if((nread = read(fdIn, &(msgSize), sizeof(int))) > 0)
+	{
+		void * bytestring;
+		void * aux;
+		bytestring = malloc(msgSize);
+		if((nread = read(fdIn, bytestring, msgSize)) > 0)
+		{
+			msg = deserialize(bytestring);
+		}
+
+	}
 
 	return msg;
 }

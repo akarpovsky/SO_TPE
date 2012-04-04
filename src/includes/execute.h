@@ -1,6 +1,18 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+#include "../utils/LinkedList.h"
+#include "structs.h"
+#include "message.h"
+#include "../IO/io.h"
+#include "toPrint.h"
+
 #ifdef fifo
 	#include "fifo_s.h"
 #endif
@@ -13,6 +25,17 @@
 #ifdef shmm
 	#include "shmm_s.h"
 #endif
+
+#define DEFINE_VARIABLES
+#include "../includes/global.h"
+
+#define OK 0
+#define ERROR 1
+#define WAIT 2
+
+#define INACTIVE 0
+#define DRAFTING 2
+#define ACTIVE 3
 
 void reverse(char s[]);
 void itoa(int n, char s[]);

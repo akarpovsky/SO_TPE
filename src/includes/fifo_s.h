@@ -7,13 +7,12 @@
 #define FIFO_S_H_
 
 #include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
- #include <signal.h>
+#include <signal.h>
 #include "message.h"
 #include "message_serialization.h"
 #include "defines.h"
@@ -77,19 +76,25 @@ int sendmessage(Channel ch, Msg_s msg);
 Channel createChannel(Msg_t msg);
 
 /**
- * This function gracefuly closes the connection to the main server. Is supposed to
+ * This function gracefully closes the connection to the main server. Is supposed to
  * be called once the main server exits.
  */
 
 void closeMainServer(void);
 
 /**
- * This function gracefuly closes the connections of the service provider assigned
+ * This function gracefully closes the connections of the service provider assigned
  * to a client. Is supposed to be called at the end of the execution of the such
  * said service provider.
  */
 
 void closeConnection(Channel ch);
+
+/**
+ * This function tries to read a message from the Channel ch, if no message has been
+ * sent, then returns NULL.
+ */
+Msg_t rcvmessage(Channel ch);
 
 
 #endif /* FIFO_S_H_ */

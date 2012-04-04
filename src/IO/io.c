@@ -1,13 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/dir.h>
-
-
-
 #include "./io.h"
 
 /*
@@ -54,10 +44,6 @@ User loadUser(char * path){
 	aux[dim-1] = 0;
 	strcpy(auxUser->user,aux);
 
-
-	printf("STRLEN USER %d %s\n",strlen(auxUser->user),auxUser->user );
-
-	
 	/* Load password */
 	fgets(aux,BUFFER_SIZE,file);
 	dim = strlen(aux);

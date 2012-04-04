@@ -1,4 +1,3 @@
-
 char userExists[] = "The user already exists.";
 char successfulReg[] = "Successful registration.";
 char logged[] = "You are already logged.";
@@ -26,4 +25,6 @@ char noPlayerTo[] = "The other team doesn't have that player.";
 char noPlayerFrom[] = "Your team doesn't have that player.";
 char successfulTrade[] = "Trade created successfully.";
 char alreadyDrafted[] = "League already drafted.";
-char notEnoughTeams[] = "There is not enough teams to start the draft."
+char notEnoughTeams[] = "There is not enough teams to start the draft.";
+char invalidCommand[] = "This command is not supported.";
+char draftOutSuccessful[] = "Draft out successfully.";

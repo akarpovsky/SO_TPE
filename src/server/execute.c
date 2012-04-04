@@ -1,40 +1,4 @@
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
-#include <pthread.h>
-
-#define OK 0
-#define ERROR 1
-#define WAIT 2
-
-#define INACTIVE 0
-#define DRAFT 2
-#define ACTIVE 3
-
-#include "../utils/LinkedList.h"
-#include "../includes/structs.h"
-#include "../includes/message.h"
-#include "../IO/io.h"
 #include "../includes/execute.h"
-#include "../includes/toPrint.h"
-
-#ifdef fifo
-	#include "../includes/fifo_s.h"
-#endif
-#ifdef sockets
-	#include "../includes/socket_s.h"
-#endif
-#ifdef msgqueue
-	#include "../includes/mq_s.h"
-#endif
-#ifdef shmm
-	#include "../includes/shmm_s.h"
-#endif
-
-#define DEFINE_VARIABLES
-#include "../includes/global.h"
-
 
 void reverse(char s[]){
      int i, j;
@@ -998,6 +962,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 	}
 }
 
+
 void executeDraft(Msg_t msg, Channel ch, User * me){
 
 	Msg_s answer = createMsg_s(DRAFT);
@@ -1160,5 +1125,3 @@ void makeDraft(League league,Channel ch, User * me){
 	
 }
 	
-	
-
