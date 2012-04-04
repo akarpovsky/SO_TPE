@@ -53,5 +53,9 @@ char * leagueToString(League lg);
 char * tradeToString(Trade tr);
 char * teamToString(Team t);
 
+void updatePlayers(List l);
+List loadMatch(FILE * fp);
+void dumpMatch(char * f);
+void checkMatches(void);
 
 #endif

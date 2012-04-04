@@ -1015,7 +1015,7 @@ Game loadGame(void){
 	return game;
 }
 
-void checkMatchesDir(Game game)
+void checkMatchesDir()
 {
 	DIR * matches_dp;
 	DIR * new_matches_dp;
@@ -1081,10 +1081,8 @@ void checkMatchesDir(Game game)
 				free(f);
 				continue;
 			}
-			l = malloc(sizeof(llist));
-			CreateList(l);
 			if((l = loadMatch(fp)) != NULL){
-				updatePlayers(l, game);
+				updatePlayers(l);
 				close(fp);
 				Element e;
 				FOR_EACH(e, l)
@@ -1106,5 +1104,25 @@ void checkMatchesDir(Game game)
 			free(f);
 		}
 	}
+
+}
+
+void updatePlayers(List l)
+{
+
+}
+
+List loadMatch(FILE * fp)
+{
+	return NULL;
+}
+
+void dumpMatch(char * f)
+{
+
+}
+
+void checkMatches(void)
+{
 
 }
