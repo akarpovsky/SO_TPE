@@ -1169,7 +1169,7 @@ void updatePlayers(List l){
 			/* Cargo points en availablePlayers de una league */
 			FOR_EACH(player, ((League)league->data)->availablePlayers){
 				
-				if(strcmp(p->name,player->name) == 0){
+				if(strcmp(((Player)p->data)->name,((Player)player->data)->name) == 0){
 					player->points += p->points;
 				}
 			}
@@ -1179,7 +1179,7 @@ void updatePlayers(List l){
 				
 				FOR_EACH(player, ((Team)team->data)->players){
 					
-					if(strcmp(p->name,player->name) == 0){
+					if(strcmp(((Player)p->data)->name,((Player)player->data)->name) == 0){
 						player->points += p->points;
 						team->points += p->points;
 					}	
