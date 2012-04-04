@@ -290,3 +290,16 @@ int main(void){
 
 	return EXIT_SUCCESS;
 }
+
+void * match_reviewer(void * data)
+{
+	List players;
+	Game game = (Game)data;
+
+	checkMatchesDir(game);
+
+	do
+	{
+		checkMatches(game);
+	}while(1);
+}

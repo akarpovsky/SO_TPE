@@ -1015,3 +1015,96 @@ Game loadGame(void){
 	return game;
 }
 
+void checkMatchesDir(Game game)
+{
+	DIR * matches_dp;
+	DIR * new_matches_dp;
+	DIR * dump_matches_dp;
+	int creatFlag = FALSE;
+
+	if((matches_dp = opendir(MATCHES_DIR)) == NULL)
+	{
+		creatFlag = TRUE;
+		if(mkdir(MATCHES_DIR, 0777) == -1)
+		{
+			perror("Could not create matches directory");
+			exit(EXIT_FAILURE);
+		}
+		if((matches_dp = opendir(MATCHES_DIR)) == NULL)
+		{
+			perror("Critical failure opening matches directory");
+			exit(EXIT_FAILURE);
+		}
+	}
+	if(creatFlag || (new_matches_dp = opendir(MATCHES_NEW)) == NULL)
+	{
+		if(mkdir(MATCHES_NEW, 0777) == -1)
+		{
+			perror("Could not create new matches directory");
+			exit(EXIT_FAILURE);
+		}
+		if((new_matches_dp = opendir(MATCHES_NEW)) == NULL)
+		{
+			perror("Critical failure opening new matches directory");
+			exit(EXIT_FAILURE);
+		}
+	}
+	if(creatFlag || (dump_matches_dp = opendir(MATCHES_DUMP)) == NULL)
+	{
+		if(mkdir(MATCHES_DUMP, 0777) == -1)
+		{
+			perror("Could not create dump matches directory");
+			exit(EXIT_FAILURE);
+		}
+		if((dump_matches_dp = opendir(MATCHES_DUMP)) == NULL)
+		{
+			perror("Critical failure opening dump matches directory");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	struct dirent * d;
+	List l;
+	FILE * fp;
+
+	while((d = readdir(new_matches_dp)) != NULL)
+	{
+		if(d->d_ino != 0)
+		{
+			char * f = malloc(strlen(MATCHES_NEW)+strlen(d->d_name)+1);
+			strcpy(f, MATCHES_NEW);
+			strcat(f, d->d_name);
+			if((fp = open(f)) == NULL)
+			{
+				printf("Impossible to read file: %s\n", f);
+				close(fp);
+				free(f);
+				continue;
+			}
+			l = malloc(sizeof(llist));
+			CreateList(l);
+			if((l = loadMatch(fp)) != NULL){
+				updatePlayers(l, game);
+				close(fp);
+				Element e;
+				FOR_EACH(e, l)
+				{
+					free(((Player)e->data)->name);
+					free(e->data);
+				}
+				e = l->pFirst;
+				Element oe;
+				oe = e->next;
+				while(e != NULL)
+				{
+					free(e);
+					e = oe;
+					oe = ((e != NULL)?e->next:NULL);
+				}
+				dumpMatch(f);
+			}
+			free(f);
+		}
+	}
+
+}
