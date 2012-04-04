@@ -32,7 +32,7 @@ CLIENT_FILES = ./src/client/client.c ./src/client/parseCommand.c ./src/utils/has
 #CLIENT_OUT_DIR=./run
 CLIENT_OUT_EXE = client
 #OUT_EXE = $(addprefix $(OUT_DIR)/,server)
-CLIENT_COPTS= -Wall -g 
+CLIENT_COPTS= -g #-Wall -g 
 CLIENT_LDOPTS= -lpthread
 
 SOCKET_CLIENT = ./src/transport/sockets/socket_c.c

@@ -1092,7 +1092,7 @@ void checkMatchesDir(void)
 	}
 }
 
-List loadMatch(File * file){
+List loadMatch(FILE * file){
 	
 	List ret = (List) malloc(sizeof(llist));
 	if(ret == NULL){
