@@ -45,3 +45,61 @@ Element AddToList(void *item, List list)
     list->pLast = NewEl;
     return NewEl;
 }
+
+void AddElemToList(Element NewEl, List list){
+	
+	list->NumEl = list->NumEl + 1;
+    if (list->NumEl == 1)
+    {
+      list->pFirst = NewEl;
+      NewEl->prev = NULL;
+      NewEl->next = NULL;
+    }
+    else
+    {
+      NewEl->prev = list->pLast;
+      NewEl->next = NULL;
+      list->pLast->next = NewEl;
+    }
+    list->pLast = NewEl;
+    return;
+	
+}
+
+
+void Remove(Element elem, List list){
+	
+	Element item;
+	int flag;
+
+	FOR_EACH(item, list){
+		if(item == elem){
+			flag = 1;
+			break;
+		}
+	}
+	
+	if(flag == 0){
+		return;
+	}
+		
+	/* Soy el primero */
+	if(list->pFirst == elem){
+		list->pFirst = elem->next;
+		elem->next->prev = NULL;
+	}
+	/* Soy el ultimo */
+	if(list->pLast == elem){
+		list->pLast = elem->prev;
+		elem->prev->next = NULL;
+	}
+	if(elem->prev != NULL && elem->next != NULL){
+		elem->prev->next = elem->next;
+		elem->next->prev = elem->prev;
+	}
+	
+	elem->prev = NULL;
+	elem->next = NULL;
+	
+	return;
+}
