@@ -7,6 +7,14 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/dir.h>
 #include "../includes/structs.h"
 #include "../utils/LinkedList.h"
 
@@ -24,6 +32,9 @@
 #define MATCHES_NEW "./res/matches/new"
 #define TRUE 1
 #define FALSE 0
+
+#define DEFINE_VARIABLES
+#include "../includes/global.h"
 
 /* Functions for loading */
 

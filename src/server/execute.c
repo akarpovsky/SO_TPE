@@ -764,12 +764,10 @@ void executeTradeShow(Msg_t msg, Channel ch){
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 
 			if(((Trade)elemTrade->data)->ID == input){
-				printf("LLEGUEEEEE  111\n");
 				
 				/* Frase User from */
 				toPrint = userF;
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  222\n");
 				
 				/* UserFrom */
 				dim = strlen(((Trade)elemTrade->data)->userFrom);
@@ -780,12 +778,10 @@ void executeTradeShow(Msg_t msg, Channel ch){
 				}
 				strcpy(toPrint,((Trade)elemTrade->data)->userFrom);
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  333\n");
 				
 				/* Frase User to */
 				toPrint = userT;
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  444\n");
 				
 				/* UserTo */
 				dim = strlen(((Trade)elemTrade->data)->userTo);
@@ -796,12 +792,10 @@ void executeTradeShow(Msg_t msg, Channel ch){
 				}
 				strcpy(toPrint,((Trade)elemTrade->data)->userTo);
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  555\n");
 				
 				/* Frase Player from */
 				toPrint = playerF;
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  666\n");
 				
 				/* PlayerFrom */
 				dim = strlen(((Trade)elemTrade->data)->playerFrom);
@@ -812,12 +806,10 @@ void executeTradeShow(Msg_t msg, Channel ch){
 				}
 				strcpy(toPrint,((Trade)elemTrade->data)->playerFrom);
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  777\n");
 				
 				/* Frase Player to */
 				toPrint = playerT;
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  888\n");
 				
 				/* playerTo */
 				dim = strlen(((Trade)elemTrade->data)->playerTo);
@@ -828,7 +820,6 @@ void executeTradeShow(Msg_t msg, Channel ch){
 				}
 				strcpy(toPrint,((Trade)elemTrade->data)->playerTo);
 				AddToList(toPrint,answer->msgList);
-				printf("LLEGUEEEEE  999\n");
 				
 				rc = pthread_mutex_unlock(&game_mutex);
 

@@ -219,6 +219,7 @@ Msg_t IPClisten(Channel ch){
 						break;
 						
 			case CREATE_LEAGUE:
+			case CHOOSE:
 						
 						/* Escucho size de name */
 						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){

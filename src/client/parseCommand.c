@@ -13,6 +13,9 @@ void parseCommand(char * cmd){
 	char * param2;
 	char * param3;
 	
+	if(cmd == NULL){
+		return;
+	}
 	
 	/* Cargo commandName */
 	if ((commandName = strtok(cmd,"[")) == NULL){
@@ -103,6 +106,8 @@ void parseCommand(char * cmd){
 		logout_c();
 	}else if(strcmp(commandName,"draftout") == 0){
 		draftout_c();
+	}else if(strcmp(commandName,"choose") == 0){
+		choose_c(param1);
 	}else{
 		printf("Command not found \n");
 		return;

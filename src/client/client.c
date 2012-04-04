@@ -12,10 +12,12 @@
 int main(void){
 	
 	char input[COMMAND_MAX_LENGTH];
+
 	signal(SIGINT, sigint);
 
 	connectToServer();
-
+	
+	
 	while(1){
 		printf("client:/$ ");
 		readPrompt(input,sizeof(input));
@@ -23,6 +25,8 @@ int main(void){
 			parseCommand(input);
 		}
 	}
+	
+	return 0;
 }
 
 void readPrompt(char * s, int size){
@@ -30,6 +34,22 @@ void readPrompt(char * s, int size){
 	int input = 0;
 
 	while(--size && (input = getchar()) != EOF && input != '\n'){
+		
+		*s = input;
+		s++;
+	}
+	
+	if(input == EOF){
+		printf("\n");
+	}
+	*s = 0;
+}
+
+void readPromptUnlocked(char * s, int size){
+	
+	int input = 0;
+
+	while(--size && (input = getchar_unlocked()) != EOF && input != '\n'){
 		
 		*s = input;
 		s++;

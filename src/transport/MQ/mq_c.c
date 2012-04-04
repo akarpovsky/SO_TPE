@@ -31,7 +31,7 @@ typedef struct msg_Int{
 Msg_s communicate(Msg_t msg){
 	
 	if(sendmessage(msg) == SUCCESSFUL){
-		return rcvmessage();
+		return _rcvmessage();
 	}
 	
 	return NULL;
@@ -209,6 +209,7 @@ int sendmessage(Msg_t msg){
 			break;
 						
 		case CREATE_LEAGUE:
+		case CHOOSE:
 		
 			/* Mando size de name */
 			size = strlen(msg->data.name) + 1;
@@ -230,7 +231,7 @@ int sendmessage(Msg_t msg){
 	
 }
 
-Msg_s rcvmessage(void){
+Msg_s _rcvmessage(void){
 	
 	msg_String string;
 	msg_Int num;

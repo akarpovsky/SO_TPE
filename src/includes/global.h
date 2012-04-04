@@ -6,7 +6,8 @@
 #define EXTERN /* nothing */
 #else
 #define EXTERN extern
-#endif /* DEFINE_VARIABLES */
+#endif 
+/* DEFINE_VARIABLES */
 
 #include "./structs.h"
 

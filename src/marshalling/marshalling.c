@@ -4,6 +4,7 @@
 
 #include "../includes/marshalling.h"
 #include "../includes/message.h"
+#include "../includes/parseCommand.h"
 
 #ifdef fifo
 	#include "../includes/fifo_c.h"
@@ -20,10 +21,15 @@
 
 int draftFlag = FALSE;
 int draftStarted = FALSE;
-int forDraft[100];
+char forDraft[COMMAND_MAX_LENGHT];
 int item = 0;
 
 void register_c(char * user, char * pass){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -62,6 +68,11 @@ void register_c(char * user, char * pass){
 
 void login_c(char * user, char * pass){
 	
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+	
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -99,6 +110,11 @@ void login_c(char * user, char * pass){
 
 void list_c(int toList){
 	
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+	
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -119,6 +135,11 @@ void list_c(int toList){
 }
 
 void leagueShow_c(char * id){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -142,6 +163,11 @@ void leagueShow_c(char * id){
 
 void teamShow_c(char * id){
 
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -163,6 +189,11 @@ void teamShow_c(char * id){
 }
 
 void tradeShow_c(char * id){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 	
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -185,6 +216,11 @@ void tradeShow_c(char * id){
 }
 
 void trade_c(char * id, char * from, char * to){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -223,6 +259,11 @@ void trade_c(char * id, char * from, char * to){
 
 void tradeWithdraw_c(char * id){
 
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -245,6 +286,11 @@ void tradeWithdraw_c(char * id){
 
 void tradeAccept_c(char * id){
 
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -266,6 +312,11 @@ void tradeAccept_c(char * id){
 }
 
 void tradeNegotiate_c(char * id, char * from, char * to){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -303,6 +354,11 @@ void tradeNegotiate_c(char * id, char * from, char * to){
 
 void joinLeague_c(char * id){
 
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -324,6 +380,11 @@ void joinLeague_c(char * id){
 }
 
 void createLeague_c(char * name){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -353,6 +414,11 @@ void createLeague_c(char * name){
 
 void draft_c(char * id){
 
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
+
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -378,12 +444,32 @@ void draft_c(char * id){
 		draftFlag = TRUE;
 		do
 		{
-
+		//	response = rcvmessage();
+			if(response == NULL){
+				consoleForDraft();
+			}
+			else{
+				if(response->responseType == DRAFT_STARTED){
+					draftStarted = TRUE;		
+				}else if(response->responseType == DRAFT_ENDED){
+					draftFlag = FALSE;
+				}
+				/* Imprimo todos los msjs */
+				FOR_EACH(elem, response->msgList){
+					printf("%s\n",(char*)(elem->data));
+				}
+			}
+			
 		}while(draftFlag);
 	}
 }
 
 void logout_c(){
+
+	if(draftFlag == TRUE){
+		printf("You can't use this command in draft mode\n");
+		return;
+	}
 
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -407,6 +493,11 @@ void logout_c(){
 
 void draftout_c(){
 
+	if(draftFlag == FALSE){
+		printf("You have to be in draft mode to use this command\n");
+		return;
+	}
+
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
 	if(msg == NULL){
@@ -425,4 +516,58 @@ void draftout_c(){
 		printf("%s\n",(char*)(elem->data));
 	}
 	
+	draftFlag = FALSE;
+}
+
+void choose_c(char * name){
+	
+	if(draftStarted == FALSE){
+		printf("You have to be in draft mode to use this command\n");
+		return;
+	}
+	
+	Msg_s response;
+	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
+	if(msg == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);		
+	}
+		
+	msg->type = CHOOSE;
+	
+	msg->data.name = (char*) malloc(strlen(name)+1);
+	if(msg->data.name == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	strcpy(msg->data.name,name);
+	
+	response = (Msg_s) communicate(msg);
+
+	Element elem;
+	
+	/* Imprimo todos los msjs */
+	FOR_EACH(elem, response->msgList){
+		printf("%s\n",(char*)(elem->data));
+	}
+	
+}
+
+void consoleForDraft(void){
+	
+	int input = getchar_unlocked();
+	
+	if(input == '\n'){
+			forDraft[item++] = 0;
+			parseCommand(forDraft);
+			printf("client:/$ ");
+			item = 0;
+			forDraft[item] = 0;
+			
+	}else{
+		if(input != EOF){
+			forDraft[item++] = input;
+		}
+	}
+
 }

@@ -8,5 +8,13 @@
 #define MAX_STRING 200
 #define SUCCESSFUL 1
 
+Msg_s communicate(Msg_t msg);
+
+Msg_s _rcvmessage(void);
+
+int sendmessage(Msg_t msg);
+
+void connectToServer(void);
+
 
 #endif
