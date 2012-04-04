@@ -19,6 +19,11 @@
 #define LEAGUE_OBJ 2
 #define TEAM_OBJ 3
 #define TRADE_OBJ 4
+#define MATCHES_DIR "./res/matches"
+#define MATCHES_DUMP "./res/matches/dump"
+#define MATCHES_NEW "./res/matches/new"
+#define TRUE 1
+#define FALSE 0
 
 /* Functions for loading */
 

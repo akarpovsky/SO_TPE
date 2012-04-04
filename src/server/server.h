@@ -2,6 +2,8 @@
 #define SERVER_H_
 
 #include <pthread.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "../includes/structs.h"
 #include "../IO/io.h"
