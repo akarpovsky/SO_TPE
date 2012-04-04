@@ -9,7 +9,7 @@
 #define WAIT 2
 
 #define INACTIVE 0
-#define DRAFT 2
+#define DRAFTING 2
 #define ACTIVE 3
 
 #include "../utils/LinkedList.h"
@@ -1039,7 +1039,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 			/* Caso que yo no pertenezca a la league */
 			flag = 0;
 			FOR_EACH(elemID, (*me)->leaguesIDs){
-				if(((int*)elemID->data) == ((League)elemLeague->data)->ID){
+				if((*(int*)elemID->data) == ((League)elemLeague->data)->ID){
 					flag = 1;
 					break;
 				}							
@@ -1080,16 +1080,16 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 				return;
 			}
 			
-			if(((League)->elemLeague->data)->status == INACTIVE){
+			if(((League)elemLeague->data)->status == INACTIVE){
 				
-				((League)->elemLeague->data)->cantDraft++;
+				((League)elemLeague->data)->cantDraft++;
 				
-				if(((League)->elemLeague->data)->cantDraft == CANT_TEAMS){
+				if(((League)elemLeague->data)->cantDraft == CANT_TEAMS){
 					
 					/* Creo el thread coordinador */
 					pthread_t coordinatorThread;
-					int iRet;
-					iRet = pthread_create(&coordinatorThread, NULL, coordinator_thread, NULL);
+					int iRet = 0;
+					//iRet = pthread_create(&coordinatorThread, NULL, coordinator_thread, NULL);
 					if (iRet){
 						printf("ERROR; return code from pthread_create() is %d\n", iRet);
 						exit(EXIT_FAILURE);
@@ -1115,7 +1115,7 @@ void makeDraft(League league,Channel ch, User * me){
 	Element elemPlayer,elemTeam;
 	int flag;
 	
-	while(league->status == DRAFT){
+	while(league->status == DRAFTING){
 		
 		fromClient = IPClisten(ch);
 
@@ -1128,14 +1128,14 @@ void makeDraft(League league,Channel ch, User * me){
 			}
 			if(fromClient->type == LOGOUT){
 				league->cantDraft--;
-				executeLogout(fromClient,ch,me);
+				//executeLogout(fromClient,ch,me);
 				
 				return;
 			}
 			
 			if(fromClient->type = CHOOSE){
 				
-				player = fromClient->data->name;
+				player = fromClient->data.name;
 				flag = 0;
 				
 				FOR_EACH(elemPlayer, league->availablePlayers){
@@ -1146,7 +1146,7 @@ void makeDraft(League league,Channel ch, User * me){
 						
 						/* Busco en que team ponerlo */
 						FOR_EACH(elemTeam, league->teams){
-							if(strcmp(((Team)elemTema->data)->name,(*me)->user) == 0){
+							if(strcmp(((Team)elemTeam->data)->owner,(*me)->user) == 0){
 								break;
 							}
 						}
