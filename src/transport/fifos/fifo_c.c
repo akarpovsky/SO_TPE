@@ -54,7 +54,7 @@ Msg_s rcvmessage(void)
 		bytestring = malloc(msgSize);
 		if((nread = read(fdIn, bytestring, msgSize)) > 0)
 		{
-			msg = deserialize(bytestring);
+			msg = deserialize_s(bytestring);
 		}
 
 	}

@@ -86,12 +86,16 @@ void Remove(Element elem, List list){
 	/* Soy el primero */
 	if(list->pFirst == elem){
 		list->pFirst = elem->next;
-		elem->next->prev = NULL;
+		if(elem->next != NULL){
+			elem->next->prev = NULL;
+		}
 	}
 	/* Soy el ultimo */
 	if(list->pLast == elem){
 		list->pLast = elem->prev;
-		elem->prev->next = NULL;
+		if(elem->prev != NULL){
+			elem->prev->next = NULL;
+		}
 	}
 	if(elem->prev != NULL && elem->next != NULL){
 		elem->prev->next = elem->next;
@@ -100,6 +104,8 @@ void Remove(Element elem, List list){
 	
 	elem->prev = NULL;
 	elem->next = NULL;
+	
+	(list->NumEl)--;
 	
 	return;
 }

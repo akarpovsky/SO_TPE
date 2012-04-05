@@ -30,7 +30,7 @@
 
 #define OK 0
 #define ERROR 1
-#define WAIT 2
+
 
 #define INACTIVE 0
 #define DRAFTING 2

@@ -31,5 +31,12 @@ char alreadyDrafted[] = "League already drafted.";
 char notEnoughTeams[] = "There is not enough teams to start the draft.";
 char invalidCommand[] = "This command is not supported.";
 char draftOutSuccessful[] = "Draft out successfully.";
+char loggedOut[] = "Logged out";
+char isNotYourTrade[] = "Is not your trade";
+char endedTrade[] = "You cannot cancel this trade, it has already been responded.";
+char tradeCanceled[] = "Trade canceled.";
+char tradeAwaiting[] = "Trade awaiting response";
+char tradeAccepted[] = "Trade accepted";
+char statusString[] = "Status:";
 
 #endif

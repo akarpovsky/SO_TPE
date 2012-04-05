@@ -9,6 +9,10 @@
 #define CANT_PLAYERS 7
 #define CANT_TEAMS 5
 
+#define AWAITING 2
+#define CANCELED 3
+#define ACCEPTED 4
+
 typedef struct trade{
 	
 	int ID;

@@ -18,49 +18,54 @@ void parseCommand(char * cmd){
 	}
 	
 	/* Cargo commandName */
-	if ((commandName = strtok(cmd,"[")) == NULL){
-		printf("Command not found \n");
-		return;
-	}
+	if(strcmp(cmd,"logout") == 0 || strcmp(cmd,"draftout") == 0){
+		commandName = cmd;
+	}else{ 
 	
-	/* Cargo param1 */
-	if((strcmp(commandName,"login") == 0) || (strcmp(commandName,"register") == 0)
-		|| (strcmp(commandName,"trade") == 0 ) || (strcmp(commandName,"tradeNegotiate") == 0)){
-		if((param1 = strtok(NULL,",")) == NULL){
+		if((commandName = strtok(cmd,"[")) == NULL){
 			printf("Command not found \n");
 			return;
 		}
-
-	}else{
-
-		if((param1 = strtok(NULL,"]")) == NULL){
-			printf("Command not found \n");
-			return;
-		}
-	}
 	
-	/* Cargo param2 */
-	if((strcmp(commandName,"login") == 0) || (strcmp(commandName,"register") == 0)){
-
-		if((param2 = strtok(NULL,"]")) == NULL){
-			printf("Command not found \n");
-			return;
-		}
-
-	}else{
-		if((strcmp(commandName,"trade") == 0 ) || (strcmp(commandName,"tradeNegotiate") == 0)){
-			if((param2 = strtok(NULL,",")) == NULL){
+		/* Cargo param1 */
+		if((strcmp(commandName,"login") == 0) || (strcmp(commandName,"register") == 0)
+			|| (strcmp(commandName,"trade") == 0 ) || (strcmp(commandName,"tradeNegotiate") == 0)){
+			if((param1 = strtok(NULL,",")) == NULL){
 				printf("Command not found \n");
 				return;
 			}
+
+		}else{
+
+			if((param1 = strtok(NULL,"]")) == NULL){
+				printf("Command not found \n");
+				return;
+			}
+		}
+	
+		/* Cargo param2 */
+		if((strcmp(commandName,"login") == 0) || (strcmp(commandName,"register") == 0)){
+
+			if((param2 = strtok(NULL,"]")) == NULL){
+				printf("Command not found \n");
+				return;
+			}
+
+		}else{
+			if((strcmp(commandName,"trade") == 0 ) || (strcmp(commandName,"tradeNegotiate") == 0)){
+				if((param2 = strtok(NULL,",")) == NULL){
+					printf("Command not found \n");
+					return;
+				}
 			
-			/* Cargo param3 */
-			if((param3 = strtok(NULL,"]")) == NULL){
-				printf("Command not found \n");
-				return;
+				/* Cargo param3 */
+				if((param3 = strtok(NULL,"]")) == NULL){
+					printf("Command not found \n");
+					return;
+				}
 			}
-		}
-	} 
+		} 
+	}
 	
 	/* Ahora en commandName hay un string con el nombre del comando
 	* y en param 1, 2 y 3 hay user, pass, id, player from, player to, etc...*/

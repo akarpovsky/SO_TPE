@@ -90,7 +90,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 					
 		case TRADE_WITHDRAW:
-//					executeTradeWithdraw(msg,ch);
+					executeTradeWithdraw(msg,ch,me);
 					break;
 					
 		case TRADE_ACCEPT:
@@ -241,7 +241,7 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 			if(strcmp(((User)elem->data)->user,user) == 0 &&
 		 				strcmp(((User)elem->data)->pass,pass) == 0){
-				
+
 				toPrint = welcome;
 				AddToList(toPrint,answer->msgList);
 				
@@ -709,8 +709,6 @@ void executeTradeShow(Msg_t msg, Channel ch){
 
 	rc = pthread_mutex_lock(&game_mutex);
 	
-	printf("CANTINDAD DE TRADES %d\n",gameAux->cantTrades );
-	
 	if(input > gameAux->cantTrades){
 
 		toPrint = incorrectID;
@@ -729,6 +727,26 @@ void executeTradeShow(Msg_t msg, Channel ch){
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 
 			if(((Trade)elemTrade->data)->ID == input){
+				
+				/* Frase Status: */
+				toPrint = statusString;
+				AddToList(toPrint,answer->msgList);
+				
+				switch(((Trade)elemTrade->data)->state){
+					case AWAITING:
+									toPrint = tradeAwaiting;
+									AddToList(toPrint,answer->msgList);
+									break;
+					case CANCELED:
+									toPrint = tradeCanceled;
+									AddToList(toPrint,answer->msgList);
+									break;
+					case ACCEPTED:
+									toPrint = tradeAccepted;
+									AddToList(toPrint,answer->msgList);
+									break;
+																		
+				}
 				
 				/* Frase User from */
 				toPrint = userF;
@@ -916,7 +934,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 				
 				/* CREO EL TRADE */
 				t->ID = ++(gameAux->cantTrades);
-				t->state = WAIT;
+				t->state = AWAITING;
 				t->playerFrom = (char*) malloc(strlen(from)+1);
 				if(t->playerFrom == NULL){
 					perror("Insufficient memory\n");
@@ -963,6 +981,132 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 	}
 }
 
+void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
+	
+	Msg_s answer = createMsg_s(TRADE_WITHDRAW);
+	char * toPrint;
+	int input = msg->data.trade_t.tradeID;
+
+	int rc;
+	Element elemLeague;
+	Element elemTrade;
+
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+	}
+
+	rc = pthread_mutex_lock(&game_mutex);
+
+	
+	if(input > gameAux->cantTrades){
+
+		toPrint = incorrectID;
+		AddToList(toPrint,answer->msgList);
+		
+		rc = pthread_mutex_unlock(&game_mutex);
+
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+		
+	}else{
+		
+		FOR_EACH(elemLeague, gameAux->leagues){
+			
+			FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
+				/* Encuentro el trade */
+				if(((Trade)elemTrade->data)->ID == input){
+					/* Valido que sea el to o el from del trade */
+					if(strcmp(((Trade)elemTrade->data)->userTo, (*me)->user) != 0 
+						&& strcmp(((Trade)elemTrade->data)->userFrom, (*me)->user) != 0){
+						
+						toPrint = isNotYourTrade;
+						AddToList(toPrint,answer->msgList);
+
+						rc = pthread_mutex_unlock(&game_mutex);
+
+						answer->status = ERROR;
+						communicate(ch,answer);
+						return;
+					}else{ /* Es mi trade */
+						
+						if(((Trade)elemTrade->data)->state != AWAITING){
+							toPrint = endedTrade;
+							AddToList(toPrint,answer->msgList);
+
+							rc = pthread_mutex_unlock(&game_mutex);
+
+							answer->status = ERROR;
+							communicate(ch,answer);
+							return;
+							
+						}else{
+							printf("LLEGUE\n");
+							((Trade)elemTrade->data)->state = CANCELED;
+							toPrint = tradeCanceled;
+							AddToList(toPrint,answer->msgList);
+
+							rc = pthread_mutex_unlock(&game_mutex);
+
+							answer->status = OK;
+							communicate(ch,answer);
+							return;
+						}		
+					}					
+				}
+			}
+		}
+	}
+}
+
+void executeLogout(Msg_t msg, Channel ch, User * me){
+
+	Msg_s answer = createMsg_s(LOGOUT);
+	char * toPrint;
+	int rc;
+	Element elem;
+	
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		communicate(ch,answer);
+		
+		return;
+		
+	}else{
+		
+		rc = pthread_mutex_lock(&game_mutex);
+		
+		/* Lo saco de la lista de loggeados */
+		FOR_EACH(elem, gameAux->loggedUsers){
+			
+			if(strcmp((char*)elem->data, (*me)->user) == 0){
+				break;
+			}
+		}		
+		Remove(elem, gameAux->loggedUsers);
+
+		/* Apunto me a NULL */
+		(*me) = NULL;
+		toPrint = loggedOut;
+		AddToList(toPrint,answer->msgList);
+		
+		answer->status = OK;
+		communicate(ch,answer);
+		
+		rc = pthread_mutex_unlock(&game_mutex);
+		
+		return;
+	}
+
+}
 
 void executeDraft(Msg_t msg, Channel ch, User * me){
 
@@ -1146,20 +1290,9 @@ void makeDraft(League league,Channel ch, User * me)
 						return;
 					}
 				}
-
 			}
-
 		}
-
-
 	}
-
-
-}
-
-void executeLogout(Msg_t msg,Channel ch,User * me)
-{
-
 }
 
 void * coordinator_thread(void * data)
