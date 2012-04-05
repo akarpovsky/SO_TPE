@@ -80,7 +80,7 @@ User loadUser(char * path){
 	
 	 printUser(auxUser);
 	
-	fclose(file);
+	 fclose(file);
 
 	return auxUser;
 }
