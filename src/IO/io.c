@@ -79,7 +79,8 @@ User loadUser(char * path){
 	}
 	
 	 printUser(auxUser);
-	
+
+	fclose(file);
 	return auxUser;
 }
 
@@ -181,6 +182,7 @@ Trade loadTrade(char * path){
 	aux[dim-1] = 0;
 	strcpy(auxTrade->playerTo,aux);
 
+	fclose(file);
 	
 	return auxTrade;
 }
@@ -286,6 +288,8 @@ Team loadTeam(char * path){
 		
 		AddToList(auxPlayer,auxTeam->players);
 	}
+	
+	fclose(file);
 	return auxTeam;
 }
 
