@@ -38,6 +38,7 @@
 
 void reverse(char s[]);
 void itoa(int n, char s[]);
+void * coordinator_thread(void * data);
 void * createMsg_s(int responseType);
 void execute(Msg_t msg, Channel ch, User * me);
 void executeRegister(Msg_t msg, Channel ch);
