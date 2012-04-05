@@ -1,3 +1,5 @@
+#ifndef TO_PRINT_H
+#define TO_PRINT_H
 
 char userExists[] = "The user already exists.";
 char successfulReg[] = "Successful registration.";
@@ -27,3 +29,7 @@ char noPlayerFrom[] = "Your team doesn't have that player.";
 char successfulTrade[] = "Trade created successfully.";
 char alreadyDrafted[] = "League already drafted.";
 char notEnoughTeams[] = "There is not enough teams to start the draft.";
+char invalidCommand[] = "This command is not supported.";
+char draftOutSuccessful[] = "Draft out successfully.";
+
+#endif

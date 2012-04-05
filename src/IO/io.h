@@ -4,7 +4,13 @@
 
 #if !defined( IO_H )
 #define IO_H
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/dir.h>
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>

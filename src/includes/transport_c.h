@@ -17,7 +17,7 @@ Msg_s communicate(Msg_t msg);
 Msg_s _rcvmessage(void);
 
 /**
- *
+ * This is the non-blocking function used in the case of a draft state.
  */
 
 Msg_s rcvmessage(void);

@@ -42,19 +42,38 @@ Msg_t IPClisten(Channel ch)
 	do{
 		int nread;
 		void * stream;
-		void * streamAux;
 		if((nread = read(auxfdIn, &(msgSize), sizeof(int)))  > 0)
 		{
-			streamAux = stream = malloc(msgSize);
+			stream = malloc(msgSize);
 			if((nread = read(auxfdIn, stream, msgSize)) > 0)
 			{
 				msg = deserializeMsg(stream);
-				free(streamAux);
+				free(stream);
 				rcvFlag = TRUE;
 			}
 		}
 
 	}while(rcvFlag != TRUE);
+
+	return msg;
+}
+
+Msg_t rcvmessage(Channel ch)
+{
+	int nread;
+	int msgSize;
+	Msg_t msg = NULL;
+
+	if((nread = read(ch->fdIn, &(msgSize), sizeof(int))) > 0)
+	{
+		void * stream = malloc(msgSize);
+		if((nread = read(ch->fdIn, stream, msgSize)) > 0)
+		{
+			msg = deserializeMsg(stream);
+			free(stream);
+		}
+
+	}
 
 	return msg;
 }

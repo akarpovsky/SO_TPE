@@ -31,7 +31,7 @@ Msg_s communicate(Msg_t msg);
  * the server. Returns a Msg_s.
  */
 
-Msg_s rcvmessage(void);
+Msg_s _rcvmessage(void);
 
 /**
  * This is the low-level function that sends a Msg_t msg to the server. It
@@ -39,6 +39,12 @@ Msg_s rcvmessage(void);
  */
 
 int sendmessage(Msg_t msg);
+
+/**
+ * This is the non-blocking function used in the case of a draft state.
+ */
+
+Msg_s rcvmessage(void);
 
 /**
  * This function contacts to the main server in order to obtain an attention

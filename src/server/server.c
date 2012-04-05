@@ -1,36 +1,4 @@
-#define _GNU_SOURCE
-#include <stdio.h>      
-#include <pthread.h> 
-#include <stdlib.h>
-
 #include "./server.h"
-#include "../includes/transport_s.h"
-
-#include "../includes/defines.h"
-#include "../includes/structs.h"
-#include "../includes/message.h"
-#include "../includes/execute.h"
-
-
-
-#ifdef fifo
-	#include "../includes/fifo_s.h"
-#endif
-#ifdef sockets
-	#include "../includes/socket_s.h"
-#endif
-#ifdef msgqueue
-	#include "../includes/mq_s.h"
-#endif
-#ifdef shmm
-	#include "../includes/share_ex.h"
-#endif
-
-#define DEFINE_VARIABLES
-#include "../includes/global.h"
-
-/* Number of threads used to service requests */
-#define NUM_HANDLER_THREADS 1
 
 /* List for mantaining clients threads */
 List clientThreadsList;
@@ -51,7 +19,6 @@ int num_requests = 0;
 
 /* Online clients */
 int numberOfClients = 0;
-
 
 Request requests = NULL;     /* Head of linked list of requests. */
 Request last_request = NULL; /* Pointer to last request.         */
@@ -196,12 +163,15 @@ void * client_thread(void * ch){
 
 	for(;;){
 		fromClient = IPClisten(client_channel);
-		if(fromClient->type == LOGIN){
-			printf("\tUsername = %s \n", fromClient->data.login_t.user);
-			printf("\tPass = %s \n", fromClient->data.login_t.pass);
+		if(fromClient->type == DRAFT)
+		{
+
 		}
-		printf("Type que me llego: %d\n", fromClient->type);
-		execute(fromClient, client_channel, &me);
+		else
+		{
+			execute(fromClient, client_channel, &me);
+		}
+
 	}
 
 	// TO DO: Close thread
@@ -291,7 +261,7 @@ int main(void){
 	return EXIT_SUCCESS;
 }
 
-void * match_reviewer(void * data)
+void * match_reviewer_thread(void * data)
 {
 	List players;
 
@@ -302,3 +272,4 @@ void * match_reviewer(void * data)
 		checkMatches();
 	}while(1);
 }
+
