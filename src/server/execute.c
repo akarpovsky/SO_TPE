@@ -1190,7 +1190,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 					/* Creo el thread coordinador */
 					pthread_t coordinatorThread;
 					int iRet;
-					iRet = pthread_create(&coordinatorThread, NULL, coordinator_thread, NULL);
+					iRet = pthread_create(&coordinatorThread, NULL, coordinator_thread, (void*)((League)elemLeague->data));
 					if (iRet){
 						printf("ERROR; return code from pthread_create() is %d\n", iRet);
 						exit(EXIT_FAILURE);
@@ -1297,6 +1297,8 @@ void makeDraft(League league,Channel ch, User * me)
 
 void * coordinator_thread(void * data)
 {
+	League l = (League)data;
+
 	return NULL;
 }
 
