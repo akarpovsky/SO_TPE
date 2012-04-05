@@ -1194,5 +1194,47 @@ void dumpMatch(char * path){
 	
 	//exec(string);
 	
+}
+
+List loadPlayers(void){
 	
+	FILE * file;
+	
+	List players;
+	int cantPlayers,i,dim;
+	file = fopen("./res/players.players","r");
+	char aux[BUFFER_SIZE]; // For reading the file line by line
+	char * player;
+	
+	if(file == NULL){
+		printf("<LOG - io.c>\n\tFile not found.\n<end>\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	players = (List) malloc(sizeof(llist));
+	if(players == NULL){
+		printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
+		exit(EXIT_FAILURE);
+	}
+	CreateList(players);
+	
+	/* Load cantPlayers */ 
+	fgets(aux,BUFFER_SIZE,file);
+	cantPlayers = atoi(aux);
+	
+	for(i = 0; i < cantPlayers; i++){
+		/* Load username */
+		fgets(aux,BUFFER_SIZE,file);
+		dim = strlen(aux);
+		player = (char *) malloc(dim);
+		if(player == NULL){
+			printf("<LOG - io.c>\n\tInsufficient memory.\n<end>\n");
+			exit(EXIT_FAILURE);
+		}
+		aux[dim-1] = 0;
+		
+		AddToList(player, players);
+	}
+	
+    fclose(file);
 }
