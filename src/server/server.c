@@ -170,6 +170,29 @@ void * client_thread(void * ch){
 	// TO DO: Close thread
 }
 
+/*
+ * function saver_thead_main()
+ * 
+ * This functions saves all the game data to the hard drive
+ * each n secconds (n is a parametter).
+ *
+ */
+void * saver_thread_main(void * data)
+{
+    
+    int rc;	                 
+    Request a_request;      /* Stores pointer to a request. */
+
+    /* Lock the mutex, to access the requests list exclusively. */
+
+    while (1) {
+    		sleep((int) data);
+    		printf("Saving all the data to the harddrive!\n");
+			saveGame();
+
+		}
+}
+
 
 /*
  * function request_listener()
@@ -210,6 +233,7 @@ void * creator_client_main(void * data)
 int main(void){
 	pthread_t creator_client_thread; // Desencola, crea, etc
 	pthread_t match_reviewer_thread;
+	pthread_t saver_thread;
  
  	// First of all be aware of system signals.
 	// We must exit clean :)
@@ -238,6 +262,15 @@ int main(void){
 
 	printf("In main creating match reviewer thread");
 	rc = pthread_create(&match_reviewer_thread, NULL, match_reviewer_main, NULL);
+	if(rc)
+	{
+		printf("ERROR; return code from phtread_create() is %d\n", rc);
+		exit(EXIT_FAILURE);
+	}
+
+	int save_time = 5;
+	printf("In main creating saver thread");
+	rc = pthread_create(&saver_thread, NULL, saver_thread_main, save_time);
 	if(rc)
 	{
 		printf("ERROR; return code from phtread_create() is %d\n", rc);
