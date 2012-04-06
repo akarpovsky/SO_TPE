@@ -638,8 +638,6 @@ void executeTradeShow(Msg_t msg, Channel ch){
 							AddToList(toPrint,answer->msgList);
 							releasePrintColor(answer);
 							break;
-					default:
-						printf("AAAAAAAAAAAAAAA\n");
 				}
 
 				rc = pthread_mutex_unlock(&game_mutex);
