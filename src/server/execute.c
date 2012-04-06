@@ -413,18 +413,37 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 
 	FOR_EACH(elem, gameAux->leagues){
 
+		printGreenColor(answer);
+		asprintf(&toPrint,"\n*** League \"%s\" *** \n", (((League)elem->data)->name));
+		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
+
 		FOR_EACH(elemTrade, ((League)elem->data)->trades){
+
+
+
 				if(strcmp((*me)->user,((Trade)elemTrade->data)->userFrom) == 0 ||
 					strcmp((*me)->user,((Trade)elemTrade->data)->userTo) == 0){
+						switch(((Trade)elemTrade->data)->state){
 
-					printGreenColor(answer);
-					asprintf(&toPrint,"\n*** League \"%s\" *** \n", (((League)elem->data)->name));
-					AddToList(toPrint,answer->msgList);
-					releasePrintColor(answer);
+						case AWAITING:
+								asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[AWAITING]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,33);
+								AddToList(toPrint,answer->msgList);
+								releasePrintColor(answer);
+								break;
 
-					asprintf(&toPrint,"\t%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo );
-					AddToList(toPrint,answer->msgList);
-					releasePrintColor(answer);
+						case CANCELED:
+								asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[CANCELED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,31);
+								AddToList(toPrint,answer->msgList);
+								releasePrintColor(answer);
+								break;
+						case ACCEPTED:
+
+								asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[ACCEPTED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32);
+								AddToList(toPrint,answer->msgList);
+								releasePrintColor(answer);
+								break;
+					}
 				}
 		}
 	}
