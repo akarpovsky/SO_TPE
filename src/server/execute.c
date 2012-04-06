@@ -441,7 +441,7 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 		toPrint = noLogged;
 		AddToList(toPrint,answer->msgList);
 		releasePrintColor(answer);
-		answer->status = OK;
+		answer->status = ERROR;
 	}
 
 	rc = pthread_mutex_unlock(&game_mutex);
@@ -513,12 +513,14 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 
 	}
 
+	printRedColor(answer);
 	toPrint = incorrectID;
 	AddToList(toPrint,answer->msgList);
+	releasePrintColor(answer);
+	answer->status = OK;
 
 	rc = pthread_mutex_unlock(&game_mutex);
 
-	answer->status = ERROR;
 	communicate(ch,answer);
 	return;
 
