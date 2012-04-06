@@ -1188,9 +1188,9 @@ void executeJoinLeague(Msg_t msg, Channel ch, User * me){
 	}
 
 	rc = pthread_mutex_lock(&game_mutex);
+	
 
-
-	if(input > gameAux->cantTrades){
+	if(input > gameAux->leagues->NumEl){
 
 		printRedColor(answer);
 		toPrint = incorrectID;
