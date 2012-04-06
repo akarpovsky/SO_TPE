@@ -1109,7 +1109,7 @@ void executeLogout(Msg_t msg, Channel ch, User * me){
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
 		releasePrintColor(answer);
-
+		communicate(ch,answer);
 		return;
 
 	}else{
@@ -1235,6 +1235,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 				rc = pthread_mutex_unlock(&game_mutex);
 
+				answer->status = ERROR;
 				communicate(ch,answer);
 				return;
 			}
