@@ -35,8 +35,10 @@ char loggedOut[] = "Logged out";
 char isNotYourTrade[] = "Is not your trade";
 char endedTrade[] = "You cannot cancel this trade, it has already been responded.";
 char tradeCanceled[] = "Trade canceled.";
-char tradeAwaiting[] = "Trade awaiting response";
-char tradeAccepted[] = "Trade accepted";
+char tradeAwaiting[] = "Trade awaiting response.";
+char tradeAccepted[] = "Trade accepted.";
 char statusString[] = "Status:";
+char unavailablePlayerF[] = "The other team doesn't have the player anymore.";
+char unavailablePlayerT[] = "Your team doesn't have the player anymore.";
 
 #endif

@@ -94,11 +94,11 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 					
 		case TRADE_ACCEPT:
-//					executeTradeAccept(msg,ch);
+					executeTradeAccept(msg,ch,me);
 					break;
 					
 		case TRADE_NEGOTIATE:
-//					executeTradeNegotiate(msg,ch);
+//					executeTradeNegotiate(msg,ch,me);
 					break;
 					
 		case LOGOUT:
@@ -1046,7 +1046,6 @@ void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
 							return;
 							
 						}else{
-							printf("LLEGUE\n");
 							((Trade)elemTrade->data)->state = CANCELED;
 							toPrint = tradeCanceled;
 							AddToList(toPrint,answer->msgList);
@@ -1062,6 +1061,164 @@ void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
 			}
 		}
 	}
+}
+
+void executeTradeAccept(Msg_t msg, Channel ch, User * me){
+	
+	Msg_s answer = createMsg_s(TRADE_ACCEPT);
+	char * toPrint;
+	int input = msg->data.trade_t.tradeID;
+	int rc;
+	Element elemLeague;
+	Element elemTrade;
+	Element elemTeamF;
+	Element elemTeamT;
+	Element elemPlayerF;
+	Element elemPlayerT;
+	Element playerAux;
+	int flagF = 0;
+	int flagT = 0;
+	
+
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+	}
+
+	rc = pthread_mutex_lock(&game_mutex);
+
+	
+	if(input > gameAux->cantTrades){
+
+		toPrint = incorrectID;
+		AddToList(toPrint,answer->msgList);
+		
+		rc = pthread_mutex_unlock(&game_mutex);
+
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+	}
+	
+	FOR_EACH(elemLeague, gameAux->leagues){
+		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
+		
+			/* Encuentro el trade con ID ingresado */
+			if(((Trade)elemTrade->data)->ID == input){
+				
+				/* Me fijo si es trade mio */
+				if(strcmp(((Trade)elemTrade->data)->userTo, (*me)->user) != 0){
+					
+					toPrint = isNotYourTrade;
+					AddToList(toPrint,answer->msgList);
+
+					rc = pthread_mutex_unlock(&game_mutex);
+
+					answer->status = ERROR;
+					communicate(ch,answer);
+					return;
+				}
+				
+				/* Me fijo si el trade esta en espera de respuesta */
+				if(((Trade)elemTrade->data)->state != AWAITING){
+					toPrint = endedTrade;
+					AddToList(toPrint,answer->msgList);
+
+					rc = pthread_mutex_unlock(&game_mutex);
+
+					answer->status = ERROR;
+					communicate(ch,answer);
+					return;
+					
+				}
+				
+				/* Itero para buscar el equipo que ofrece el trade */
+				FOR_EACH(elemTeamF, ((League)elemLeague->data)->teams){
+					
+					/*  Encuentro el team del user from */
+					if(strcmp(((Team)elemTeamF->data)->owner, ((Trade)elemTrade->data)->userFrom) == 0){
+						
+						/* Me fijo que el que ofrecio el trade siga teniendo el jugador */
+						FOR_EACH(elemPlayerF, ((Team)elemTeamF->data)->players){
+							if(strcmp(((Player)elemPlayerF->data)->name,((Trade)elemTrade->data)->playerFrom) == 0){
+								flagF = 1;
+								break;
+							}					
+						}						
+						if(flagF == 0){
+						
+							toPrint = unavailablePlayerF;
+							AddToList(toPrint,answer->msgList);
+
+							rc = pthread_mutex_unlock(&game_mutex);
+
+							answer->status = ERROR;
+							communicate(ch,answer);
+							return;													
+						}
+						
+						/* Itero para buscar mi equipo */
+						
+						FOR_EACH(elemTeamT, ((League)elemLeague->data)->teams){
+							
+							/* Encuentro mi team */
+							if(strcmp(((Team)elemTeamT->data)->owner, ((Trade)elemTrade->data)->userTo) == 0){
+								
+								/* Me fijo si sigo teniendo el player */
+								FOR_EACH(elemPlayerT, ((Team)elemTeamT->data)->players){
+									if(strcmp(((Player)elemPlayerT->data)->name,((Trade)elemTrade->data)->playerTo) == 0){
+										flagT = 1;
+										break;
+									}					
+								}
+								
+								if(flagT == 0){
+
+									toPrint = unavailablePlayerT;
+									AddToList(toPrint,answer->msgList);
+
+									rc = pthread_mutex_unlock(&game_mutex);
+
+									answer->status = ERROR;
+									communicate(ch,answer);
+									return;													
+								}
+								
+								/* En esta instancia, los dos tenemos los jugadores */
+								
+								/* Saco a playerFrom de userFrom y lo agrego a userTo*/
+								
+								playerAux = elemPlayerF;
+								Remove(elemPlayerF, ((Team)elemTeamF->data)->players);
+								AddToList((Player)playerAux->data, ((Team)elemTeamT->data)->players);
+								
+								/* Saco a playerTo de userTo y lo agrego a userFrom*/
+								playerAux = elemPlayerT;
+								Remove(elemPlayerT, ((Team)elemTeamT->data)->players);
+								AddToList((Player)playerAux->data, ((Team)elemTeamF->data)->players);
+							
+								((Trade)elemTrade->data)->state = ACCEPTED;
+								
+								toPrint = tradeAccepted;
+								AddToList(toPrint,answer->msgList);
+
+								rc = pthread_mutex_unlock(&game_mutex);
+
+								answer->status = OK;
+								communicate(ch,answer);
+								return;
+									
+							}
+						}						
+					}
+				}
+			}
+		}
+	}	
 }
 
 void executeLogout(Msg_t msg, Channel ch, User * me){
