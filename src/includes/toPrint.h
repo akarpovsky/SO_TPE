@@ -50,5 +50,6 @@ char alreadyActive[] = "You can't join this league, is already active.";
 char leagueFull[] = "The league is full";
 char alreadyBelongToLeague[] = "You already belong to that league.";
 char successfulJoin[] = "You have successfully joined the league";
+char successfulCreation[] = "You have successfully created the league";
 
 #endif

@@ -112,7 +112,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 
 		case CREATE_LEAGUE:
-//					executeCreateLeague(msg,ch);
+					executeCreateLeague(msg,ch);
 					break;
 
 		case DRAFT:
@@ -1266,8 +1266,95 @@ void executeJoinLeague(Msg_t msg, Channel ch, User * me){
 			return;
 			
 		}
-		
 	}
+}
+
+void executeCreateLeague(Msg_t msg, Channel ch){
+	
+	Msg_s answer = createMsg_s(CREATE_LEAGUE);
+	char * toPrint;
+	int name = msg->data.name;
+	List players = loadPlayers();
+	Player player;
+	Element elemPlayer;
+	
+	/* malloqueo la liga */
+	League league = (League)malloc(sizeof(league_t));
+	if(league == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	league->status = INACTIVE;
+	league->availablePlayers = 0;
+	league->cantDraft = 0;
+	league->answer = FALSE;
+	
+	/* malloqueo para el nombre y lo inicializo */
+	league->name = malloc(strlen(name)+1);
+		if(league->name == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);	
+	}
+	strcpy(league->name,name);
+	
+	/* malloqueo la lista de jugadores disponibles */
+	league->availablePlayers = (List) malloc(sizeof(llist));
+	if(league->availablePlayers == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	CreateList(league->availablePlayers);
+	
+	/* malloqueo la lista de teams */
+	league->teams = (List) malloc(sizeof(llist));
+	if(league->teams == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	CreateList(league->teams);
+	
+	/* malloqueo la lista de trades */
+	league->trades = (List) malloc(sizeof(llist));
+	if(league->trades == NULL){
+		perror("Insufficient memory\n");
+		exit(EXIT_FAILURE);
+	}
+	CreateList(league->trades);
+	
+	int rc;
+
+	rc = pthread_mutex_lock(&game_mutex);
+	
+	league->ID = (gameAux->leagues->NumEl) + 1;
+	
+	FOR_EACH(elemPlayer, players){
+		
+		player = (Player)malloc(sizeof(player_t));
+		if(player == NULL){
+			perror("Insufficient memory\n");
+			exit(EXIT_FAILURE);
+		}
+		player->name = (char*)elemPlayer->data;
+		player->points = 0;
+		
+		AddToList(player, league->availablePlayers);
+				
+	}
+	
+	
+	AddToList(league, gameAux->leagues);
+	
+	printGreenColor(answer);
+	toPrint = successfulCreation;
+	AddToList(toPrint,answer->msgList);
+	releasePrintColor(answer);
+
+	answer->status = OK;
+	communicate(ch,answer);
+
+	rc = pthread_mutex_unlock(&game_mutex);
+
+	return;
 	
 }
 
