@@ -41,6 +41,8 @@ void * createMsg_s(int responseType){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);	
 	}
+	
+	msg->responseType = responseType;
 
 	CreateList(msg->msgList);
 
