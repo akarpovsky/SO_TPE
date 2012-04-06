@@ -327,6 +327,10 @@ int sendmessage(Channel ch, Msg_s msg){
 	return SUCCESSFUL;
 }
 
+Msg_t rcvmessage(Channel ch){
+	
+	return NULL;
+}
 	
 // int main(void){
 	

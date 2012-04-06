@@ -1336,7 +1336,7 @@ void executeCreateLeague(Msg_t msg, Channel ch){
 			perror("Insufficient memory\n");
 			exit(EXIT_FAILURE);
 		}
-		printf("nombreeee %s\n",(char*)elemPlayer->data );
+
 		player->name = (char*)elemPlayer->data;
 		player->points = 0;
 		
