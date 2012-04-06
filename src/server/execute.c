@@ -975,6 +975,15 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 	rc = pthread_mutex_lock(&game_mutex);
 
+	if(*me == NULL)
+	{
+		AddToList(noLogged, answer->msgList);
+
+		rc = pthread_mutex_unlock(&game_mutex);
+		communicate(ch, answer);
+		return;
+	}
+
 	/* Liga no existente */
 	if(input > gameAux->leagues->NumEl){
 		toPrint = incorrectID;
@@ -1055,6 +1064,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 					makeDraft((League)elemLeague->data, ch, me);
 
 				}else{
+					//esperar mensaje logout o draft out
 					while(((League)elemLeague->data)->cantDraft != CANT_TEAMS)
 					{
 						Msg_t incoming = rcvmessage(ch);
@@ -1076,9 +1086,9 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 					}
 					makeDraft((League)elemLeague->data, ch, me);
-					//esperar mensaje logout o draft out
+
 				}
-			}else{
+			}else {
 				makeDraft((League)elemLeague->data, ch, me);
 			}
 
@@ -1116,7 +1126,7 @@ void makeDraft(League league,Channel ch, User * me)
 				return;
 			}
 
-			if(fromClient->type = CHOOSE)
+			if(fromClient->type == CHOOSE)
 			{
 
 				player = fromClient->data.name;
@@ -1142,19 +1152,17 @@ void makeDraft(League league,Channel ch, User * me)
 						AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
 
 						/* Seteo en la liga la variable que indica que respondi */
-						league->answer = OK;
-						return;
+						league->answer = TRUE;
 					}
 				}
-
+				if(league->answer == TRUE)
+				{
+					Remove(elemPlayer, league->availablePlayers);
+				}
 			}
-
 		}
-
-
+		sleep(1);
 	}
-
-
 }
 
 void executeLogout(Msg_t msg,Channel ch,User * me)
@@ -1165,8 +1173,110 @@ void executeLogout(Msg_t msg,Channel ch,User * me)
 void * coordinator_thread(void * data)
 {
 	League l = (League)data;
+	l->turn = ((Team)l->teams->pFirst->data)->owner;
+	int repeatFlag = FALSE;
 
+	while(l->status == DRAFTING)
+	{
+		int time = 0;
+		l->answer = FALSE;
+		while(time < TIME_OUT)
+		{
+			if(l->answer == TRUE)
+			{
+				changeTurn(l, &repeatFlag);
+				break;
+			}
+			time++;
+			sleep(1);
+		}
+		if(time == TIME_OUT && l->answer == FALSE)
+		{
+			autoAsign(l, &repeatFlag);
+		}
+		checkStatus(l);
+	}
 	return NULL;
 }
 
+void changeTurn(League l, int * repeatFlag)
+{
+	Element e;
+
+	FOR_EACH(e, l->teams)
+	{
+		if(strcmp(((Team)e->data)->owner, l->turn) == 0)
+		{
+			break;
+		}
+	}
+
+	if(e == NULL)
+	{
+		printf("Unexpected error! User not found while drafting.\n");
+		exit(EXIT_FAILURE);
+	}
 	
+	if((e->next == NULL || e->prev == NULL) && *repeatFlag == FALSE)
+	{
+		*repeatFlag = TRUE;
+		return;
+	}
+
+	if(e->next == NULL)
+	{
+		l->turn = ((Team)l->teams->pFirst->data)->owner;
+		return;
+	}
+
+	l->turn = ((Team)e->data)->owner;
+	return;
+}
+
+void autoAsign(League l, int * repeatFlag)
+{
+	Element e;
+
+	FOR_EACH(e, l->teams)
+	{
+		if(strcmp(l->turn, ((Team)e->data)->owner) == 0)
+		{
+			break;
+		}
+	}
+
+	int n = (rand() % l->availablePlayers->NumEl);
+	int i;
+
+	Element p = l->availablePlayers->pFirst;
+
+	for(i = 0; i <= n; i++)
+	{
+		p = p->next;
+		if(p == NULL)
+		{
+			printf("Unexpected error! Available Players list changed");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	AddElemToList(p,((Team)e->data)->players);
+
+	changeTurn(l, repeatFlag);
+	return;
+}
+
+void checkStatus(League l)
+{
+	Element e;
+	FOR_EACH(e, l->teams)
+	{
+		if(l->teams->NumEl < CANT_PLAYERS)
+		{
+			return;
+		}
+	}
+
+	l->status = ACTIVE;
+	return;
+}
