@@ -619,24 +619,25 @@ void executeTradeShow(Msg_t msg, Channel ch){
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 
 			if(((Trade)elemTrade->data)->ID == input){
-
 				switch(((Trade)elemTrade->data)->state){
 
 					case AWAITING:
-							asprintf(&toPrint,"\n%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n\t\t[%c[%d;%d;%dmACCEPTED]", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,33,40);
+							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[AWAITING]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,33);
 							AddToList(toPrint,answer->msgList);
+							releasePrintColor(answer);
 							break;
 
 					case CANCELED:
-							asprintf(&toPrint,"\n%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n\t\t[%c[%d;%d;%dmACCEPTED]", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,31,40);
+							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[CANCELED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,31);
 							AddToList(toPrint,answer->msgList);
+							releasePrintColor(answer);
 							break;
 					case ACCEPTED:
 
-							asprintf(&toPrint,"\n%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n\t\t[%c[%d;%d;%dmACCEPTED]", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32,40);
+							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[ACCEPTED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32);
 							AddToList(toPrint,answer->msgList);
+							releasePrintColor(answer);
 							break;
-
 				}
 
 				rc = pthread_mutex_unlock(&game_mutex);

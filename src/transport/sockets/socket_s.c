@@ -51,7 +51,7 @@ int openedSockets = 1;
 		return address;
 }
 
-void closeServer(char * server_path){
+void closeMainServer(){
 	// This function removes the created socket file in /tmp/
 	// unlink(server_path);
 	close(sockfd);
@@ -62,8 +62,18 @@ void closeServer(char * server_path){
 void sigint(){  
 	signal(SIGINT,sigint); /* reset signal */
 	printf("<LOG socket_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
-	closeServer(SERVER_PATH);
+	closeMainServer();
 	exit(EXIT_FAILURE);
+}
+
+void closeConnection(Channel ch)
+{
+	int connectionFD = 0;
+	connectionFD = (int) hashmap_get(sockets_hmap , ch->port);
+	close(connectionFD);
+	hashmap_remove(sockets_hmap, ch->port);
+	openedSockets--;
+
 }
 
 void uplink(void){
@@ -130,8 +140,6 @@ Channel createChannel(Msg_t msg)
 	}
 	
 
-	// printf("Creado un channel para el nuevo cliente\n");
-	// printf("Guardo el FD %d en el hashmap\n", newsockfd);
 	hashmap_insert(sockets_hmap, (void *) newsockfd , ch->port);
 	return ch;
 }
@@ -201,7 +209,7 @@ Msg_t IPClisten(Channel ch){
 	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
 
 	do{
-		int msgSize, user_len, pass_len, from_len, to_len, name_len;
+		int msgSize;
 		int client_len = SOCKET_SIZE;
 		void * bytestring;
 		void * aux;
@@ -251,6 +259,60 @@ Msg_t IPClisten(Channel ch){
 	return msg;
 }
 
-int rcvmessage(){
+Msg_t rcvmessage(Channel ch){
 
+
+	if(ch == NULL){
+		printf("\nServer listening on port 7000 ...\n\n");
+	}else{
+		printf("Client server listening on port %d ... \n", ch->port);
+	}
+
+	int rcvFlag = FALSE;
+	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
+
+	int msgSize;
+	int client_len = SOCKET_SIZE;
+	void * bytestring;
+	void * aux;
+	struct sockaddr_in * client = calloc(1, SOCKET_SIZE);
+
+	int listenFD;
+	if(ch == NULL){
+		listenFD = sockfd;
+	}else{
+		listenFD = (int) hashmap_get( sockets_hmap , ch->port);
+	}
+
+	if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
+		perror("Error while receiving data");
+	}
+	if(msgSize > 0){
+		aux = bytestring = calloc(msgSize+sizeof(int), sizeof(char));
+
+		printf("<LOG socket_s.c> Server - Message header received OK. Full message size = %d <end>\n", msgSize);
+
+		if( (recvfrom(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
+			perror("Reading client message failed");
+			return NULL;
+		}else{
+
+
+			aux+=sizeof(int);
+			
+			msg = deserializeMsg(aux);
+			
+			if(msg->type == CONTACT){
+				msg->data.socket_client_t.client = client;
+				printf("Tengo client: port - %d\n", client->sin_port);			
+			}
+
+			printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
+
+			}
+			free(bytestring);
+			rcvFlag = TRUE;
+	}
+	
+	return msg;
 }
