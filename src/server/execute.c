@@ -41,6 +41,8 @@ void * createMsg_s(int responseType){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);	
 	}
+	
+	msg->responseType = responseType;
 
 	CreateList(msg->msgList);
 
@@ -49,79 +51,79 @@ void * createMsg_s(int responseType){
 }
 
 void execute(Msg_t msg, Channel ch, User * me){
-	
+
 	int type = msg->type;
 	switch(type){
-		
+
 		case REGISTER:
 					executeRegister(msg,ch);
 					break;
-					
+
 		case LOGIN:
 					executeLogin(msg,ch,me);
 					break;			
-					
+
 		case LIST_LEAGUES:
 					executeListLeagues(msg,ch);
 					break;
-					
+
 		case LIST_TEAMS:
 					executeListTeams(msg,ch);
 					break;
-					
+
 		case LIST_TRADES:
 					executeListTrades(msg,ch,me);
 					break;
-					
+
 		case LEAGUE_SHOW: 
 					executeLeagueShow(msg,ch);
 					break;
-				
+
 		case TEAM_SHOW:
 					executeTeamShow(msg,ch);
 					break;
-					
+
 		case TRADE_SHOW:
 					executeTradeShow(msg,ch);
 					break;
-					
+
 		case TRADE:
 					executeTrade(msg,ch,me);
 					break;
-					
+
 		case TRADE_WITHDRAW:
 					executeTradeWithdraw(msg,ch,me);
 					break;
-					
+
 		case TRADE_ACCEPT:
 					executeTradeAccept(msg,ch,me);
 					break;
-					
+
 		case TRADE_NEGOTIATE:
 //					executeTradeNegotiate(msg,ch,me);
 					break;
-					
+
 		case LOGOUT:
 					executeLogout(msg,ch,me);
 					break;
-					
+
 		case JOIN_LEAGUE:
 //					executeJoinLeague(msg,ch);
 					break;
-					
+
 		case CREATE_LEAGUE:
 //					executeCreateLeague(msg,ch);
 					break;
-	
+
 		case DRAFT:
 					executeDraft(msg,ch,me);
 					break;		
-									
+
 		case DRAFT_OUT:
 //					executeDraftOut(msg,ch);
 					break;		
 	}
-	
+
 }
 
 void executeRegister(Msg_t msg, Channel ch){
@@ -141,8 +143,10 @@ void executeRegister(Msg_t msg, Channel ch){
 		/* Caso: El usuario ya existe */
 		if(strcmp(((User)(elem->data))->user,user) == 0){
 
+			printRedColor(answer);
 			toPrint = userExists;
 			AddToList(toPrint,answer->msgList);
+			releasePrintColor(answer);
 			answer->status = ERROR;
 
 			rc = pthread_mutex_unlock(&game_mutex);
@@ -185,12 +189,14 @@ void executeRegister(Msg_t msg, Channel ch){
 	strcpy(newUser->pass,pass);
 	newUser->leagues = 0;
 	CreateList(newUser->leaguesIDs);
-	
+
 	AddToList(newUser,gameAux->users);
-		
+
+	printGreenColor(answer);	
 	toPrint = successfulReg;
 	AddToList(toPrint,answer->msgList);
 	answer->status = OK;
+	releasePrintColor(answer);
 
 	communicate(ch,answer);
 
@@ -220,9 +226,11 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 			/* Caso: El usuario ya esta conectado */
 			if(strcmp((char *)elem->data,user) == 0){
-
+				
+				printRedColor(answer);
 				toPrint = logged;
 				AddToList(toPrint,answer->msgList);
+				releasePrintColor(answer);
 				answer->status = ERROR;
 
 				communicate(ch, answer);
@@ -242,9 +250,16 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 			if(strcmp(((User)elem->data)->user,user) == 0 &&
 		 				strcmp(((User)elem->data)->pass,pass) == 0){
 
-				toPrint = welcome;
+				printGreenBlink(answer);
+				asprintf(&toPrint,"\n%s", " ____  __   __ _  ____  __   ____  _  _      ____   __ \n(  __)/ _\\ (  ( \\(_  _)/ _\\ / ___)( \\/ )    / ___) /  \\ \n ) _)/    \\/    /  )( /    \\___ \\  )  /     \\___ \\(  O )\n(__) \\_/\\_/\\_)__) (__)\\_/\\_/(____/(__/      (____/ \\__/");
 				AddToList(toPrint,answer->msgList);
+				releasePrintColor(answer);
 				
+				printCyanColor(answer);
+				asprintf(&toPrint,"\t\tWelcome, you are logged in!");
+				AddToList(toPrint,answer->msgList);							
+				releasePrintColor(answer);
+
 				/* Agrego el usuario a la lista de loggeados */
 				usuario = malloc(strlen(user) + 1);
 				if(usuario == NULL){
@@ -254,9 +269,9 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 				strcpy(usuario,user);
 				AddToList(usuario,gameAux->loggedUsers);
 				answer->status = OK;
-				
+
 				*me = (User)elem->data;
-				
+
 
 				rc = pthread_mutex_unlock(&game_mutex);
 
@@ -268,14 +283,18 @@ void executeLogin(Msg_t msg, Channel ch, User * me){
 
 		/* Usuario o contraseña incorrectos */
 
+		printRedColor(answer);
 		toPrint = incorrectPass;
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 		answer->status = ERROR;
 
 	}else{
 		/* Ya hay alguien loggeado */
+		printRedColor(answer);
 		toPrint = alreadyLogged;
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 	}	
 	rc = pthread_mutex_unlock(&game_mutex);
 
@@ -293,8 +312,10 @@ void executeListLeagues(Msg_t msg, Channel ch){
 	rc = pthread_mutex_lock(&game_mutex);
 
 	if(gameAux->leagues->NumEl == 0){
+		printRedColor(answer);
 		toPrint = noLeague;
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 		answer->status = OK;
 
 		rc = pthread_mutex_unlock(&game_mutex);
@@ -303,30 +324,20 @@ void executeListLeagues(Msg_t msg, Channel ch){
 		return;
 	}
 
-	int dim;
 	Element elem;
 
 	FOR_EACH(elem, gameAux->leagues){
 
-		/* ID */
-		dim = floor(log10(((League)elem->data)->ID));
-		toPrint = malloc(dim + 1);
-		if(toPrint == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
-			}
-		itoa(((League)elem->data)->ID,toPrint);
-		AddToList(toPrint,answer->msgList);
+		printGreenColor(answer);
+		asprintf(&toPrint,"\n*** Leagues *** \n");
+		releasePrintColor(answer);
 
-		/* Nombre */
-		dim = strlen(((League)(elem->data))->name);
-		toPrint = malloc(dim + 1);
-		if(toPrint == NULL){
-			perror("Insufficient memory\n");
-			exit(EXIT_FAILURE);
-		}
-		strcpy(toPrint,((League)(elem->data))->name);
+		/* ID y Nombre */
+
+		printGreenColor(answer);
+		asprintf(&toPrint,"\tLeague #%d: %c[%d;%d;%dm\"%s\" \n", (((League)elem->data)->ID), 0x1B,0,32,40, (((League)elem->data)->name));
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 
 	}
 
@@ -347,8 +358,10 @@ void executeListTeams(Msg_t msg, Channel ch){
 	rc = pthread_mutex_lock(&game_mutex);
 
 	if(gameAux->cantTeams == 0){
+		printRedColor(answer);
 		toPrint = noTeam;
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 		answer->status = OK;
 
 		rc = pthread_mutex_unlock(&game_mutex);
@@ -357,41 +370,19 @@ void executeListTeams(Msg_t msg, Channel ch){
 		return;
 	}
 
-	int dim;
 	Element elem;
 	Element elemTeam;
 
 	FOR_EACH(elem, gameAux->leagues){
-
-		toPrint = inLeague;
+		
+		printGreenColor(answer);
+		asprintf(&toPrint,"\n*** League \"%s\" *** \n", (((League)elem->data)->name));
 		AddToList(toPrint,answer->msgList);
-
-		dim = strlen(((League)elem->data)->name);
-		toPrint = malloc(dim + 1);
-		if(toPrint == NULL){
-			perror("Insufficient memory\n");
-			exit(EXIT_FAILURE);
-		}
-		strcpy(toPrint,((League)elem->data)->name);
-		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 
 		FOR_EACH(elemTeam, ((League)elem->data)->teams){
-			dim = floor(log10(((Team)(elemTeam->data))->ID));
-			toPrint = malloc(dim + 1);
-			if(toPrint == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
-			}
-			itoa(((Team)(elemTeam->data))->ID,toPrint);
-			AddToList(toPrint,answer->msgList);
 
-			dim = strlen(((Team)elemTeam->data)->owner);
-			toPrint = malloc(dim + 1);
-			if(toPrint == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
-			}
-			strcpy(toPrint,((Team)elemTeam->data)->owner);
+			asprintf(&toPrint, "\tTeam: %d - Owner: %s\n", ((Team)(elemTeam->data))->ID, ((Team)elemTeam->data)->owner);
 			AddToList(toPrint,answer->msgList);
 
 		}
@@ -412,59 +403,48 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 	Msg_s answer = createMsg_s(LIST_TRADES);
 	char * toPrint;
 
-	int dim,rc;
+	int rc;
 	Element elem;
 	Element elemTrade;
 
 	rc = pthread_mutex_lock(&game_mutex);
-	
+
 	if(*me != NULL){
-	
+
 	FOR_EACH(elem, gameAux->leagues){
 
 		FOR_EACH(elemTrade, ((League)elem->data)->trades){
 				if(strcmp((*me)->user,((Trade)elemTrade->data)->userFrom) == 0 ||
 					strcmp((*me)->user,((Trade)elemTrade->data)->userTo) == 0){
-				
-					/* Agrego la frase "In League" */
-					toPrint = inLeague;
-					AddToList(toPrint,answer->msgList);
 
-					/* Agrego el nombre de la League */
-					dim = strlen(((League)elem->data)->name);
-					toPrint = malloc(dim + 1);
-					if(toPrint == NULL){
-						perror("Insufficient memory\n");
-						exit(EXIT_FAILURE);
-					}
-					strcpy(toPrint,((League)elem->data)->name);
+					printGreenColor(answer);
+					asprintf(&toPrint,"\n*** League \"%s\" *** \n", (((League)elem->data)->name));
 					AddToList(toPrint,answer->msgList);
-					
-					dim = floor(log10(((Trade)elemTrade->data)->ID));
-					toPrint = malloc(dim + 1);
-					if(toPrint == NULL){
-						perror("Insufficient memory\n");
-						exit(EXIT_FAILURE);
-					}
-					itoa(((Team)elemTrade->data)->ID,toPrint);
+					releasePrintColor(answer);
+
+					asprintf(&toPrint,"\t%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo );
 					AddToList(toPrint,answer->msgList);
+					releasePrintColor(answer);
 				}
 		}
 	}
-	
+
 	if(answer->msgList->NumEl == 0){
+		printRedColor(answer);
 		toPrint = noTrade;
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 	}
 	
 	}else{
+		printRedColor(answer);
 		toPrint = noLogged;
 		AddToList(toPrint,answer->msgList);
+		releasePrintColor(answer);
 		answer->status = OK;
 	}
 
 	rc = pthread_mutex_unlock(&game_mutex);
-
 	answer->status = OK;
 	communicate(ch,answer);
 	return;
@@ -474,12 +454,12 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 void executeLeagueShow(Msg_t msg, Channel ch){
 
 
-	
+
 	Msg_s answer = createMsg_s(LEAGUE_SHOW);
 	char * toPrint;
 	int input = msg->data.show_t.ID;
 
-	int dim,rc;
+	int rc;
 	Element elem;
 	Element elemItem;
 
@@ -488,81 +468,37 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 	FOR_EACH(elem, gameAux->leagues){
 
 		if(((League)(elem->data))->ID == input){
-		
+
 			/* Imprimo el nombre de la league */
-			dim = strlen(((League)elem->data)->name);
-			toPrint = malloc(dim + 1);
-			if(toPrint == NULL){
-				perror("Insufficient memory\n");
-				exit(EXIT_FAILURE);
-			}
-			strcpy(toPrint,((League)elem->data)->name);
+			printGreenColor(answer);
+			asprintf(&toPrint,"\n*** League \"%s\" *** \n", (((League)elem->data)->name));
+
 			AddToList(toPrint,answer->msgList);
+			releasePrintColor(answer);
 
 			/* Jugadores sin draftear */
-			toPrint = freePlayers;
+			printYellowColor(answer);		
+			asprintf(&toPrint,"\n** Available Players **");
 			AddToList(toPrint,answer->msgList);
+			releasePrintColor(answer);
 
 			FOR_EACH(elemItem, ((League)elem->data)->availablePlayers){
 
-				/* Nombre jugador */
-				dim = strlen(((Player)elemItem->data)->name);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Player)elemItem->data)->name);
-				AddToList(toPrint,answer->msgList);
-
-				/* Puntaje */
-
-				dim = floor(log10(((Player)elemItem->data)->points));
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				itoa(((Player)elemItem->data)->points,toPrint);
+				/* Nombre jugador y puntaje */
+				
+				asprintf(&toPrint,"\n\t%s\t(%d points)", (((Player)elemItem->data)->name), ((Player)elemItem->data)->points);	
 				AddToList(toPrint,answer->msgList);
 
 			}
 
+			printYellowColor(answer);
+			asprintf(&toPrint,"\n** Teams **\n");
+			AddToList(toPrint,answer->msgList);
+			releasePrintColor(answer);				
+
 			FOR_EACH(elemItem, ((League)elem->data)->teams){
 
-				/* Nombre del equipo */
-				dim = strlen(((Team)elemItem->data)->owner);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Team)elemItem->data)->owner);
-				AddToList(toPrint,answer->msgList);
-
-				toPrint = IDString;
-				AddToList(toPrint,answer->msgList);
-
-				/* ID */
-				dim = floor(log10(((Team)(elemItem->data))->ID));
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				itoa(((Team)elemItem->data)->ID,toPrint);
-				AddToList(toPrint,answer->msgList);
-
-				toPrint = pointsString;
-				AddToList(toPrint,answer->msgList);
-
-				dim = floor(log10(((Team)elemItem->data)->points));
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				itoa(((Team)elemItem->data)->points,toPrint);
+				asprintf(&toPrint, "\tTeam: %d - Owner: %s - Points: %d\n", ((Team)(elemItem->data))->ID, ((Team)elemItem->data)->owner, ((Team)elemItem->data)->points);
 				AddToList(toPrint,answer->msgList);
 
 			}
@@ -589,12 +525,12 @@ void executeLeagueShow(Msg_t msg, Channel ch){
 }
 
 void executeTeamShow(Msg_t msg, Channel ch){
-	
+
 	Msg_s answer = createMsg_s(TEAM_SHOW);
 	char * toPrint;
 	int input = msg->data.show_t.ID;
 
-	int dim,rc;
+	int rc;
 	Element elemLeague;
 	Element elemTeam;
 	Element elemPlayer;
@@ -607,73 +543,23 @@ void executeTeamShow(Msg_t msg, Channel ch){
 
 			if(((Team)elemTeam->data)->ID == input){
 
-				/* Frase In League */
-				toPrint = inLeague;
+				printGreenColor(answer);
+				asprintf(&toPrint,"\n*** League \"%s\" *** \n", (((League)elemLeague->data)->name));				
 				AddToList(toPrint,answer->msgList);
+				releasePrintColor(answer);	
 
-				/* Agrego el nombre de la League */
-				dim = strlen(((League)elemLeague->data)->name);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((League)elemLeague->data)->name);
+				printYellowColor(answer);
+				asprintf(&toPrint, "\tTeam: %d - Owner: %s - Points: %d\n", ((Team)(elemTeam->data))->ID, ((Team)elemTeam->data)->owner, ((Team)elemTeam->data)->points);
 				AddToList(toPrint,answer->msgList);
+				releasePrintColor(answer);
 
-				/* Frase owner */
-				toPrint = ownerString;
-				AddToList(toPrint,answer->msgList);
-
-				/* Owner */
-				dim = strlen(((Team)elemTeam->data)->owner);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Team)elemTeam->data)->owner);
-				AddToList(toPrint,answer->msgList);
-
-				/* Frase Points*/
-				toPrint = pointsString;
-				AddToList(toPrint,answer->msgList);
-
-				/* Points */
-				dim = floor(log10(((Team)elemTeam->data)->points));	
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				itoa(((Team)elemTeam->data)->points,toPrint);
-				AddToList(toPrint,answer->msgList);
-
-				/* Frase Players */
-				toPrint = playersString;
-				AddToList(toPrint,answer->msgList);
+				asprintf(&toPrint, "\tPlayers:");
+				AddToList(toPrint,answer->msgList);				
 
 				/* Player */
 				FOR_EACH(elemPlayer, ((Team)elemTeam->data)->players){
 
-					/* Nombre del jugador */
-					dim = strlen(((Player)elemPlayer->data)->name);
-					toPrint = malloc(dim + 1);
-					if(toPrint == NULL){
-						perror("Insufficient memory\n");
-						exit(EXIT_FAILURE);
-					}
-					strcpy(toPrint,((Player)elemPlayer->data)->name);
-					AddToList(toPrint,answer->msgList);
-
-					/* Points */
-					dim = floor(log10(((Player)elemPlayer->data)->points));	
-					toPrint = malloc(dim + 1);
-					if(toPrint == NULL){
-						perror("Insufficient memory\n");
-						exit(EXIT_FAILURE);
-					}
-					itoa(((Player)elemPlayer->data)->points,toPrint);
+					asprintf(&toPrint,"\n\t\t%s\t(%d points)", ((Player)elemPlayer->data)->name, ((Player)elemPlayer->data)->points);	
 					AddToList(toPrint,answer->msgList);
 
 				}
@@ -687,8 +573,10 @@ void executeTeamShow(Msg_t msg, Channel ch){
 		}
 	}
 
+	printRedColor(answer);
 	toPrint = incorrectID;
 	AddToList(toPrint,answer->msgList);
+	releasePrintColor(answer);
 
 	rc = pthread_mutex_unlock(&game_mutex);
 
@@ -698,28 +586,30 @@ void executeTeamShow(Msg_t msg, Channel ch){
 }
 
 void executeTradeShow(Msg_t msg, Channel ch){
-	
+
 	Msg_s answer = createMsg_s(TRADE_SHOW);
 	char * toPrint;
 	int input = msg->data.show_t.ID;
 
-	int dim,rc;
+	int rc;
 	Element elemLeague;
 	Element elemTrade;
 
 	rc = pthread_mutex_lock(&game_mutex);
-	
+
 	if(input > gameAux->cantTrades){
 
+		printRedColor(answer);
 		toPrint = incorrectID;
 		AddToList(toPrint,answer->msgList);
-		
+		releasePrintColor(answer);
+
 		rc = pthread_mutex_unlock(&game_mutex);
 
 		answer->status = ERROR;
 		communicate(ch,answer);
 		return;
-		
+
 	}
 
 	FOR_EACH(elemLeague, gameAux->leagues){
@@ -727,83 +617,26 @@ void executeTradeShow(Msg_t msg, Channel ch){
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 
 			if(((Trade)elemTrade->data)->ID == input){
-				
-				/* Frase Status: */
-				toPrint = statusString;
-				AddToList(toPrint,answer->msgList);
-				
+
 				switch(((Trade)elemTrade->data)->state){
+
 					case AWAITING:
-									toPrint = tradeAwaiting;
-									AddToList(toPrint,answer->msgList);
-									break;
+							asprintf(&toPrint,"\n%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n\t\t[%c[%d;%d;%dmACCEPTED]", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,33,40);
+							AddToList(toPrint,answer->msgList);
+							break;
+
 					case CANCELED:
-									toPrint = tradeCanceled;
-									AddToList(toPrint,answer->msgList);
-									break;
+							asprintf(&toPrint,"\n%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n\t\t[%c[%d;%d;%dmACCEPTED]", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,31,40);
+							AddToList(toPrint,answer->msgList);
+							break;
 					case ACCEPTED:
-									toPrint = tradeAccepted;
-									AddToList(toPrint,answer->msgList);
-									break;
-																		
+
+							asprintf(&toPrint,"\n%c[%d;%d;%dmTrade ID %d: %c[%d;%d;%dm%s (%s) ---> %s (%s)\n\t\t[%c[%d;%d;%dmACCEPTED]", 0x1B,1,36,40, ((Trade)elemTrade->data)->ID, 0x1B,0,36,40, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32,40);
+							AddToList(toPrint,answer->msgList);
+							break;
+
 				}
-				
-				/* Frase User from */
-				toPrint = userF;
-				AddToList(toPrint,answer->msgList);
-				
-				/* UserFrom */
-				dim = strlen(((Trade)elemTrade->data)->userFrom);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Trade)elemTrade->data)->userFrom);
-				AddToList(toPrint,answer->msgList);
-				
-				/* Frase User to */
-				toPrint = userT;
-				AddToList(toPrint,answer->msgList);
-				
-				/* UserTo */
-				dim = strlen(((Trade)elemTrade->data)->userTo);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Trade)elemTrade->data)->userTo);
-				AddToList(toPrint,answer->msgList);
-				
-				/* Frase Player from */
-				toPrint = playerF;
-				AddToList(toPrint,answer->msgList);
-				
-				/* PlayerFrom */
-				dim = strlen(((Trade)elemTrade->data)->playerFrom);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Trade)elemTrade->data)->playerFrom);
-				AddToList(toPrint,answer->msgList);
-				
-				/* Frase Player to */
-				toPrint = playerT;
-				AddToList(toPrint,answer->msgList);
-				
-				/* playerTo */
-				dim = strlen(((Trade)elemTrade->data)->playerTo);
-				toPrint = malloc(dim + 1);
-				if(toPrint == NULL){
-					perror("Insufficient memory\n");
-					exit(EXIT_FAILURE);
-				}
-				strcpy(toPrint,((Trade)elemTrade->data)->playerTo);
-				AddToList(toPrint,answer->msgList);
-				
+
 				rc = pthread_mutex_unlock(&game_mutex);
 
 				answer->status = OK;
@@ -815,19 +648,21 @@ void executeTradeShow(Msg_t msg, Channel ch){
 }
 
 void executeTrade(Msg_t msg, Channel ch, User * me){
-	
+
 	Msg_s answer = createMsg_s(TRADE);
 	char * toPrint;
-	
+
 	if((*me) == NULL){
 		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
 		toPrint = noLogged;
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
+		releasePrintColor(answer);
 		communicate(ch,answer);
 		return;
 	}
-	
+
 	int teamID = msg->data.trade_t.teamID;
 	char * from = (msg->data).trade_t.from;
 	char * to = (msg->data).trade_t.to;
@@ -841,29 +676,34 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 	}
 
 	rc = pthread_mutex_lock(&game_mutex);
-	
+
 	/* Si el ID es incorrecto */
 	if(teamID > gameAux->cantTeams){
+		printRedColor(answer);		
 		toPrint = incorrectID;
 		AddToList(toPrint,answer->msgList);
-		
+		releasePrintColor(answer);
+		AddToList(toPrint,answer->msgList);
+
 		rc = pthread_mutex_unlock(&game_mutex);
 
 		answer->status = ERROR;
 		communicate(ch,answer);
 		return;
 	}
-	
+
 	FOR_EACH(elemLeague, gameAux->leagues){
 		FOR_EACH(elemTeam, ((League)elemLeague->data)->teams){
-			
+
 			/* Busco el team con el ID ingresado */
 			if(((Team)elemTeam->data)->ID == teamID){
-				
+
 				/* Me fijo si la liga esta activa */
 				if(((League)elemLeague->data)->status == INACTIVE){
+					printRedColor(answer);
 					toPrint = inactiveLeague;
 					AddToList(toPrint,answer->msgList);
+					releasePrintColor(answer);
 
 					rc = pthread_mutex_unlock(&game_mutex);
 
@@ -871,7 +711,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					communicate(ch,answer);
 					return;
 				}
-				
+
 				/* Me fijo si el usuario que ejecuta el comando pertenece a la liga */
 				FOR_EACH(elemID, (*me)->leaguesIDs){
 					if((*((int*)elemID->data)) == ((League)elemLeague->data)->ID){
@@ -880,26 +720,30 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					}
 				}
 				if(flag == 0){
+					printRedColor(answer);
 					toPrint = noTeamInLeague;
 					AddToList(toPrint,answer->msgList);
+					releasePrintColor(answer);
 					rc = pthread_mutex_unlock(&game_mutex);
 					answer->status = ERROR;
 					communicate(ch,answer);
 					return;
 				}
-				
+
 				/* Si a el jugador que quiero adquirir lo tiene el otro equipo */
 				flag = 0;
 				FOR_EACH(elemPlayer, ((Team)elemTeam->data)->players){
-			
+
 					if(strcmp(((Player)elemPlayer->data)->name,to) == 0){
 						flag = 1;
 						break;
 					}
 				}
 				if(flag == 0){
+					printRedColor(answer);
 					toPrint = noPlayerTo;
 					AddToList(toPrint,answer->msgList);
+					releasePrintColor(answer);
 
 					rc = pthread_mutex_unlock(&game_mutex);
 
@@ -907,7 +751,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					communicate(ch,answer);
 					return;
 				}
-				
+
 				/* Me fijo si el usuario tiene el jugador que quiere cambiar */
 				flag = 0;
 				FOR_EACH(myTeam, ((League)elemLeague->data)->teams){
@@ -922,8 +766,10 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					}
 				}
 				if(flag == 0){
+					printRedColor(answer);
 					toPrint = noPlayerFrom;
 					AddToList(toPrint,answer->msgList);
+					releasePrintColor(answer);
 
 					rc = pthread_mutex_unlock(&game_mutex);
 
@@ -931,7 +777,7 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					communicate(ch,answer);
 					return;
 				}
-				
+
 				/* CREO EL TRADE */
 				t->ID = ++(gameAux->cantTrades);
 				t->state = AWAITING;
@@ -942,14 +788,14 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 				}
 				strcpy(t->playerFrom,from);
 
-				
+
 				t->playerTo = (char*) malloc(strlen(to)+1);
 				if(t->playerTo == NULL){
 					perror("Insufficient memory\n");
 					exit(EXIT_FAILURE);
 				}
 				strcpy(t->playerTo,to);
-				
+
 				t->userFrom = (char*) malloc(strlen(((*me)->user)+1));
 				if(t->userFrom == NULL){
 					perror("Insufficient memory\n");
@@ -963,26 +809,28 @@ void executeTrade(Msg_t msg, Channel ch, User * me){
 					exit(EXIT_FAILURE);
 				}
 				strcpy(t->userTo,((Team)elemTeam->data)->owner);
-				
+
 				AddToList(t,((League)elemLeague->data)->trades);
 
-				
+
+				printGreenColor(answer);
 				toPrint = successfulTrade;
 				AddToList(toPrint,answer->msgList);
+				releasePrintColor(answer);
 
 				rc = pthread_mutex_unlock(&game_mutex);
 
 				answer->status = OK;
 				communicate(ch,answer);
 				return;
-				
+
 			}
 		}		
 	}
 }
 
 void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
-	
+
 	Msg_s answer = createMsg_s(TRADE_WITHDRAW);
 	char * toPrint;
 	int input = msg->data.trade_t.tradeID;
@@ -993,40 +841,48 @@ void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
 
 	if((*me) == NULL){
 		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
 		toPrint = noLogged;
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
+		releasePrintColor(answer);
 		communicate(ch,answer);
 		return;
 	}
 
 	rc = pthread_mutex_lock(&game_mutex);
 
-	
+
 	if(input > gameAux->cantTrades){
 
+		printRedColor(answer);
 		toPrint = incorrectID;
 		AddToList(toPrint,answer->msgList);
-		
+		answer->status = ERROR;
+		releasePrintColor(answer);
+
 		rc = pthread_mutex_unlock(&game_mutex);
 
 		answer->status = ERROR;
 		communicate(ch,answer);
 		return;
-		
+
 	}else{
-		
+
 		FOR_EACH(elemLeague, gameAux->leagues){
-			
+
 			FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 				/* Encuentro el trade */
 				if(((Trade)elemTrade->data)->ID == input){
 					/* Valido que sea el to o el from del trade */
 					if(strcmp(((Trade)elemTrade->data)->userTo, (*me)->user) != 0 
 						&& strcmp(((Trade)elemTrade->data)->userFrom, (*me)->user) != 0){
-						
+
+						printRedColor(answer);
 						toPrint = isNotYourTrade;
 						AddToList(toPrint,answer->msgList);
+						answer->status = ERROR;
+						releasePrintColor(answer);
 
 						rc = pthread_mutex_unlock(&game_mutex);
 
@@ -1034,22 +890,27 @@ void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
 						communicate(ch,answer);
 						return;
 					}else{ /* Es mi trade */
-						
+
 						if(((Trade)elemTrade->data)->state != AWAITING){
+						
+							printRedColor(answer);
 							toPrint = endedTrade;
 							AddToList(toPrint,answer->msgList);
-
+							answer->status = ERROR;
+							releasePrintColor(answer);
 							rc = pthread_mutex_unlock(&game_mutex);
 
 							answer->status = ERROR;
 							communicate(ch,answer);
 							return;
-							
+
 						}else{
 							((Trade)elemTrade->data)->state = CANCELED;
+							printRedColor(answer);
 							toPrint = tradeCanceled;
 							AddToList(toPrint,answer->msgList);
-
+							answer->status = ERROR;
+							releasePrintColor(answer);
 							rc = pthread_mutex_unlock(&game_mutex);
 
 							answer->status = OK;
@@ -1064,7 +925,7 @@ void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
 }
 
 void executeTradeAccept(Msg_t msg, Channel ch, User * me){
-	
+
 	Msg_s answer = createMsg_s(TRADE_ACCEPT);
 	char * toPrint;
 	int input = msg->data.trade_t.tradeID;
@@ -1078,70 +939,78 @@ void executeTradeAccept(Msg_t msg, Channel ch, User * me){
 	Element playerAux;
 	int flagF = 0;
 	int flagT = 0;
-	
+
 
 	if((*me) == NULL){
 		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
 		toPrint = noLogged;
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
+		releasePrintColor(answer);
 		communicate(ch,answer);
 		return;
 	}
 
 	rc = pthread_mutex_lock(&game_mutex);
 
-	
+
 	if(input > gameAux->cantTrades){
 
+		printRedColor(answer);
 		toPrint = incorrectID;
 		AddToList(toPrint,answer->msgList);
-		
+		answer->status = ERROR;
+		releasePrintColor(answer);
+
 		rc = pthread_mutex_unlock(&game_mutex);
 
-		answer->status = ERROR;
 		communicate(ch,answer);
 		return;
 	}
-	
+
 	FOR_EACH(elemLeague, gameAux->leagues){
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
-		
+
 			/* Encuentro el trade con ID ingresado */
 			if(((Trade)elemTrade->data)->ID == input){
-				
+
 				/* Me fijo si es trade mio */
 				if(strcmp(((Trade)elemTrade->data)->userTo, (*me)->user) != 0){
-					
+
+					printRedColor(answer);
 					toPrint = isNotYourTrade;
 					AddToList(toPrint,answer->msgList);
+					answer->status = ERROR;
+					releasePrintColor(answer);
 
 					rc = pthread_mutex_unlock(&game_mutex);
 
-					answer->status = ERROR;
 					communicate(ch,answer);
 					return;
 				}
-				
+
 				/* Me fijo si el trade esta en espera de respuesta */
 				if(((Trade)elemTrade->data)->state != AWAITING){
+					printRedColor(answer);
 					toPrint = endedTrade;
 					AddToList(toPrint,answer->msgList);
+					answer->status = ERROR;
+					releasePrintColor(answer);
 
 					rc = pthread_mutex_unlock(&game_mutex);
 
-					answer->status = ERROR;
 					communicate(ch,answer);
 					return;
-					
+
 				}
-				
+
 				/* Itero para buscar el equipo que ofrece el trade */
 				FOR_EACH(elemTeamF, ((League)elemLeague->data)->teams){
-					
+
 					/*  Encuentro el team del user from */
 					if(strcmp(((Team)elemTeamF->data)->owner, ((Trade)elemTrade->data)->userFrom) == 0){
-						
+
 						/* Me fijo que el que ofrecio el trade siga teniendo el jugador */
 						FOR_EACH(elemPlayerF, ((Team)elemTeamF->data)->players){
 							if(strcmp(((Player)elemPlayerF->data)->name,((Trade)elemTrade->data)->playerFrom) == 0){
@@ -1150,24 +1019,26 @@ void executeTradeAccept(Msg_t msg, Channel ch, User * me){
 							}					
 						}						
 						if(flagF == 0){
-						
+
+							printRedColor(answer);
 							toPrint = unavailablePlayerF;
 							AddToList(toPrint,answer->msgList);
+							answer->status = ERROR;
+							releasePrintColor(answer);
 
 							rc = pthread_mutex_unlock(&game_mutex);
 
-							answer->status = ERROR;
 							communicate(ch,answer);
 							return;													
 						}
-						
+
 						/* Itero para buscar mi equipo */
-						
+
 						FOR_EACH(elemTeamT, ((League)elemLeague->data)->teams){
-							
+
 							/* Encuentro mi team */
 							if(strcmp(((Team)elemTeamT->data)->owner, ((Trade)elemTrade->data)->userTo) == 0){
-								
+
 								/* Me fijo si sigo teniendo el player */
 								FOR_EACH(elemPlayerT, ((Team)elemTeamT->data)->players){
 									if(strcmp(((Player)elemPlayerT->data)->name,((Trade)elemTrade->data)->playerTo) == 0){
@@ -1175,43 +1046,48 @@ void executeTradeAccept(Msg_t msg, Channel ch, User * me){
 										break;
 									}					
 								}
-								
+
 								if(flagT == 0){
 
+									printRedColor(answer);
 									toPrint = unavailablePlayerT;
 									AddToList(toPrint,answer->msgList);
+									answer->status = ERROR;
+									releasePrintColor(answer);
 
 									rc = pthread_mutex_unlock(&game_mutex);
 
-									answer->status = ERROR;
 									communicate(ch,answer);
 									return;													
 								}
-								
+
 								/* En esta instancia, los dos tenemos los jugadores */
-								
+
 								/* Saco a playerFrom de userFrom y lo agrego a userTo*/
-								
+
 								playerAux = elemPlayerF;
 								Remove(elemPlayerF, ((Team)elemTeamF->data)->players);
 								AddToList((Player)playerAux->data, ((Team)elemTeamT->data)->players);
-								
+
 								/* Saco a playerTo de userTo y lo agrego a userFrom*/
 								playerAux = elemPlayerT;
 								Remove(elemPlayerT, ((Team)elemTeamT->data)->players);
 								AddToList((Player)playerAux->data, ((Team)elemTeamF->data)->players);
-							
+
 								((Trade)elemTrade->data)->state = ACCEPTED;
-								
+
+
+								printGreenColor(answer);
 								toPrint = tradeAccepted;
 								AddToList(toPrint,answer->msgList);
+								releasePrintColor(answer);
 
 								rc = pthread_mutex_unlock(&game_mutex);
 
 								answer->status = OK;
 								communicate(ch,answer);
 								return;
-									
+
 							}
 						}						
 					}
@@ -1227,23 +1103,24 @@ void executeLogout(Msg_t msg, Channel ch, User * me){
 	char * toPrint;
 	int rc;
 	Element elem;
-	
+
 	if((*me) == NULL){
 		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
 		toPrint = noLogged;
 		AddToList(toPrint,answer->msgList);
 		answer->status = ERROR;
+		releasePrintColor(answer);
 		communicate(ch,answer);
-		
 		return;
-		
+
 	}else{
-		
+
 		rc = pthread_mutex_lock(&game_mutex);
-		
+
 		/* Lo saco de la lista de loggeados */
 		FOR_EACH(elem, gameAux->loggedUsers){
-			
+
 			if(strcmp((char*)elem->data, (*me)->user) == 0){
 				break;
 			}
@@ -1252,14 +1129,18 @@ void executeLogout(Msg_t msg, Channel ch, User * me){
 
 		/* Apunto me a NULL */
 		(*me) = NULL;
+
+		printGreenColor(answer);
 		toPrint = loggedOut;
 		AddToList(toPrint,answer->msgList);
-		
+		answer->status = ERROR;
+		releasePrintColor(answer);
+
 		answer->status = OK;
 		communicate(ch,answer);
-		
+
 		rc = pthread_mutex_unlock(&game_mutex);
-		
+
 		return;
 	}
 
@@ -1278,7 +1159,11 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 	if(*me == NULL)
 	{
-		AddToList(noLogged, answer->msgList);
+		printRedColor(answer);
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
 
 		rc = pthread_mutex_unlock(&game_mutex);
 		communicate(ch, answer);
@@ -1287,12 +1172,14 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 	/* Liga no existente */
 	if(input > gameAux->leagues->NumEl){
+		printRedColor(answer);
 		toPrint = incorrectID;
 		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
 
 		rc = pthread_mutex_unlock(&game_mutex);
 
-		answer->status = ERROR;
 		communicate(ch,answer);
 		return;
 	}
@@ -1312,8 +1199,11 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 				}
 			}
 			if(flag == 0){
+				printRedColor(answer);
 				toPrint = noTeamInLeague;
 				AddToList(toPrint,answer->msgList);
+				answer->status = ERROR;
+				releasePrintColor(answer);
 
 				rc = pthread_mutex_unlock(&game_mutex);
 
@@ -1325,20 +1215,25 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 			/* Caso de liga que ya se drafteo */
 			if(((League)elemLeague->data)->status == ACTIVE){
+				printRedColor(answer);
 				toPrint = alreadyDrafted;
 				AddToList(toPrint,answer->msgList);
+				answer->status = ERROR;
+				releasePrintColor(answer);
 
 				rc = pthread_mutex_unlock(&game_mutex);
 
-				answer->status = ERROR;
 				communicate(ch,answer);
 				return;
 			}
 
 			/* No hay teams suficientes para draftear */
 			if(((League)elemLeague->data)->teams->NumEl < CANT_TEAMS){
+				printRedColor(answer);
 				toPrint = notEnoughTeams;
 				AddToList(toPrint,answer->msgList);
+				answer->status = ERROR;
+				releasePrintColor(answer);
 
 				rc = pthread_mutex_unlock(&game_mutex);
 
@@ -1546,7 +1441,7 @@ void changeTurn(League l, int * repeatFlag)
 		printf("Unexpected error! User not found while drafting.\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	if((e->next == NULL || e->prev == NULL) && *repeatFlag == FALSE)
 	{
 		*repeatFlag = TRUE;

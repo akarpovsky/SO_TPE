@@ -285,6 +285,13 @@ int sendmessage(Channel ch, Msg_s msg){
 	
 	Element elem;
 	
+	/* Envio el responseType */
+	num.dataInt.num = msg->responseType;
+	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
+		perror("Could not communicate to server. In msgsnd");
+		exit(EXIT_FAILURE);
+	}
+	
 	/* Envio el status */
 	num.dataInt.num = msg->status;
 	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){

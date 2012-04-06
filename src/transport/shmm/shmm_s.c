@@ -270,7 +270,7 @@ Msg_t IPClisten(Channel ch){
 		
 			memcpy(&msgSize, offset, sizeof(int));
 			printf("Message size %d\n", msgSize);
-			stream = streamAux = calloc(1, 10*sizeof(msgSize));
+			stream = streamAux = calloc(1, msgSize * sizeof(char));
 			memcpy(stream, offset+sizeof(int), msgSize);
 		
 		up(server_lock_sem);
