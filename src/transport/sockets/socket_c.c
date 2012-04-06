@@ -83,19 +83,6 @@ void bindToAssignedSocket(int port){
 	new_server_address->sin_port = port;
 	new_server_address->sin_addr.s_addr = htonl(INADDR_ANY);
 	
-	// 	/* Transport endpoint */
-	// if( (newsockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1){
-	// 	perror("<LOG socket_c.c> Socket call failed <end>");
-	// 	sigint();
-	// 	exit(EXIT_FAILURE);
-	// }		
-
-	// if( (bind( newsockfd, (struct sockaddr *) address, sizeof(struct sockaddr_in))) == -1 ){
-	// 	perror("<LOG socket_s.c> Bind call failed <end>");
-	// 	exit(EXIT_FAILURE);
-	// }
-	// printf("Bindeado a PORT = %d\n", address->sin_port);
-
 	return ;
 }
 
@@ -103,7 +90,7 @@ Msg_s rcvmessage(void){
 
 	
 	int rcvFlag = FALSE;
-	Msg_s msg = calloc(1, sizeof(msg_s));
+	Msg_s msg;
 
 	do{
 		int msgSize;
@@ -115,12 +102,9 @@ Msg_s rcvmessage(void){
 		if(newsockfd == 0){
 			listenFD = sockfd;
 		}else{
-			printf("Uso new sock fd :)\n");
 			listenFD = newsockfd;
 		}
 		
-		// printf("Recibiendo mensaje en el FD = %d ...\n", listenFD);	
-
 		if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, (socklen_t *) &client_len)) == -1){
 			perror("Error while receiving data");
 			return NULL;
@@ -132,54 +116,17 @@ Msg_s rcvmessage(void){
 			aux = bytestring = calloc(msgSize, sizeof(char));
 								
 
-			if( (recv(listenFD, aux, msgSize * sizeof(char), 0)) == -1){
+			if( (recv(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0)) == -1){
 				perror("Reading server message failed");
 				return NULL;
-			}
-			else{
+			}else{
 				memcpy(&(msg->status), aux, sizeof(int));
 				aux += sizeof(int);
+				msg = (Msg_s) deserialize_s(aux);
 
-				// printf("<LOG socket_c.c> Client - Received message status: %d <end>\n", msg->status);
-
-
-				List l = malloc(sizeof(llist));
-				CreateList(l);
-
-				msg->msgList = l;
-
-				int cantElem;
-				memcpy(&(cantElem), aux, sizeof(int));
-				aux += sizeof(int);
-
-				// printf("<LOG socket_c.c> Client - Starting reception of list containing %d messages <end>\n", cantElem);
-
-
-				int i;
-				int strsize;
-				// char * str;
-
-				for(i = 0; i < cantElem; i++){
-					memcpy(&(strsize), aux, sizeof(int));
-					aux += sizeof(int);
-
-					// printf("<LOG socket_c.c> Client - Receiving message %d of %d - Message length = %d  <end>\n", i+1, cantElem, strsize);
-
-					char * str = calloc(strsize, sizeof(char));
-
-					// memset(str, 0 , strsize);
-					memcpy(str, aux, strsize);
-
-					// memcpy(str, aux, strsize);
-					aux += strsize;
-					// printf("<LOG socket_c.c> Client - Message %d: \"%s\" <end>\n", i+1, str);
-
-					AddToList(str, msg->msgList);
-					// free(str);
 				}
 				rcvFlag = TRUE;
 			}
-		}
 	}while(!rcvFlag);
 
 	return msg;
@@ -193,266 +140,14 @@ int sendmessage(Msg_t msg)
 	int msgSize;
 	void * msgstr;
 	void * msgstraux;
-	int from_len, to_len, name_len;
 
-	int pass_len, user_len;
+	msgstr = (Msg_t) serializeMsg(msg);
+	memcpy(&msgSize, msgstr, sizeof(int));
 
-	switch(msg->type){
-		case CONTACT:
-			msgSize = 2*sizeof(int);
-
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			
-			int client_pid = msg->data.socket_client_t.client_pid;
-			memcpy(msgstraux, &client_pid, sizeof(int));
-			msgstraux += sizeof(int);
-
-			break;
-
-
-		case REGISTER:
-			
-			user_len = strlen(msg->data.register_t.user)+1;
-			pass_len = strlen(msg->data.register_t.pass)+1;
-			
-			msgSize = 3*sizeof(int) + user_len + pass_len;
-
-			// REGISTER message: [MSG_TYPE USER_LEN USER PASS_LEN PASS]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, &user_len, sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, msg->data.register_t.user, user_len);
-			msgstraux += user_len;
-
-			memcpy(msgstraux, &pass_len, sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, msg->data.register_t.pass, pass_len);
-			msgstraux += user_len;
-
-			break;
-
-		case LOGIN:
-			
-			user_len = strlen(msg->data.login_t.user)+1;
-			pass_len = strlen(msg->data.login_t.pass)+1;
-			
-			msgSize = 3*sizeof(int) + user_len + pass_len;
-
-			// REGISTER message: [MSG_TYPE USER_LEN USER PASS_LEN PASS]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, &user_len, sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, msg->data.login_t.user, user_len);
-			msgstraux += user_len;
-
-			memcpy(msgstraux, &pass_len, sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, msg->data.login_t.pass, pass_len);
-			msgstraux += user_len;
-
-			break;
-
-		case LIST_LEAGUES:
-		case LIST_TEAMS:
-		case LIST_TRADES:
-
-			msgSize = sizeof(int);
-
-			// LIST message: [MSG_TYPE]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			break;
-
-		case LEAGUE_SHOW:
-		case TEAM_SHOW:
-		case TRADE_SHOW:
-			
-			msgSize = 2*sizeof(int);
-
-			// SHOW message: [MSG_TYPE SHOW_ID]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, &(msg->data.show_t.ID), sizeof(int));
-			msgstraux += sizeof(int);
-			
-			break;	
-
-		case TRADE:
-
-			from_len = strlen(msg->data.trade_t.from)+1;
-			to_len = strlen(msg->data.trade_t.to)+1;
-			msgSize = 4*sizeof(int) + from_len + to_len;
-			
-			// TRADE message: [MSG_TYPE TEAM_ID FROM_LEN from TO_LEN to]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(from_len), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, msg->data.trade_t.from, from_len);
-			msgstraux += from_len;
-
-			memcpy(msgstraux, &(to_len), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, msg->data.trade_t.to, to_len);
-			msgstraux += to_len;
-
-			break;
-
-		case TRADE_WITHDRAW:
-		case TRADE_ACCEPT:
-
-			msgSize = 2*sizeof(int);
-
-			// TRADE WITHDRAW / ACCEPT message: [MSG_TYPE TRADE_ID]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-			
-			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
-			msgstraux += sizeof(int);
-
-			break;	
-
-		case TRADE_NEGOTIATE:
-
-			from_len = strlen(msg->data.trade_t.from)+1;
-			to_len = strlen(msg->data.trade_t.to)+1;
-			msgSize = 5*sizeof(int) + from_len + to_len;
-			
-			// TRADE NEGOTIATE message: [MSG_TYPE TRADE_ID TEAM_ID FROM_LEN from TO_LEN to]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(msg->data.trade_t.tradeID), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(msg->data.trade_t.teamID), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(from_len), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, msg->data.trade_t.from, from_len);
-			msgstraux += from_len;
-
-			memcpy(msgstraux, &(to_len), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, msg->data.trade_t.to, to_len);
-			msgstraux += to_len;
-
-			break;
-		
-		case LOGOUT:
-
-			msgSize = sizeof(int);
-
-			// LOGOUT message: [MSG_TYPE]
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-			
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			break;
-
-		case JOIN_LEAGUE:
-		case DRAFT:
-
-			// JOIN_LEAGUE or DRAFT_LEAGUE message: [MSG_TYPE LEAGUE_ID]		
-		
-			msgSize = 2*sizeof(int);
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-		
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(msg->data.ID), sizeof(int));
-			msgstraux += sizeof(int);
-				
-			break;
-					
-		case CREATE_LEAGUE:
-
-			// CREATE_LEAGUE message: [MSG_TYPE NAME_LEN NAME]
-
-			name_len = strlen(msg->data.name)+1;
-			msgSize = 2*sizeof(int) + name_len;
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-		
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			memcpy(msgstraux, &(name_len), sizeof(int));
-			msgstraux += sizeof(int);
-			memcpy(msgstraux, msg->data.name, name_len);
-			msgstraux +=  name_len;
-				
-			break;
-
-		case DRAFT_OUT:
-
-			// DRAFT_OUT message: [MSG_TYPE]
-
-			msgSize = sizeof(int);
-
-			msgstraux = msgstr = calloc(msgSize, sizeof(char));
-		
-			memcpy(msgstraux, &(msg->type), sizeof(int));
-			msgstraux += sizeof(int);
-
-			break;
-
-
-	}
-
-	// printf("SOCKFD =  %d\n", sockfd);
 
 	if(new_server_address != NULL){
 
-		// printf("SOCKFD =  %d\n", sockfd);
-		// printf("SENDING STH TO PORT = %d\n", new_server_address->sin_port);
+		printf("Sending data to port #%d - Message size = %d\n", new_server_address->sin_port, msgSize);
 
 		if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, SOCKET_SIZE)) == -1){
 			perror("Error while trying to send a message to server.");
@@ -460,23 +155,22 @@ int sendmessage(Msg_t msg)
 			exit(EXIT_FAILURE);
 		}
 
-		if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) new_server_address, SOCKET_SIZE)) == -1){
+		if((sendto(sockfd, msgstr, msgSize+sizeof(int), 0, (struct sockaddr *) new_server_address, SOCKET_SIZE)) == -1){
 			perror("Error while trying to send a message to server.\n");
 			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
 			exit(EXIT_FAILURE);
 		}
 	}else{
 
-		printf("SENDING STH TO PORT = %d\n", server_address->sin_port);
-
-		printf("SOCKFD2 =  %d\n", sockfd);
+		printf("Sending data to port #%d - Message size = %d\n", server_address->sin_port, msgSize);
+		
 		if((sendto(sockfd, &msgSize, sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
 			perror("Error while trying to send a message to server.");
 			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
 			exit(EXIT_FAILURE);
 		}
 
-		if((sendto(sockfd, msgstr, msgSize, 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
+		if((sendto(sockfd, msgstr, msgSize+sizeof(int), 0, (struct sockaddr *) server_address, SOCKET_SIZE)) == -1){
 			perror("Error while trying to send a message to server.\n");
 			printf("Server may have been initialized wrong or it has crashed. Start the server first and then restart the client.\n");
 			exit(EXIT_FAILURE);
@@ -509,28 +203,13 @@ void connectToServer(void){
 		exit(EXIT_FAILURE);
 	}
 
-	// if( (bind( sockfd, (struct sockaddr *) client_address, SOCKET_SIZE)) == -1 ){
-	// 	perror("<LOG socket_s.c> Bind call failed <end>");
-	// 	sigint();
-	// 	exit(EXIT_FAILURE);
-	// }
-
 	int pid = getpid();
 
 	// Create a connection message
 
 	msg_t com;
 	com.type = CONTACT;
-
-	// int path_len = strlen(client_address->sun_path)+1;
-	// com.data.socket_client_t.socket_path = calloc(path_len, sizeof(char));
-	// memcpy(com.data.socket_client_t.socket_path, client_address->sun_path, path_len-1);
-	// com.data.socket_client_t.socket_family = client_address->sun_family;
 	com.data.socket_client_t.client_pid = pid;
-
-	// msg_t com2;
-	// com2.type = LIST_LEAGUES;
-
 
 	Msg_s response;
 	response = communicate(&com);

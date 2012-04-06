@@ -20,9 +20,9 @@
 #include "../../utils/LinkedList.h"
 #include "../../utils/hashmap.h"
 #include "../../includes/defines.h"
-#include "../../includes/socket_s.h"
 #include "../../includes/transport_s.h"
 
+#include "../../includes/socket_s.h"
 
 int sockfd; // Server socket file descriptor
 void * sockets_hmap;
@@ -138,7 +138,7 @@ Channel createChannel(Msg_t msg)
 
 Msg_s establishChannel(Channel ch)
 {
-	Msg_s serverMsg = (Msg_s) createMsg_s();
+	Msg_s serverMsg = (Msg_s) createMsg_s(CONTACT);
 	AddToList("Connection established.", serverMsg->msgList);
 	serverMsg->status = ch->client->sin_port;
 	
@@ -153,56 +153,12 @@ int sendmessage(Channel ch, Msg_s msg){
 
 	int msgSize;
 	void * msgstr;
-	void * msgstraux;
-	int NumEl = msg->msgList->NumEl;
-	int * sizes = malloc(NumEl * sizeof(int));
-	char ** strings = malloc(NumEl * sizeof(char *));
-	int msgListSize = 0;
-	int i = 0;
-
-
-	Element e;
-
-	// printf("Empiezo a armar las listas\n");
-	FOR_EACH(e, msg->msgList)
-	{
-		// printf("\tProcesando _%s_\n", (char *) e->data);
-		sizes[i] = strlen(e->data)+1;
-		// printf("Guardo en sizes[i] = %d\n", sizes[i]);
-
-		strings[i] = e->data;
-		msgListSize += sizes[i];
-		i+=1;
-	}
-
-	// printf("Terminé de armar las listas de mensajes\n");
-	// printf("msgListSize = %d\n", msgListSize);
-	msgSize = 2*sizeof(int) + (i*sizeof(int)) + msgListSize ;
-	msgstr = msgstraux = calloc(msgSize, sizeof(char));
-
-	// printf("Tamaño del mensaje a enviar = %d\n", msgSize);
-
-	memcpy(msgstraux, &(msg->status), sizeof(int));
-	msgstraux += sizeof(int);
-
-
-	memcpy(msgstraux, &(msg->msgList->NumEl), sizeof(int));
-	msgstraux += sizeof(int);
-
-	for(i = 0; i < msg->msgList->NumEl; i++)
-	{
-		memcpy(msgstraux, &(sizes[i]), sizeof(int));
-		msgstraux += sizeof(int);
-
-		memcpy(msgstraux, strings[i], sizes[i]);
-		msgstraux += sizes[i];
-
-	}
+	
+	msgstr = serialize_s(msg);
+	memcpy(&(msgSize), msgstr, sizeof(int));
 
 	struct sockaddr_in * client = ch->client;
-	///////
 	client->sin_port = ch->port;
-	//
 	int cli_size = SOCKET_SIZE;
 
 	int listenFD = 0;
@@ -221,7 +177,7 @@ int sendmessage(Channel ch, Msg_s msg){
 		printf("<LOG socket_s.c> Server: Envio el message size = %d <end>\n", msgSize);
 	}
 
-	if((sendto(listenFD, msgstr, msgSize, MSG_WAITALL, (struct sockaddr *) client, cli_size) == -1)){
+	if((sendto(listenFD, msgstr, msgSize+sizeof(int), MSG_WAITALL, (struct sockaddr *) client, cli_size) == -1)){
 		perror("<LOG socket_s.c> Server: Could not write message <end>");
 		return !SUCCESSFUL;
 	}else{
@@ -258,245 +214,43 @@ Msg_t IPClisten(Channel ch){
 			listenFD = (int) hashmap_get( sockets_hmap , ch->port);
 		}
 
-		if( (recvfrom(listenFD, &msgSize, sizeof(int), MSG_WAITALL, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
+		if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
 			perror("Error while receiving data");
 			continue ;
 		}
 
+
 		if(msgSize > 0){
-			
-			aux = bytestring = malloc(msgSize);
+			aux = bytestring = calloc(msgSize+sizeof(int), sizeof(char));
 
-			// printf("<LOG socket_s.c> Server - Message header received OK. Full message size = %d <end>\n", msgSize);
+			printf("<LOG socket_s.c> Server - Message header received OK. Full message size = %d <end>\n", msgSize);
 
-			if( (recvfrom(listenFD, aux, msgSize * sizeof(char), MSG_WAITALL, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
+			if( (recvfrom(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
 				perror("Reading client message failed");
 				return NULL;
 			}else{
+
+
+				aux+=sizeof(int);
 				
-				memcpy(&(msg->type), aux, sizeof(int));
-				aux += sizeof(int);
+				msg = deserializeMsg(aux);
+				
+				if(msg->type == CONTACT){
+					msg->data.socket_client_t.client = client;
+					printf("Tengo client: port - %d\n", client->sin_port);			
+				}
 
 				printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
-
-				int type = msg->type;
-				switch(type){
-					
-					case CONTACT:
-						
-						printf("\nCONTACT message received\n");
-						printf("\n<data>\n");
-						memcpy(&(msg->data.socket_client_t.client_pid), aux, sizeof(int));
-						aux += sizeof(int);
-						printf("\tCLIENT_PID = %d \n", msg->data.socket_client_t.client_pid);
-						printf("</data>\n\n");
-						msg->data.socket_client_t.client = client;
-						printf("Tengo client: port - %d\n", client->sin_port);
-
-						// sendto(listenFD, &c, 1,0, msg->data.socket_client_t.client, SOCKET_SIZE);
-						break;
-
-					case REGISTER:
-
-						printf("\nREGISTER message received\n");
-						printf("\n<data>\n");
-						
-						user_len = 0;
-						memcpy(&(user_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.register_t.user = calloc(user_len,sizeof(char));
-						memcpy(msg->data.register_t.user, aux, user_len);
-						printf("\tUsername = %s \n", msg->data.register_t.user);
-						aux += user_len;
-
-						pass_len = 0;
-						memcpy(&(pass_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.register_t.pass = calloc(pass_len,sizeof(char));
-						memcpy(msg->data.register_t.pass, aux, pass_len);
-						printf("\tPassword = %s \n", msg->data.register_t.pass);
-						aux += pass_len;
-
-						printf("</data>\n\n");
-
-						break;
-
-					case LOGIN:
-
-						printf("\nLOGIN message received\n");
-						printf("\n<data>\n");
-						
-						user_len = 0;
-						memcpy(&(user_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.login_t.user = calloc(user_len,sizeof(char));
-						memcpy(msg->data.login_t.user, aux, user_len);
-						printf("\tUsername = %s \n", msg->data.login_t.user);
-						aux += user_len;
-
-						pass_len = 0;
-						memcpy(&(pass_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.login_t.pass = calloc(pass_len,sizeof(char));
-						memcpy(msg->data.login_t.pass, aux, pass_len);
-						printf("\tPassword = %s \n", msg->data.login_t.pass);
-						aux += pass_len;
-
-						printf("</data>\n\n");
-
-						break;
-
-				case LIST_LEAGUES:
-				case LIST_TEAMS:
-				case LIST_TRADES:
-						printf("\nLIST_TEAMS / LIST_LEAGUES / LIST_TRADES message received\n");
-
-						break;
-
-				case LEAGUE_SHOW:
-				case TEAM_SHOW:
-				case TRADE_SHOW:
-
-						printf("\nTEAM_SHOW / TEAM_SHOW / TRADE_SHOW message received\n");
-						printf("\n<data>\n");
-						
-						memcpy(&(msg->data.show_t.ID), aux, sizeof(int));
-						printf("\tSHOW_ID = %d \n", msg->data.show_t.ID);
-						aux += sizeof(int);
-
-						printf("</data>\n\n");
-
-						break;
-
-				case TRADE:
-
-						printf("\nTRADE message received\n");
-						printf("\n<data>\n");
-
-						memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
-						printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
-						aux += sizeof(int);
-
-						from_len = 0;
-						memcpy(&(from_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.trade_t.from = calloc(from_len, sizeof(char));
-						memcpy(msg->data.trade_t.from, aux, from_len);
-						printf("\tTRADE FROM = %s \n", msg->data.trade_t.from);
-						aux += from_len;
-
-						to_len = 0;
-						memcpy(&(to_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.trade_t.to = calloc(to_len, sizeof(char));
-						memcpy(msg->data.trade_t.to, aux, to_len);
-						printf("\tTRADE TO = %s \n", msg->data.trade_t.to);
-						aux += to_len;
-
-						printf("</data>\n\n");
-
-						break;
-
-
-				case TRADE_WITHDRAW:
-				case TRADE_ACCEPT:
-
-						printf("\nTRADE ACCEPT / WITHDRAW message received\n");
-						printf("\n<data>\n");
-						memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
-						printf("\tTRADE_ID = %d \n", msg->data.trade_t.tradeID);
-						aux += sizeof(int);
-						printf("</data>\n\n");
-
-						break;
-
-				case  TRADE_NEGOTIATE:
-
-						printf("\nTRADE NEGOTIATE message received\n");
-						printf("\n<data>\n");
-						
-
-						memcpy(&(msg->data.trade_t.tradeID), aux, sizeof(int));
-						printf("\tTradeID = %d \n", msg->data.trade_t.tradeID);
-						aux += sizeof(int);
-
-						memcpy(&(msg->data.trade_t.teamID), aux, sizeof(int));
-						printf("\tTeamID = %d \n", msg->data.trade_t.teamID);
-						aux += sizeof(int);
-
-						from_len = 0;
-						memcpy(&(from_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.trade_t.from = calloc(from_len, sizeof(char));
-						memcpy(msg->data.trade_t.from, aux, from_len);
-						printf("\tTRADE FROM = %s \n", msg->data.trade_t.from);
-						aux += from_len;
-
-						to_len = 0;
-						memcpy(&(to_len), aux, sizeof(int));	
-						aux += sizeof(int);
-
-						msg->data.trade_t.to = calloc(to_len, sizeof(char));
-						memcpy(msg->data.trade_t.to, aux, to_len);
-						printf("\tTRADE TO = %s \n", msg->data.trade_t.to);
-						aux += to_len;
-
-						printf("</data>\n\n");
-
-						break;
-
-				case LOGOUT:
-						
-					printf("\nLOGOUT message received\n");
-						break;
-				
-				case JOIN_LEAGUE:
-				case DRAFT:
-
-					printf("\nJOIN_LEAGUE / DRAFT message received\n");
-
-					printf("\n<data>\n");
-					memcpy(&(msg->data.ID), aux, sizeof(int));
-					printf("\tLEAGUE_ID = %d \n", msg->data.ID);
-					aux += sizeof(int);
-					printf("</data>\n\n");
-						
-						break;
-						
-				case CREATE_LEAGUE:
-
-					printf("\nCREATE_LEAGUE message received\n");
-					
-					name_len = 0;
-					memcpy(&(name_len), aux, sizeof(int));	
-					aux += sizeof(int);
-
-					msg->data.name = calloc(name_len,sizeof(char));
-					memcpy(msg->data.name, aux, name_len);
-					printf("\tCREATE_LEAGUE_NAME = %s \n", msg->data.name);
-					aux += name_len;
-
-					break;
-
-				case DRAFT_OUT:
-
-					printf("\nDRAFT_OUT message received\n");
-
-					break;			
 
 				}
 				free(bytestring);
 				rcvFlag = TRUE;
 			}
-		}
 	}while(!rcvFlag);
 	
 	return msg;
+}
+
+int rcvmessage(){
+
 }

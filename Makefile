@@ -7,7 +7,7 @@ COPTS= -Wall -g
 LDOPTS= -lpthread
 MATH = -lm
 
-SOCKET_SERVER = ./src/transport/sockets/socket_s.c
+SOCKET_SERVER = ./src/transport/sockets/socket_s.c ./src/transport/sockets/sockets_contact_serialization.c ./src/marshalling/message_serialization.c
 
 socket_server: $(FILES)
 	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(SOCKET_SERVER) $(LDOPTS) -D sockets $(MATH)
@@ -35,7 +35,7 @@ CLIENT_OUT_EXE = client
 CLIENT_COPTS= -g #-Wall -g 
 CLIENT_LDOPTS= -lpthread
 
-SOCKET_CLIENT = ./src/transport/sockets/socket_c.c
+SOCKET_CLIENT = ./src/transport/sockets/socket_c.c ./src/transport/sockets/sockets_contact_serialization.c ./src/marshalling/message_serialization.c
 
 socket_client: $(CLIENT_FILES)
 	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SOCKET_CLIENT) -D sockets $(CLIENT_LDOPTS)
