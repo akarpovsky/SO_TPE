@@ -1066,34 +1066,37 @@ void checkMatchesDir(void)
 			char * f = malloc(strlen(MATCHES_NEW)+strlen(d->d_name)+1);
 			strcpy(f, MATCHES_NEW);
 			strcat(f, d->d_name);
-			if((fp = fopen(f,"r")) == NULL)
+			if(fileType(f) == FILE_TYPE)
 			{
-				printf("Impossible to read file: %s\n", f);
-				fclose(fp);
+				if((fp = fopen(f,"r")) == NULL)
+				{
+					printf("Impossible to read file: %s\n", f);
+					fclose(fp);
+					free(f);
+					continue;
+				}
+				if((l = loadMatch(fp)) != NULL){
+					updatePlayers(l);
+					fclose(fp);
+					Element e;
+					FOR_EACH(e, l)
+					{
+						free(((Player)e->data)->name);
+						free(e->data);
+					}
+					e = l->pFirst;
+					Element oe;
+					oe = e->next;
+					while(e != NULL)
+					{
+						free(e);
+						e = oe;
+						oe = ((e != NULL)?e->next:NULL);
+					}
+					dumpMatch(f);
+				}
 				free(f);
-				continue;
 			}
-			if((l = loadMatch(fp)) != NULL){
-				updatePlayers(l);
-				fclose(fp);
-				Element e;
-				FOR_EACH(e, l)
-				{
-					free(((Player)e->data)->name);
-					free(e->data);
-				}
-				e = l->pFirst;
-				Element oe;
-				oe = e->next;
-				while(e != NULL)
-				{
-					free(e);
-					e = oe;
-					oe = ((e != NULL)?e->next:NULL);
-				}
-				dumpMatch(f);
-			}
-			free(f);
 		}
 	}
 }
@@ -1182,35 +1185,37 @@ void checkMatches(void)
 				path = malloc(strlen(MATCHES_NEW)+ine->len+1);
 				strcpy(path, MATCHES_NEW);
 				strcat(path, filename);
-
-				if((fp = fopen(path,"r")) == NULL)
+				if(fileType(path) == FILE_TYPE)
 				{
-					printf("Impossible to read file: %s\n", filename);
-					fclose(fp);
-
-					if((l = loadMatch(fp)) != NULL){
-						updatePlayers(l);
+					if((fp = fopen(path,"r")) == NULL)
+					{
+						printf("Impossible to read file: %s\n", filename);
 						fclose(fp);
-						Element e;
-						FOR_EACH(e, l)
-						{
-							free(((Player)e->data)->name);
-							free(e->data);
-						}
-						e = l->pFirst;
-						Element oe;
-						oe = e->next;
-						while(e != NULL)
-						{
-							free(e);
-							e = oe;
-							oe = ((e != NULL)?e->next:NULL);
-						}
-						dumpMatch(path);
 
+						if((l = loadMatch(fp)) != NULL){
+							updatePlayers(l);
+							fclose(fp);
+							Element e;
+							FOR_EACH(e, l)
+							{
+								free(((Player)e->data)->name);
+								free(e->data);
+							}
+							e = l->pFirst;
+							Element oe;
+							oe = e->next;
+							while(e != NULL)
+							{
+								free(e);
+								e = oe;
+								oe = ((e != NULL)?e->next:NULL);
+							}
+							dumpMatch(path);
+
+						}
 					}
+					free(path);
 				}
-				free(path);
 			}
 
 		}
