@@ -5,6 +5,7 @@
 #if !defined( IO_H )
 #define IO_H
 #include <stdio.h>
+#include <sys/inotify.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
@@ -26,6 +27,7 @@
 
 #define DIGIT_COUNT(X) ((int)(log10((((X)>0)?(X):-(X)))))
 #define BUFFER_SIZE 100
+#define INOTIFY_BUFFER_SIZE ((sizeof(struct inotify_event)+FILENAME_MAX)*1024)
 
 /* Object types for saving */
 
@@ -73,6 +75,7 @@ char * teamToString(Team t);
 void updatePlayers(List l);
 List loadMatch(FILE * fp);
 void dumpMatch(char * f);
+void checkMatchesDir(void);
 void checkMatches(void);
 
 #endif

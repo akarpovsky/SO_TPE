@@ -1318,7 +1318,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 			/* Caso que yo no pertenezca a la league */
 			flag = 0;
 			FOR_EACH(elemID, (*me)->leaguesIDs){
-				if(((int*)elemID->data) == ((League)elemLeague->data)->ID){
+				if(*((int*)elemID->data) == ((League)elemLeague->data)->ID){
 					flag = 1;
 					break;
 				}
@@ -1381,7 +1381,10 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 						printf("ERROR; return code from pthread_create() is %d\n", iRet);
 						exit(EXIT_FAILURE);
 					}
-
+					answer = createMsg_s(DRAFT_START);
+					answer->status = OK;
+					AddToList(draftStarting, answer->msgList);
+					communicate(ch, answer);
 					makeDraft((League)elemLeague->data, ch, me);
 
 				}else{
@@ -1389,28 +1392,34 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 					while(((League)elemLeague->data)->cantDraft != CANT_TEAMS)
 					{
 						Msg_t incoming = rcvmessage(ch);
-						Msg_s auxResponse = createMsg_s(incoming->type);
+						answer = createMsg_s(incoming->type);
 						if(incoming->type != DRAFT_OUT || incoming->type != LOGOUT)
 						{
-							auxResponse->status = !OK;
-							AddElemToList(invalidCommand, auxResponse->msgList);
-							communicate(ch, auxResponse);
+							answer->status = !OK;
+							AddElemToList(invalidCommand, answer->msgList);
+							communicate(ch, answer);
 						}
 						else
 						{
 							((League)elemLeague->data)->cantDraft--;
-							auxResponse->status = OK;
-							AddElemToList(draftOutSuccessful, auxResponse->msgList);
-							communicate(ch, auxResponse);
+							answer->status = OK;
+							AddElemToList(draftOutSuccessful, answer->msgList);
+							communicate(ch, answer);
 							return;
 						}
 
 					}
+					answer = createMsg_s(DRAFT_START);
+					answer->status = OK;
+					AddToList(draftStarting, answer->msgList);
+					communicate(ch, answer);
 					makeDraft((League)elemLeague->data, ch, me);
+					return;
 
 				}
-			}else {
+			}else if(((League)elemLeague->data)->status == DRAFTING){
 				makeDraft((League)elemLeague->data, ch, me);
+				return;
 			}
 
 		}//IF ES EL ID DE LA LEAGUE
@@ -1423,35 +1432,43 @@ void makeDraft(League league,Channel ch, User * me)
 	Msg_t fromClient;
 	char * player;
 	Element elemPlayer,elemTeam;
-	int flag;
+	Msg_s toClient;
 
 	while(league->status == DRAFTING)
 	{
 
-		fromClient = rcvmessage(ch);
-
-		/* Mi turno*/
 		if(strcmp(league->turn, (*me)->user) == 0)
 		{
+			toClient = createMsg_s(DRAFT_TURN);
+			toClient->status = OK;
+			AddToList(isYourTurn, toClient->msgList);
+			communicate(ch, toClient);
+		}
 
-			if(fromClient->type == DRAFT_OUT)
+		fromClient = rcvmessage(ch);
+
+		if(fromClient->type == DRAFT_OUT)
+		{
+			//league->cantDraft--;
+			toClient = createMsg_s(DRAFT_OUT);
+			AddToList(draftOutSuccessful, toClient->msgList);
+			communicate(ch, toClient);
+			return;
+		}
+		if(fromClient->type == LOGOUT)
+		{
+			league->cantDraft--;
+			executeLogout(fromClient,ch,me);
+			return;
+		}
+
+		/* Mi turno*/
+		if(fromClient->type == CHOOSE)
+		{
+
+			if(strcmp(league->turn, (*me)->user) == 0)
 			{
-				league->cantDraft--;
-				return;
-			}
-			if(fromClient->type == LOGOUT)
-			{
-				league->cantDraft--;
-				executeLogout(fromClient,ch,me);
-
-				return;
-			}
-
-			if(fromClient->type == CHOOSE)
-			{
-
 				player = fromClient->data.name;
-				flag = 0;
 
 				FOR_EACH(elemPlayer, league->availablePlayers)
 				{
@@ -1474,6 +1491,10 @@ void makeDraft(League league,Channel ch, User * me)
 
 						/* Seteo en la liga la variable que indica que respondi */
 						league->answer = TRUE;
+						toClient = createMsg_s(CHOOSE);
+						toClient->status = OK;
+						AddToList(playerChooseSuccessful, toClient->msgList);
+						communicate(ch, toClient);
 					}
 				}
 
@@ -1483,8 +1504,19 @@ void makeDraft(League league,Channel ch, User * me)
 				}
 			}
 		}
+		else
+		{
+			toClient = createMsg_s(CHOOSE);
+			toClient->status = !OK;
+			AddToList(cannotChoose, toClient->msgList);
+			communicate(ch, toClient);
+		}
 		sleep(1);
 	}
+	toClient = createMsg_s(DRAFT_END);
+	toClient->status = OK;
+	AddToList(draftEnded, toClient->msgList);
+	communicate(ch, toClient);
 }
 
 

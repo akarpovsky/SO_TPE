@@ -53,8 +53,17 @@ void executeLeagueShow(Msg_t msg, Channel ch);
 void executeTeamShow(Msg_t msg, Channel ch);
 void executeTradeShow(Msg_t msg, Channel ch);
 void executeTrade(Msg_t msg, Channel ch, User * me);
+void executeTradeWithdraw(Msg_t msg,Channel ch, User * me);
+void executeTradeAccept(Msg_t msg,Channel ch, User * me);
+void executeDraft(Msg_t msg,Channel ch, User * me);
 void executeLogout(Msg_t msg,Channel ch,User * me);
 
 void * coordinator_thread(void * data);
+void changeTurn(League l, int * repeatFlag);
+void autoAsign(League l, int * repeatFlag);
+void checkStatus(League l);
+void makeDraft(League league,Channel ch, User * me);
+
+
 
 #endif
