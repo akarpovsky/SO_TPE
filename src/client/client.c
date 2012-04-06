@@ -30,19 +30,26 @@ int main(void){
 }
 
 void readPrompt(char * s, int size){
-	
-	int input = 0;
 
-	while(--size && (input = getchar()) != EOF && input != '\n'){
-		
-		*s = input;
-		s++;
-	}
-	
-	if(input == EOF){
-		printf("\n");
-	}
-	*s = 0;
+
+	 int input = 0;
+       int i = 0;
+
+       while(--size && (input = getchar()) != EOF && input != '\n'){
+               
+               if(i++ < COMMAND_MAX_LENGHT - 10){
+                       *s = input;
+                       s++;
+               }
+               i++;
+       }
+       
+       if(input == EOF){
+               printf("\n");
+       }
+       *s = 0;
+
+
 }
 
 void readPromptUnlocked(char * s, int size){

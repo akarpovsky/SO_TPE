@@ -5,7 +5,7 @@
 #define FTOK_ID 1
 #define FTOK_FILE "/tmp/msgq"
 #define MAIN_SERVER_PRIORITY 1
-#define MAX_STRING 200
+#define MAX_STRING 1024
 #define SUCCESSFUL 1
 
 Msg_s communicate(Msg_t msg);
