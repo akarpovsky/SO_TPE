@@ -928,10 +928,9 @@ void executeTradeWithdraw(Msg_t msg, Channel ch, User * me){
 
 						}else{
 							((Trade)elemTrade->data)->state = CANCELED;
-							printRedColor(answer);
+							printGreenColor(answer);
 							toPrint = tradeCanceled;
 							AddToList(toPrint,answer->msgList);
-							answer->status = ERROR;
 							releasePrintColor(answer);
 							rc = pthread_mutex_unlock(&game_mutex);
 
@@ -1119,10 +1118,112 @@ void executeTradeAccept(Msg_t msg, Channel ch, User * me){
 	}	
 }
 
-void executeTradeNegotiate(Msg_t msg, Channel ch,User * me){
+void executeTradeNegotiate(Msg_t msg, Channel ch, User * me){
 	
+	Msg_s answer = createMsg_s(TRADE_NEGOTIATE);
+	char * toPrint;
+	int input = msg->data.trade_t.tradeID;
+
+	int rc;
+	Element elemLeague;
+	Element elemTrade;
+	Element elemTeam;
+
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
+		communicate(ch,answer);
+		return;
+	}
+
+	rc = pthread_mutex_lock(&game_mutex);
+
+
+	if(input > gameAux->cantTrades){
+
+		printRedColor(answer);
+		toPrint = incorrectID;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
+
+		rc = pthread_mutex_unlock(&game_mutex);
+
+		answer->status = ERROR;
+		communicate(ch,answer);
+		return;
+
+	}
+
+	FOR_EACH(elemLeague, gameAux->leagues){
+
+		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
+			/* Encuentro el trade */
+			if(((Trade)elemTrade->data)->ID == input){
+				/* Valido que sea el to del trade */
+				if(strcmp(((Trade)elemTrade->data)->userTo, (*me)->user) != 0){
+
+					printRedColor(answer);
+					toPrint = isNotYourTrade;
+					AddToList(toPrint,answer->msgList);
+					answer->status = ERROR;
+					releasePrintColor(answer);
+
+					rc = pthread_mutex_unlock(&game_mutex);
+
+					answer->status = ERROR;
+					communicate(ch,answer);
+					return;
+				}else{ /* Es mi trade */
+
+					if(((Trade)elemTrade->data)->state != AWAITING){
+						
+						printRedColor(answer);
+						toPrint = endedTrade;
+						AddToList(toPrint,answer->msgList);
+						answer->status = ERROR;
+						releasePrintColor(answer);
+						rc = pthread_mutex_unlock(&game_mutex);
+
+						answer->status = ERROR;
+						communicate(ch,answer);
+						return;
+					}else{
+						
+						/* LO CANCELO */
+						
+						((Trade)elemTrade->data)->state = CANCELED;
+						printGreenColor(answer);
+						toPrint = tradeCanceled;
+						AddToList(toPrint,answer->msgList);
+						answer->status = OK;
+						releasePrintColor(answer);
+					
+						/* Ya esta cancelado el trade AHORA CREO UN TRADE NUEVO */
+
+						FOR_EACH(elemTeam, ((League)elemLeague->data)->teams){
+
+							if(strcmp(((Team)elemTeam->data)->owner, ((Trade)elemTrade->data)->userFrom) == 0){
+
+								msg->data.trade_t.teamID = ((Team)elemTeam->data)->ID;
+
+								rc = pthread_mutex_unlock(&game_mutex);
+
+								executeTrade(msg,ch,me);
+								return;
+							}
+						}						
+					}		
+				}					
+			}
+		}
+	}
 	
-	
+
 	
 }
 
@@ -1283,6 +1384,13 @@ void executeJoinLeague(Msg_t msg, Channel ch, User * me){
 			CreateList(team->players);
 			
 			AddToList(team, ((League)league->data)->teams);
+			
+			/* Modifico en mi user los ids de mis ligas y la cant */
+			int * id = malloc(sizeof(int));
+			(*id) = input;
+			AddToList(id, (*me)->leaguesIDs);
+			((*me)->leagues)++;
+
 			
 			printGreenColor(answer);
 			toPrint = successfulJoin;
