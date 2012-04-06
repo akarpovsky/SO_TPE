@@ -216,6 +216,7 @@ void * creator_client_main(void * data)
 
 int main(void){
 	pthread_t creator_client_thread; // Desencola, crea, etc
+	pthread_t match_reviewer_thread;
  
  	// First of all be aware of system signals.
 	// We must exit clean :)
@@ -236,10 +237,19 @@ int main(void){
 
 	printf("In main creating thread for handling connection requests\n");
 	rc = pthread_create(&creator_client_thread, NULL, creator_client_main, NULL);
-	if (rc){
+	if (rc)
+	{
 		printf("ERROR; return code from pthread_create() is %d\n", rc);
 		exit(EXIT_FAILURE);
 	}	
+
+	printf("In main creating match reviewer thread");
+	rc = pthread_create(match_reviewer_thread, NULL, match_reviewer_main, NULL);
+	if(rc)
+	{
+		printf("ERROR; return code from phtread_create() is %d\n", rc);
+		exit(EXIT_FAILURE);
+	}
 
 
 	Msg_t auxMsg; 
@@ -261,7 +271,7 @@ int main(void){
 	return EXIT_SUCCESS;
 }
 
-void * match_reviewer_thread(void * data)
+void * match_reviewer_main(void * data)
 {
 	List players;
 

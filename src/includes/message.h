@@ -24,6 +24,9 @@
 #define DRAFT 16
 #define DRAFT_OUT 17
 #define CHOOSE 18
+#define DRAFT_TURN 19
+#define DRAFT_START 20
+#define DRAFT_END 21
 
 #define MSG_T_MAX_COMMANDS 18
 #define DRAFT_STARTED 1

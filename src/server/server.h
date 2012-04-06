@@ -47,5 +47,6 @@ void add_request(Msg_t msg, pthread_mutex_t* p_mutex, pthread_cond_t*  p_cond_va
 Request get_request(pthread_mutex_t* p_mutex);
 void * client_thread(void * ch);
 void handle_request(Request a_request);
+void * match_reviewer_main(void * data);
 
 #endif

@@ -1149,7 +1149,70 @@ List loadMatch(FILE * file){
 
 void checkMatches(void)
 {
+	int in_fd = inotify_init();
+	void stream[INOTIFY_BUFFER_SIZE];
+	char * path;
+	char filename[FILENAME_MAX];
+	struct inotify_event * ine;
+	int closeFlag = FALSE;
+	List l;
+	FILE * fp;
 
+	if(in_fd == -1)
+	{
+		perror("Inotify could not be initialized");
+		exit(EXIT_FAILURE);
+	}
+
+	int in_wd = inotify_add_watch(in_fd, MATCHES_NEW, IN_MOVED_TO | IN_CREATE);
+
+	do
+	{
+		int nread;
+
+		if((nread = read(in_fd, stream, INOTIFY_BUFFER_SIZE)) != -1)
+		{
+			int i;
+			for(i = 0; i <= nread; i++)
+			{
+				ine = ((struct inotify_event*)stream)[i];
+				strcpy(filename, ine->name);
+				path = malloc(strlen(MATCHES_NEW)+ine->len+1);
+				strcpy(path, MATCHES_NEW);
+				strcat(path, filename);
+
+				if((fp = fopen(path,"r")) == NULL)
+				{
+					printf("Impossible to read file: %s\n", filename);
+					close(fp);
+
+					if((l = loadMatch(fp)) != NULL){
+						updatePlayers(l);
+						close(fp);
+						Element e;
+						FOR_EACH(e, l)
+						{
+							free(((Player)e->data)->name);
+							free(e->data);
+						}
+						e = l->pFirst;
+						Element oe;
+						oe = e->next;
+						while(e != NULL)
+						{
+							free(e);
+							e = oe;
+							oe = ((e != NULL)?e->next:NULL);
+						}
+						dumpMatch(path);
+
+					}
+				}
+				free(path);
+			}
+
+		}
+	}while(closeFlag != TRUE);
 }
 
 void updatePlayers(List l){
