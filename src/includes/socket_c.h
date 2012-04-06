@@ -6,6 +6,9 @@
 #ifndef SOCKET_C_H_
 #define SOCKET_C_H_
 
+#include "../includes/sockets_contact_serialization.h"
+
+
 
 Msg_s communicate(Msg_t msg);
 

@@ -11,7 +11,7 @@
 #include "structs.h"
 #include "message.h"
 #include "../IO/io.h"
-#include "../utils/PrintColor.h"
+#include "../utils/printColor.h"
 
 #ifdef fifo
 	#include "fifo_s.h"

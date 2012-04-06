@@ -1,8 +1,6 @@
 /*
  * message.c
  *
- *  Created on: 28/03/2012
- *      Author: neon
  */
 
 #include "../includes/message_serialization.h"
@@ -10,7 +8,6 @@
 Msg_t deserializeMsg(void * stream){
 
 	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
-	printf("En deserialize !\n");
 
 	Msg_t (*_deserialize_t[MSG_T_MAX_COMMANDS])(Msg_t msg, void * stream) = {
 			deserialize_contact,
@@ -88,7 +85,7 @@ void * serialize_s (Msg_s msg){
 
 	memcpy(msgstraux, &msgSize, sizeof(int));
 	msgstraux += sizeof(int);
-	printf("Size = %d\n", msgSize);
+	// printf("Size = %d\n", msgSize);
 
 	memcpy(msgstraux, &(msg->responseType), sizeof(int));
 	msgstraux += sizeof(int);
@@ -96,18 +93,18 @@ void * serialize_s (Msg_s msg){
 	memcpy(msgstraux, &(msg->status), sizeof(int));
 	msgstraux += sizeof(int);
 
-	printf("Status = %d\n", msg->status);
+	// printf("Status = %d\n", msg->status);
 
 	memcpy(msgstraux, &(msg->msgList->NumEl), sizeof(int));
 	msgstraux += sizeof(int);
 
-	printf("Cant elem = %d\n", NumEl);
+	// printf("Cant elem = %d\n", NumEl);
 
 	i = 0;
 
 	FOR_EACH(e, msg->msgList){
 		strcpy(msgstraux, e->data);
-		printf("Mensaje: %s\n", (char *) e->data);
+		// printf("Mensaje: %s\n", (char *) e->data);
 		msgstraux += sizes[i];
 
 		i++;
