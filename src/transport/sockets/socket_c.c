@@ -111,7 +111,7 @@ Msg_s rcvmessage(void){
 		}
 		
 		if(msgSize > 0){
-			// printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
+			printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
 
 			aux = bytestring = calloc(msgSize, sizeof(char));
 								

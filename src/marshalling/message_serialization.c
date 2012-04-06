@@ -498,36 +498,6 @@ Msg_t deserialize_login (Msg_t msg, void * stream){
 	return msg;
 }
 
-// void * serialize_login (Msg_t msg){
-// 	int msgSize;
-// 	void * msgstraux;
-// 	void * msgstr;
-// 	int passSize, userSize;
-
-// 	passSize = strlen(msg->data.login_t.pass)+1;
-// 	userSize = strlen(msg->data.login_t.user)+1;
-// 	msgSize = 3*sizeof(int)+passSize+userSize;
-
-// 	msgstraux = msgstr = calloc(1, msgSize+sizeof(int));
-
-// 	memcpy(msgstraux, &(msgSize), sizeof(int));
-// 	msgstraux += sizeof(int);
-// 	memcpy(msgstraux, &(msg->type), sizeof(int));
-// 	msgstraux += sizeof(int);
-
-// 	memcpy(msgstraux, &userSize, sizeof(int));
-// 	msgstraux += sizeof(int);
-// 	passSize(msgstraux, msg->data.login_t.user, userSize);
-// 	msgstraux += userSize;
-
-// 	memcpy(msgstraux, &passSize, sizeof(int));
-// 	msgstraux += sizeof(int);
-// 	memcpy(msgstraux, msg->data.login_t.pass, passSize);
-// 	msgstraux += passSize;
-
-// 	return msgstr;
-// }
-
 Msg_t deserialize_listLeagues (Msg_t msg, void * stream){
 
 	/*

@@ -8,8 +8,6 @@
 #include "../../includes/share_ex.h"
 #include "../../includes/shmm_s.h"
 
-
-
 int fdShMem; // Shared memory handle file descriptor
 int cantClients = 0; 
 int newconnection = 0;
@@ -17,7 +15,6 @@ void * bufferShMem; // Where shared data will be!
 Sem server_lock_sem; // Pointer to server semaphore
 Sem server_contact_sem; // Pointer to server semaphore
 Sem response_contact_sem;
-
 
 /**
 * Allocates a shared memory segment.
@@ -66,22 +63,21 @@ void up(sem_t * sem){
 }
 
 
-void closeServer(char * server_path){
-	// This function removes the created socket file in /tmp/
-	// unlink(server_path);
-	// close(sockfd);
+void closeMainServer(){
+	// This function provides a clean exit for the IPC
 
+	close(fdShMem); // Shared memory handle file descriptor
+	sem_unlink(SERVER_SEM); // Pointer to server semaphore
+	sem_unlink(SERVER_CONTACT_SEM); // Pointer to server semaphore
+	sem_unlink(RESPONSE_CONTACT_SEM); // Pointer to server semaphore
 	return ;
 }
 
 void sigint(){  
 	signal(SIGINT,sigint); /* reset signal */
 	printf("<LOG shmm_s.c> Server have received a SIGINT. Close connections, free memory, save data and go away! <end> \n");
-	// closeServer(SERVER_PATH);
-	close(fdShMem); // Shared memory handle file descriptor
-	sem_unlink(SERVER_SEM); // Pointer to server semaphore
-	sem_unlink(SERVER_CONTACT_SEM); // Pointer to server semaphore
-	sem_unlink(RESPONSE_CONTACT_SEM); // Pointer to server semaphore
+	closeMainServer();
+
 	exit(EXIT_FAILURE);
 }
 
@@ -181,7 +177,7 @@ Channel createChannel(Msg_t msg)
 Msg_s establishChannel(Channel ch)
 {
 
-	Msg_s serverMsg = (Msg_s) createMsg_s();
+	Msg_s serverMsg = (Msg_s) createMsg_s(CONTACT);
 	if(cantClients > MAX_CLIENTS){
 		serverMsg->status = -1;
 	}else{
@@ -288,6 +284,10 @@ Msg_t IPClisten(Channel ch){
 	}while(rcvFlag != TRUE);
 
 	return msg;
+}
+
+Msg_t rcvmessage(Channel ch){
+
 }
 
 
