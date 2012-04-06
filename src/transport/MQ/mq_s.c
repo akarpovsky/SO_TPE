@@ -196,8 +196,48 @@ Msg_t IPClisten(Channel ch){
 						
 			case TRADE_WITHDRAW:
 			case TRADE_ACCEPT:
-			case TRADE_NEGOTIATE:
 			
+						/* Recibo ID */
+						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						msg->data.trade_t.tradeID = num.dataInt.num;
+						
+						break;
+			
+			case TRADE_NEGOTIATE:
+				
+						/* Escucho size de from */
+						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						sizeString = num.dataInt.num;
+						msg->data.trade_t.from = (char *) malloc(sizeString);
+						
+						/* Recibo from */
+						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						strcpy(msg->data.trade_t.from,string.dataString.string);
+						
+						/* Escucho size de to */
+						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						sizeString = num.dataInt.num;
+						msg->data.trade_t.to = (char *) malloc(sizeString);
+						
+						/* Recibo to */
+						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
+								perror("Error in msgrcv");
+								exit(EXIT_FAILURE);
+						}
+						strcpy(msg->data.trade_t.to,string.dataString.string);
+						
 						/* Recibo ID */
 						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
 								perror("Error in msgrcv");

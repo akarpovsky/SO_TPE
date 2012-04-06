@@ -190,7 +190,6 @@ int sendmessage(Msg_t msg){
 
 		case TRADE_WITHDRAW:
 		case TRADE_ACCEPT:
-		case TRADE_NEGOTIATE:
 			
 			/* Mando TradeID */
 			toSendNum.dataInt.num = msg->data.trade_t.tradeID;
@@ -198,6 +197,42 @@ int sendmessage(Msg_t msg){
 				perror("msgsnd");
 			}
 			break;
+			
+		case TRADE_NEGOTIATE:
+			
+			/* Mando size de from */
+			size = strlen(msg->data.trade_t.from) + 1;
+			toSendNum.dataInt.num = size;
+			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
+				perror("msgsnd");
+			}
+			
+			/* Mando from */
+			strcpy(toSendString.dataString.string,msg->data.trade_t.from);
+			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
+				perror("msgsnd");
+			}
+			
+			/* Mando size de to */
+			size = strlen(msg->data.trade_t.to) + 1;
+			toSendNum.dataInt.num = size;
+			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
+				perror("msgsnd");
+			}
+			
+			/* Mando to */
+			strcpy(toSendString.dataString.string,msg->data.trade_t.to);
+			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
+				perror("msgsnd");
+			}
+			
+			/* Mando TradeID */
+			toSendNum.dataInt.num = msg->data.trade_t.tradeID;
+			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
+				perror("msgsnd");
+			}
+			break;
+		
 		
 		case JOIN_LEAGUE:
 		case DRAFT:
@@ -294,6 +329,7 @@ Msg_s _rcvmessage(void){
 	return response;
 	
 }
+
 
 void sigint(){
 	signal(SIGINT, sigint);
