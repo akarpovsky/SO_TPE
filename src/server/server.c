@@ -163,14 +163,7 @@ void * client_thread(void * ch){
 
 	for(;;){
 		fromClient = IPClisten(client_channel);
-		if(fromClient->type == DRAFT)
-		{
-
-		}
-		else
-		{
-			execute(fromClient, client_channel, &me);
-		}
+		execute(fromClient, client_channel, &me);
 
 	}
 

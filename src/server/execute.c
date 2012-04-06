@@ -1390,7 +1390,9 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 	Element elemLeague, elemID;
 	int flag;
 
+	printf("Before the mutex\n");
 	rc = pthread_mutex_lock(&game_mutex);
+	printf("After the mutex\n");
 
 	if(*me == NULL)
 	{
@@ -1480,6 +1482,12 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 			if(((League)elemLeague->data)->status == INACTIVE){
 
 				((League)elemLeague->data)->cantDraft++;
+
+				printGreenColor(answer);
+				AddToList(draftInSuccessful, answer->msgList);
+				answer->status = OK;
+				releasePrintColor(answer);
+				communicate(ch, answer);
 
 				if(((League)elemLeague->data)->cantDraft == CANT_TEAMS){
 
