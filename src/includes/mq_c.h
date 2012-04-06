@@ -1,4 +1,4 @@
-#ifndef MQ_C_H
+ #ifndef MQ_C_H
 #define MQ_C_H
 
 #define MAXSIZE	128

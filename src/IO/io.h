@@ -78,4 +78,8 @@ void dumpMatch(char * f);
 void checkMatchesDir(void);
 void checkMatches(void);
 
+void saveUser(char * path, User usr);
+void saveLeague(char * path, League lg);
+void saveGame(void);
+
 #endif
