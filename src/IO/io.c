@@ -753,67 +753,6 @@ char * objToFile(int OBJ_TYPE, void * obj){
 	return NULL;
 }
 
-// char * userToString(User usr)
-// {
-// 	char * str;
-// 	int strSize;
-// 	int userSize = strlen(usr->user)+1;
-// 	int passSize = strlen(usr->pass)+1;
-
-// 	int intMaxCharSize = DIGIT_COUNT(INT_MAX) + 1;
-
-// 	Element e;
-
-// 	if((e = (Element) malloc(sizeof(lelement))) == NULL)
-// 	{
-// 		perror("userToString: not enough memory");
-// 		exit(1);
-// 	}
-
-// 	char * leaguesIDstr;
-
-// 	if((leaguesIDstr = (char*)malloc(sizeof(char)*intMaxCharSize*usr->leagues)) == NULL)
-// 	{
-// 		perror("userToString: not enough memory");
-// 		exit(1);
-// 	}
-
-// 	int i = 0;
-
-// 	FOR_EACH(e, usr->leaguesIDs){
-// 		itoa(*((int*)e->data), leaguesIDstr+i);
-// 		i += strlen(leaguesIDstr+i);
-// 		leaguesIDstr[i] = '\n';
-// 		i++;
-// 	}
-
-// 	leaguesIDstr[i-1] = '\0';
-
-// 	int leaguesQtySize = ((int)log10(usr->leagues))+1;
-// 	strSize = passSize + userSize + leaguesQtySize + i * sizeof(char);
-
-// 	if((str = (char*)malloc(strSize)) == NULL)
-// 	{
-// 		perror("userToString: not enought memory");
-// 		exit(1);
-// 	}
-
-// 	strcpy(str, usr->user);
-// 	str[userSize-1] = '\n';
-// 	strcpy(str+userSize, usr->pass);
-// 	str[userSize+passSize-1] = '\n';
-// 	itoa(usr->leagues, str+userSize+passSize);
-// 	str[userSize+passSize+leaguesQtySize-1] = '\n';
-// 	strcpy(str+userSize+passSize+leaguesQtySize, leaguesIDstr);
-
-// 	free(leaguesIDstr);
-
-// 	return str;
-
-// }
-
-
-
 char * userToString(User usr)
 {
 	char * str = NULL;
@@ -867,196 +806,54 @@ char * leagueToString(League lg){
 
 	Element e;
 
+	if((e = (Element) malloc(sizeof(lelement))) == NULL)
+	{
+		perror("userToString: not enough memory");
+		exit(1);
+	}
+
 	asprintf(&str, "%d\n%s\n%d\n%d", lg->ID, lg->name, lg->status, lg->cantAvailablePlayers);
 
-	FOR_EACH(e, lg->availablePlayers){
-
-		asprintf(&str, "%s\n%s\n%d", str, ((Player)e->data)->name, ((Player)e->data)->points);
-
+	if(lg->availablePlayers->NumEl > 0){
+		FOR_EACH(e, lg->availablePlayers){
+			asprintf(&str, "%s\n%s\n%d", str, ((Player)e->data)->name, ((Player)e->data)->points);
+		}
+		asprintf(&str, "%s\n", str);
 	}
 
 	return str;
 
 }
 
-// char * leagueToString(League lg){
-
-// 	char * str;
-// 	int nameSize = strlen(lg->name)+1;
-// 	int idSize = DIGIT_COUNT(lg->ID)+1;
-// 	int statusSize = DIGIT_COUNT(lg->status)+1;
-// 	int qtyAvSize = DIGIT_COUNT(lg->cantAvailablePlayers)+1;
-// 	int avPlyrsSize = 0;
-
-// 	int * plyrsNamesSizes = malloc(sizeof(int)*lg->cantAvailablePlayers);
-// 	int * plyrsPtsSizes = malloc(sizeof(int)*lg->cantAvailablePlayers);
-
-// 	int i = 0;
-
-// 	if(plyrsNamesSizes == NULL || plyrsPtsSizes == NULL){
-// 		perror("leagueToString: not enough memory");
-// 		exit(1);
-// 	}
-
-// 	Element e;
-
-// 	FOR_EACH(e, lg->availablePlayers){
-// 		avPlyrsSize += (plyrsNamesSizes[i] = strlen(((Player)e->data)->name)+1) + (plyrsPtsSizes[i] = DIGIT_COUNT(((Player)e->data)->points)+1);
-// 		i++;
-// 	}
-
-// 	str = malloc(nameSize+idSize+statusSize+qtyAvSize+avPlyrsSize);
-
-// 	if(str == NULL)	{
-// 		perror("leagueToString: not enough memory");
-// 		exit(1);
-// 	}
-
-// 	char * straux = str;
-// 	itoa(lg->ID, straux);
-// 	straux[idSize-1] = '\n';
-// 	straux+=idSize;
-// 	strcpy(straux, lg->name);
-// 	straux[nameSize-1] = '\n';
-// 	straux += nameSize;
-// 	itoa(lg->status, straux);
-// 	straux[statusSize-1] = '\n';
-// 	straux += statusSize;
-// 	itoa(lg->cantAvailablePlayers, straux);
-// 	straux[qtyAvSize-1] = '\n';
-// 	straux += qtyAvSize;
-
-// 	i = 0;
-
-// 	FOR_EACH(e, lg->availablePlayers){
-// 		strcpy(straux, ((Player)e->data)->name);
-// 		straux[plyrsNamesSizes[i]-1] = '\n';
-// 		straux += plyrsNamesSizes[i];
-// 		itoa(((Player)e->data)->points, straux);
-// 		straux[plyrsPtsSizes[i]-1] = '\n';
-// 		straux += plyrsPtsSizes[i];
-
-// 		i++;
-// 	}
-
-// 	straux[-1] = '\0';
-
-// 	free(plyrsNamesSizes);
-// 		free(plyrsPtsSizes);
-
-// 	return str;
-
-// }
-
-// char * tradeToString(Trade tr)
-// {
-// 	char * str;
-// 	int usrFSize = strlen(tr->userFrom)+1;
-// 	int usrTSize = strlen(tr->userTo)+1;
-// 	int plyFSize = strlen(tr->playerFrom)+1;
-// 	int plyTSize = strlen(tr->playerTo)+1;
-
-// 	char * straux = str = malloc(sizeof(char)*(usrFSize+usrTSize+plyFSize+plyTSize+DIGIT_COUNT(tr->ID)+1+DIGIT_COUNT(tr->state)+1));
-
-// 	if(str == NULL){
-// 		perror("tradeToString: not enough memory");
-// 		exit(1);
-// 	}
-
-// 	itoa(tr->ID, straux);
-// 	straux[DIGIT_COUNT(tr->ID)] = '\n';
-// 	straux += DIGIT_COUNT(tr->ID)+1;
-// 	itoa(tr->state, straux);
-// 	straux[DIGIT_COUNT(tr->state)] = '\n';
-// 	straux += DIGIT_COUNT(tr->state)+1;
-// 	strcpy(straux, tr->userFrom);
-// 	straux[usrFSize-1] = '\n';
-// 	straux += usrFSize;
-// 	strcpy(straux,tr->userTo);
-// 	straux[usrTSize-1] = '\n';
-// 	strcpy(straux, tr->playerFrom);
-// 	straux[plyFSize-1] = '\n';
-// 	straux += plyFSize;
-// 	strcpy(straux, tr->playerTo);
-
-// 	return str;
-// }
-
 char * tradeToString(Trade tr)
 {
 	char * str;
-	asprintf(&str, "%d\n%d\n%s\n%s\n%s\n%s", tr->ID, tr->state, tr->userFrom, tr->userTo, tr->playerFrom, tr->playerTo);
+	asprintf(&str, "%d\n%d\n%s\n%s\n%s\n%s\n", tr->ID, tr->state, tr->userFrom, tr->userTo, tr->playerFrom, tr->playerTo);
 	return str;
 }
 
-// char * teamToString(Team t)
-// {
-// 	char * str;
-// 	int ownerSize = strlen(t->owner)+1;
-// 	int * plyrsNamesSizes = malloc(sizeof(int)*t->cantPlayers);
-// 	int * plyrsPtsSizes = malloc(sizeof(int)*t->cantPlayers);
-// 	int avPlyrsSize = 0;
-// 	int i;
-// 	Element e;
-
-// 	FOR_EACH(e, t->players){
-// 		avPlyrsSize += (plyrsNamesSizes[i] = strlen(((Player)e->data)->name)+1) + (plyrsPtsSizes[i] = DIGIT_COUNT(((Player)e->data)->points)+1);
-// 		i++;
-// 	}
-
-// 	char * straux = str = malloc(ownerSize + avPlyrsSize + DIGIT_COUNT(t->ID)+1 + DIGIT_COUNT(t->points)+1 + DIGIT_COUNT(t->cantPlayers)+1);
-
-// 	if(str == NULL)
-// 	{
-// 		perror("teamToString: not enough memory");
-// 		exit(1);
-// 	}
-
-// 	itoa(t->ID, straux);
-// 	straux[DIGIT_COUNT(t->ID)] = '\n';
-// 	straux += DIGIT_COUNT(t->ID)+1;
-// 	strcpy(straux, t->owner);
-// 	straux[ownerSize-1] = '\n';
-// 	straux += ownerSize;
-// 	itoa(t->points, straux);
-// 	straux[DIGIT_COUNT(t->points)] = '\n';
-// 	straux += DIGIT_COUNT(t->points)+1;
-// 	itoa(straux, t->cantPlayers);
-// 	straux[DIGIT_COUNT(t->cantPlayers)] = '\n';
-// 	straux += DIGIT_COUNT(t->cantPlayers)+1;
-
-// 	i = 0;
-
-// 	FOR_EACH(e, t->players){
-// 		strcpy(straux, ((Player)e->data)->name);
-// 		straux[plyrsNamesSizes[i]-1] = '\n';
-// 		straux += plyrsNamesSizes[i];
-// 		itoa(((Player)e->data)->points, straux);
-// 		straux[plyrsPtsSizes[i]-1] = '\n';
-// 		straux += plyrsPtsSizes[i];
-
-// 		i++;
-// 	}
-
-// 	straux[-1] = '\0';
-
-// 	free(plyrsNamesSizes);
-// 	free(plyrsPtsSizes);
-
-// 	return str;
-// }
 
 char * teamToString(Team t)
 {
 	char * str;
 
 	Element e;
+
+	if((e = (Element) malloc(sizeof(lelement))) == NULL)
+	{
+		perror("userToString: not enough memory");
+		exit(1);
+	}
+
 	asprintf(&str, "%d\n%s\n%d\n%d", t->ID, t->owner, t->points, t->cantPlayers);
 
-	FOR_EACH(e, t->players){
+	if(t->players->NumEl > 0){
+		FOR_EACH(e, t->players){
 
-		asprintf(&str, "%s\n%s\n%d", str, ((Player)e->data)->name, ((Player)e->data)->points);
+			asprintf(&str, "%s\n%s\n%d", str, ((Player)e->data)->name, ((Player)e->data)->points);
 
+		}
+			asprintf(&str, "%s\n", str);
 	}
 
 	return str;
@@ -1409,13 +1206,15 @@ void saveGame(void){
 	rc = pthread_mutex_lock(&game_mutex);
 	printf("Saving game ... \n");
 
-	// loadUsers("./res/users/");
-	// loadLeagues("./res/leagues/");
-	
 	char * filePath;
 
 	/* Salvo usuarios */
 	Element user_ptr;
+	if((user_ptr = (Element) malloc(sizeof(lelement))) == NULL)
+	{
+		perror("userToString: not enough memory");
+		exit(1);
+	}	
 	FOR_EACH(user_ptr, gameAux->users){
 		asprintf(&filePath, "./res/users/%s.user", ((User) user_ptr->data)->user);
 		saveUser(filePath, ((User) user_ptr->data));
@@ -1424,33 +1223,147 @@ void saveGame(void){
 
 	/* Salvo ligas */
 	Element league_ptr;
+	if((league_ptr = (Element) malloc(sizeof(lelement))) == NULL)
+	{
+		perror("userToString: not enough memory");
+		exit(1);
+	}
 	FOR_EACH(league_ptr, gameAux->leagues){
-	
+		asprintf(&filePath, "./res/leagues/%d", ((League) league_ptr->data)->ID);
+		printf("Calling save league with %s\n", filePath);
+		saveLeague(filePath, ((League) league_ptr->data));
 	}
 	
 	/* Game data can continue to be used */
 	rc = pthread_mutex_unlock(&game_mutex);
 
 	printf("Finished saving game ... \n");
+	free(league_ptr);
+	free(user_ptr);
+	free(filePath);
 	return ;
 }
 
 void saveUser(char * path, User usr){
 
 	FILE * userFILE;
-	int * id;
 	
-	userFILE = fopen(path,"w+");
+	userFILE = fopen(path,"w");
 	
 	if(userFILE == NULL){
 		perror("User file could not be created.");
 		exit(EXIT_FAILURE);
 	}
 
+	printf("Saving user in %s\n", path);
+
 	char * usertBytestrem = objToFile(USER_OBJ, usr);
 	fprintf(userFILE, "%s", usertBytestrem);
 		
 	fclose(userFILE);
+
+}
+
+void saveTeam(char * path, Team tm){
+
+	FILE * teamFILE;
+	
+	teamFILE = fopen(path,"w");
+	
+	if(teamFILE == NULL){
+		perror("User file could not be created.");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Saving team in %s\n", path);
+
+	char * teamBytestrem = objToFile(TEAM_OBJ, tm);
+	fprintf(teamFILE, "%s", teamBytestrem);
+		
+	fclose(teamFILE);
+	free(teamBytestrem);
+
+}
+
+void saveTrade(char * path, Trade t){
+	FILE * tradeFILE;
+	tradeFILE = fopen(path,"w");
+	
+	if(tradeFILE == NULL){
+		perror("User file could not be created.");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Saving trade file in %s\n", path);
+
+	char * tradeBytestrem = objToFile(TRADE_OBJ, t);
+	fprintf(tradeFILE, "%s", tradeBytestrem);
+		
+	fclose(tradeFILE);
+	free(tradeBytestrem);
+
+}
+
+void saveLeague(char * path, League lg){
+
+	FILE * leagueFILE;
+
+	int status;
+	status = mkdir(path, 0666);
+	if(status == -1){
+		perror("League directory could not be created");
+	}
+
+	printf("Created league directory %s\n", path);
+	
+	char * teamPath;
+	asprintf(&teamPath, "%s/teams/", path);
+	status = mkdir(teamPath, 0666);
+	if(status == -1){
+		perror("Team directory could not be created");
+	}
+
+	char * tradesPath;
+	asprintf(&tradesPath, "%s/trades/", path);
+	status = mkdir(tradesPath, 0666);
+	if(status == -1){
+		perror("Trades directory could not be created");
+	}
+
+	
+	char * filePath;
+	asprintf(&filePath, "%s/%d.league", path, lg->ID);
+
+	printf("Saving league file in %s\n", filePath);
+	leagueFILE = fopen(filePath,"w");
+	
+	if(leagueFILE == NULL){
+		perror("League file could not be created.");
+		exit(EXIT_FAILURE);
+	}
+
+	char * leagueBytestrem = objToFile(LEAGUE_OBJ, lg);
+	fprintf(leagueFILE, "%s", leagueBytestrem);
+	free(leagueBytestrem);
+
+	Element team_ptr = malloc(sizeof(lelement));
+	FOR_EACH(team_ptr, lg->teams){
+		filePath = NULL;
+		asprintf(&filePath, "%s%s.team", teamPath, ((Team) team_ptr->data)->owner);
+		saveTeam(filePath, ((Team) team_ptr->data));
+	}
+
+	Element trade_ptr = malloc(sizeof(lelement));
+	FOR_EACH(trade_ptr, lg->trades){
+		filePath = NULL;
+		asprintf(&filePath, "%s%d.trade", tradesPath, ((Trade) trade_ptr->data)->ID);
+		saveTrade(filePath, ((Trade) trade_ptr->data));
+	}
+
+	fclose(leagueFILE);
+	free(filePath);
+	free(team_ptr);
+	free(trade_ptr);
 
 }
 
