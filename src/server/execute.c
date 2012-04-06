@@ -1306,7 +1306,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 			/* Caso que yo no pertenezca a la league */
 			flag = 0;
 			FOR_EACH(elemID, (*me)->leaguesIDs){
-				if(((int*)elemID->data) == ((League)elemLeague->data)->ID){
+				if(*((int*)elemID->data) == ((League)elemLeague->data)->ID){
 					flag = 1;
 					break;
 				}
@@ -1413,7 +1413,6 @@ void makeDraft(League league,Channel ch, User * me)
 	char * player;
 	Element elemPlayer,elemTeam;
 	Msg_s toClient;
-	int flag;
 
 	while(league->status == DRAFTING)
 	{
@@ -1450,7 +1449,6 @@ void makeDraft(League league,Channel ch, User * me)
 			if(strcmp(league->turn, (*me)->user) == 0)
 			{
 				player = fromClient->data.name;
-				flag = 0;
 
 				FOR_EACH(elemPlayer, league->availablePlayers)
 				{
@@ -1491,7 +1489,7 @@ void makeDraft(League league,Channel ch, User * me)
 			toClient = createMsg_s(CHOOSE);
 			toClient->status = !OK;
 			AddToList(cannotChoose, toClient->msgList);
-			communicate(toClient);
+			communicate(ch, toClient);
 		}
 		sleep(1);
 	}

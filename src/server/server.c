@@ -244,7 +244,7 @@ int main(void){
 	}	
 
 	printf("In main creating match reviewer thread");
-	rc = pthread_create(match_reviewer_thread, NULL, match_reviewer_main, NULL);
+	rc = pthread_create(&match_reviewer_thread, NULL, match_reviewer_main, NULL);
 	if(rc)
 	{
 		printf("ERROR; return code from phtread_create() is %d\n", rc);
@@ -273,7 +273,6 @@ int main(void){
 
 void * match_reviewer_main(void * data)
 {
-	List players;
 
 	checkMatchesDir();
 

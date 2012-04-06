@@ -75,6 +75,7 @@ char * teamToString(Team t);
 void updatePlayers(List l);
 List loadMatch(FILE * fp);
 void dumpMatch(char * f);
+void checkMatchesDir(void);
 void checkMatches(void);
 
 #endif
