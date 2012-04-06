@@ -40,5 +40,9 @@ char tradeAccepted[] = "Trade accepted.";
 char statusString[] = "Status:";
 char unavailablePlayerF[] = "The other team doesn't have the player anymore.";
 char unavailablePlayerT[] = "Your team doesn't have the player anymore.";
+char alreadyActive[] = "You can't join this league, is already active.";
+char leagueFull[] = "The league is full";
+char alreadyBelongToLeague[] = "You already belong to that league.";
+char successfulJoin[] = "You have successfully joined the league";
 
 #endif

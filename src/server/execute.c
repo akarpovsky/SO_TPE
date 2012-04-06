@@ -108,7 +108,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 
 		case JOIN_LEAGUE:
-//					executeJoinLeague(msg,ch);
+					executeJoinLeague(msg,ch,me);
 					break;
 
 		case CREATE_LEAGUE:
@@ -1133,7 +1133,6 @@ void executeLogout(Msg_t msg, Channel ch, User * me){
 		printGreenColor(answer);
 		toPrint = loggedOut;
 		AddToList(toPrint,answer->msgList);
-		answer->status = ERROR;
 		releasePrintColor(answer);
 
 		answer->status = OK;
@@ -1144,6 +1143,132 @@ void executeLogout(Msg_t msg, Channel ch, User * me){
 		return;
 	}
 
+}
+
+void executeJoinLeague(Msg_t msg, Channel ch, User * me){
+	
+	Msg_s answer = createMsg_s(JOIN_LEAGUE);
+	char * toPrint;
+	int input = msg->data.ID;
+	int rc;
+	Element league, elemTeam;
+	Team team;
+	
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
+		communicate(ch,answer);
+		return;
+	}
+
+	rc = pthread_mutex_lock(&game_mutex);
+
+
+	if(input > gameAux->cantTrades){
+
+		printRedColor(answer);
+		toPrint = incorrectID;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
+
+		rc = pthread_mutex_unlock(&game_mutex);
+
+		communicate(ch,answer);
+		return;
+	}
+	
+	FOR_EACH(league, gameAux->leagues){
+		
+		/* Encontre la liga */
+		if(((League)league->data)->ID == input){
+			
+			/* si ya esta activa */
+			if(((League)league->data)->status == ACTIVE){
+				printRedColor(answer);
+				toPrint = alreadyActive;
+				AddToList(toPrint,answer->msgList);
+				answer->status = ERROR;
+				releasePrintColor(answer);
+
+				rc = pthread_mutex_unlock(&game_mutex);
+
+				communicate(ch,answer);
+				return;
+			}
+			
+			/* si esta llena */
+			if(((League)league->data)->teams->NumEl == CANT_TEAMS){
+				
+				printRedColor(answer);
+				toPrint = leagueFull;
+				AddToList(toPrint,answer->msgList);
+				answer->status = ERROR;
+				releasePrintColor(answer);
+
+				rc = pthread_mutex_unlock(&game_mutex);
+
+				communicate(ch,answer);
+				return;
+			}
+			
+			/* Si ya estoy en la liga */
+			FOR_EACH(elemTeam, ((League)league->data)->teams){
+				if(strcmp(((Team)elemTeam->data)->owner, (*me)->user) == 0){
+					printRedColor(answer);
+					toPrint = alreadyBelongToLeague;
+					AddToList(toPrint,answer->msgList);
+					answer->status = ERROR;
+					releasePrintColor(answer);
+
+					rc = pthread_mutex_unlock(&game_mutex);
+
+					communicate(ch,answer);
+					return;
+				}
+			}
+			
+			team = (Team)malloc(sizeof(team_t));
+			if(team == NULL){
+				perror("Insufficient memory\n");
+				exit(EXIT_FAILURE);
+			}
+			
+			(gameAux->cantTeams)++;
+			
+			team->ID = gameAux->cantTeams;
+			team->owner = (*me)->user;
+			team->points = 0;
+			team->cantPlayers = 0;
+			team->players = (List) malloc(sizeof(llist));
+			if(team->players == NULL){
+				perror("Insufficient memory\n");
+				exit(EXIT_FAILURE);
+			}
+			
+			CreateList(team->players);
+			
+			AddToList(team, ((League)league->data)->teams);
+			
+			printGreenColor(answer);
+			toPrint = successfulJoin;
+			AddToList(toPrint,answer->msgList);
+			releasePrintColor(answer);
+
+			rc = pthread_mutex_unlock(&game_mutex);
+
+			answer->status = OK;
+			communicate(ch,answer);
+			return;
+			
+		}
+		
+	}
+	
 }
 
 void executeDraft(Msg_t msg, Channel ch, User * me){
