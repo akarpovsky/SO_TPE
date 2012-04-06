@@ -619,7 +619,6 @@ void executeTradeShow(Msg_t msg, Channel ch){
 		FOR_EACH(elemTrade, ((League)elemLeague->data)->trades){
 
 			if(((Trade)elemTrade->data)->ID == input){
-
 				switch(((Trade)elemTrade->data)->state){
 
 					case AWAITING:
@@ -629,17 +628,18 @@ void executeTradeShow(Msg_t msg, Channel ch){
 							break;
 
 					case CANCELED:
-							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[AWAITING]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,31);
+							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[CANCELED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,31);
 							AddToList(toPrint,answer->msgList);
 							releasePrintColor(answer);
 							break;
 					case ACCEPTED:
 
-							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[AWAITING]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32);
+							asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[ACCEPTED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32);
 							AddToList(toPrint,answer->msgList);
 							releasePrintColor(answer);
 							break;
-
+					default:
+						printf("AAAAAAAAAAAAAAA\n");
 				}
 
 				rc = pthread_mutex_unlock(&game_mutex);
