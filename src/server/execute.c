@@ -100,7 +100,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 
 		case TRADE_NEGOTIATE:
-//					executeTradeNegotiate(msg,ch,me);
+					executeTradeNegotiate(msg,ch,me);
 					break;
 
 		case LOGOUT:
@@ -1118,6 +1118,14 @@ void executeTradeAccept(Msg_t msg, Channel ch, User * me){
 		}
 	}	
 }
+
+void executeTradeNegotiate(Msg_t msg, Channel ch,User * me){
+	
+	
+	
+	
+}
+
 
 void executeLogout(Msg_t msg, Channel ch, User * me){
 
