@@ -1,5 +1,7 @@
 #include "./server.h"
 
+#define SAVING_DELAY 30
+
 /* List for mantaining clients threads */
 List clientThreadsList;
 
@@ -163,14 +165,7 @@ void * client_thread(void * ch){
 
 	for(;;){
 		fromClient = IPClisten(client_channel);
-		if(fromClient->type == DRAFT)
-		{
-
-		}
-		else
-		{
-			execute(fromClient, client_channel, &me);
-		}
+		execute(fromClient, client_channel, &me);
 
 	}
 
@@ -275,7 +270,7 @@ int main(void){
 		exit(EXIT_FAILURE);
 	}
 
-	int save_time = 5;
+	int save_time = SAVING_DELAY;
 	printf("In main creating saver thread");
 	rc = pthread_create(&saver_thread, NULL, saver_thread_main, save_time);
 	if(rc)

@@ -30,6 +30,7 @@ char successfulTrade[] = "Trade created successfully.";
 char alreadyDrafted[] = "League already drafted.";
 char notEnoughTeams[] = "There is not enough teams to start the draft.";
 char invalidCommand[] = "This command is not supported.";
+char draftInSuccessful[] = "You entered draft mode successfully.";
 char draftOutSuccessful[] = "Draft out successfully.";
 char cannotChoose[] = "Is not your turn to choose!";
 char canChoose[] = "Is your turn. Choose a player";

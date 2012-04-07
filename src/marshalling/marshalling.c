@@ -444,7 +444,7 @@ void draft_c(char * id){
 		draftFlag = TRUE;
 		do
 		{
-		//	response = rcvmessage();
+			response = rcvmessage();
 			if(response == NULL){
 				consoleForDraft();
 			}
@@ -515,13 +515,16 @@ void draftout_c(){
 	FOR_EACH(elem, response->msgList){
 		printf("%s\n",(char*)(elem->data));
 	}
-	
-	draftFlag = FALSE;
+
+	if(response->status == OK)
+	{
+		draftFlag = FALSE;
+	}
 }
 
 void choose_c(char * name){
 	
-	if(draftStarted == FALSE){
+	if(draftStarted == FALSE || draftFlag == FALSE){
 		printf("You have to be in draft mode to use this command\n");
 		return;
 	}
@@ -555,12 +558,16 @@ void choose_c(char * name){
 
 void consoleForDraft(void){
 	
+	if(item == 0)
+	{
+		printf("client:/$ ");
+	}
+
 	int input = getchar_unlocked();
 	
 	if(input == '\n'){
 			forDraft[item++] = 0;
 			parseCommand(forDraft);
-			printf("client:/$ ");
 			item = 0;
 			forDraft[item] = 0;
 			

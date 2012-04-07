@@ -58,10 +58,14 @@ void * serializeMsg(Msg_t msg){
 			serialize_draftOut
 	};
 
+	printf("Serializing a %d, message\n", msg->type);
 	return _serialize_t[msg->type](msg);
 }
 
 void * serialize_s (Msg_s msg){
+
+	printf("Serializing a %d server message\n", msg->responseType);
+
 	void * msgstr;
 	void * msgstraux;
 	int msgSize;
@@ -114,6 +118,7 @@ void * serialize_s (Msg_s msg){
 
 }
 Msg_s deserialize_s (void * stream){
+
 	Msg_s msg = malloc(sizeof(msg_s));
 	List l = malloc(sizeof(llist));
 	int elemQty;
@@ -145,6 +150,7 @@ Msg_s deserialize_s (void * stream){
 		AddToList(str, msg->msgList);
 	}
 
+	printf("Deserialized a %d server message\n", msg->responseType);
 	return msg;
 
 }

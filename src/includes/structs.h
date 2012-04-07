@@ -2,12 +2,13 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#include <stdlib.h>
 #include "../utils/LinkedList.h"
 #include <pthread.h>
 
 #define MAX_PLAYERS 5
-#define CANT_PLAYERS 7
-#define CANT_TEAMS 5
+#define CANT_PLAYERS 5
+#define CANT_TEAMS 3
 
 #define AWAITING 2
 #define CANCELED 3
