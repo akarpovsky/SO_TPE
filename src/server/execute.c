@@ -1506,9 +1506,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 	Element elemLeague, elemID;
 	int flag;
 
-	printf("Before the mutex\n");
 	rc = pthread_mutex_lock(&game_mutex);
-	printf("After the mutex\n");
 
 	if(*me == NULL)
 	{
@@ -1605,6 +1603,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 				releasePrintColor(answer);
 				communicate(ch, answer);
 
+
 				if(((League)elemLeague->data)->cantDraft == CANT_TEAMS){
 
 					/* Creo el thread coordinador */
@@ -1619,29 +1618,39 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 					answer->status = OK;
 					AddToList(draftStarting, answer->msgList);
 					communicate(ch, answer);
+					((League)elemLeague->data)->status = DRAFTING;
+					rc = pthread_mutex_unlock(&game_mutex);
 					makeDraft((League)elemLeague->data, ch, me);
 
 				}else{
 					//esperar mensaje logout o draft out
-					while(((League)elemLeague->data)->cantDraft != CANT_TEAMS)
+					while(((League)elemLeague->data)->cantDraft < CANT_TEAMS)
 					{
+						rc = pthread_mutex_unlock(&game_mutex);
 						Msg_t incoming = rcvmessage(ch);
-						answer = createMsg_s(incoming->type);
-						if(incoming->type != DRAFT_OUT || incoming->type != LOGOUT)
+						if(incoming != NULL)
 						{
-							answer->status = !OK;
-							AddElemToList(invalidCommand, answer->msgList);
-							communicate(ch, answer);
-						}
-						else
-						{
-							((League)elemLeague->data)->cantDraft--;
-							answer->status = OK;
-							AddElemToList(draftOutSuccessful, answer->msgList);
-							communicate(ch, answer);
-							return;
+							answer = createMsg_s(incoming->type);
+							if(incoming->type != DRAFT_OUT || incoming->type != LOGOUT)
+							{
+								answer->status = !OK;
+								AddElemToList(invalidCommand, answer->msgList);
+								communicate(ch, answer);
+							}
+							else
+							{
+								rc = pthread_mutex_lock(&game_mutex);
+								((League)elemLeague->data)->cantDraft--;
+								rc = pthread_mutex_unlock(&game_mutex);
+								answer->status = OK;
+								AddElemToList(draftOutSuccessful, answer->msgList);
+								communicate(ch, answer);
+								return;
+							}
 						}
 
+						sleep(1);
+						rc = pthread_mutex_lock(&game_mutex);
 					}
 					answer = createMsg_s(DRAFT_START);
 					answer->status = OK;
@@ -1652,6 +1661,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 
 				}
 			}else if(((League)elemLeague->data)->status == DRAFTING){
+				rc = pthread_mutex_unlock(&game_mutex);
 				makeDraft((League)elemLeague->data, ch, me);
 				return;
 			}
@@ -1667,84 +1677,92 @@ void makeDraft(League league,Channel ch, User * me)
 	char * player;
 	Element elemPlayer,elemTeam;
 	Msg_s toClient;
-
+	int turnFlag = FALSE;
+	int rc = pthread_mutex_lock(&game_mutex);
 	while(league->status == DRAFTING)
 	{
-
-		if(strcmp(league->turn, (*me)->user) == 0)
+		if(turnFlag == FALSE && strcmp(league->turn, (*me)->user) == 0 )
 		{
 			toClient = createMsg_s(DRAFT_TURN);
 			toClient->status = OK;
 			AddToList(isYourTurn, toClient->msgList);
 			communicate(ch, toClient);
+			turnFlag = TRUE;
 		}
+		rc = pthread_mutex_unlock(&game_mutex);
 
 		fromClient = rcvmessage(ch);
 
-		if(fromClient->type == DRAFT_OUT)
+		if(fromClient != NULL)
 		{
-			//league->cantDraft--;
-			toClient = createMsg_s(DRAFT_OUT);
-			AddToList(draftOutSuccessful, toClient->msgList);
-			communicate(ch, toClient);
-			return;
-		}
-		if(fromClient->type == LOGOUT)
-		{
-			league->cantDraft--;
-			executeLogout(fromClient,ch,me);
-			return;
-		}
-
-		/* Mi turno*/
-		if(fromClient->type == CHOOSE)
-		{
-
-			if(strcmp(league->turn, (*me)->user) == 0)
+			if(fromClient->type == DRAFT_OUT)
 			{
-				player = fromClient->data.name;
+				//league->cantDraft--;
+				toClient = createMsg_s(DRAFT_OUT);
+				AddToList(draftOutSuccessful, toClient->msgList);
+				communicate(ch, toClient);
+				return;
+			}
+			if(fromClient->type == LOGOUT)
+			{
+				executeLogout(fromClient,ch,me);
+				return;
+			}
 
-				FOR_EACH(elemPlayer, league->availablePlayers)
+			/* Mi turno*/
+			if(fromClient->type == CHOOSE)
+			{
+
+				int rc = pthread_mutex_lock(&game_mutex);
+				if(strcmp(league->turn, (*me)->user) == 0)
 				{
-					/* Encontre el jugador */
-					if(strcmp(player,((Player)elemPlayer->data)->name) == 0)
+					player = fromClient->data.name;
+
+					FOR_EACH(elemPlayer, league->availablePlayers)
 					{
-						/* Saco el jugador de availablePlayers */
-						Remove(elemPlayer, league->availablePlayers);
-
-						/* Busco en que team ponerlo */
-						FOR_EACH(elemTeam, league->teams)
+						/* Encontre el jugador */
+						if(strcmp(player,((Player)elemPlayer->data)->name) == 0)
 						{
-							if(strcmp(((Team)elemTeam->data)->owner,(*me)->user) == 0)
+							/* Saco el jugador de availablePlayers */
+							Remove(elemPlayer, league->availablePlayers);
+
+							/* Busco en que team ponerlo */
+							FOR_EACH(elemTeam, league->teams)
 							{
-								break;
+								if(strcmp(((Team)elemTeam->data)->owner,(*me)->user) == 0)
+								{
+									break;
+								}
 							}
+
+							AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
+
+							/* Seteo en la liga la variable que indica que respondi */
+							league->answer = TRUE;
+							toClient = createMsg_s(CHOOSE);
+							toClient->status = OK;
+							AddToList(playerChooseSuccessful, toClient->msgList);
+							communicate(ch, toClient);
 						}
-
-						AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
-
-						/* Seteo en la liga la variable que indica que respondi */
-						league->answer = TRUE;
-						toClient = createMsg_s(CHOOSE);
-						toClient->status = OK;
-						AddToList(playerChooseSuccessful, toClient->msgList);
-						communicate(ch, toClient);
 					}
-				}
 
-				if(league->answer == TRUE)
-				{
-					Remove(elemPlayer, league->availablePlayers);
+					if(league->answer == TRUE)
+					{
+						Remove(elemPlayer, league->availablePlayers);
+					}
+					turnFlag = FALSE;
 				}
+				rc = pthread_mutex_unlock(&game_mutex);
+			}
+			else
+			{
+				toClient = createMsg_s(CHOOSE);
+				toClient->status = !OK;
+				AddToList(cannotChoose, toClient->msgList);
+				communicate(ch, toClient);
 			}
 		}
-		else
-		{
-			toClient = createMsg_s(CHOOSE);
-			toClient->status = !OK;
-			AddToList(cannotChoose, toClient->msgList);
-			communicate(ch, toClient);
-		}
+
 		sleep(1);
 	}
 	toClient = createMsg_s(DRAFT_END);
@@ -1759,6 +1777,7 @@ void * coordinator_thread(void * data)
 	League l = (League)data;
 	l->turn = ((Team)l->teams->pFirst->data)->owner;
 	int repeatFlag = FALSE;
+	int rc = pthread_mutex_lock(&game_mutex);
 
 	while(l->status == DRAFTING)
 	{
@@ -1772,7 +1791,9 @@ void * coordinator_thread(void * data)
 				break;
 			}
 			time++;
+			rc = pthread_mutex_unlock(&game_mutex);
 			sleep(1);
+			rc = pthread_mutex_lock(&game_mutex);
 		}
 		if(time == TIME_OUT && l->answer == FALSE)
 		{
@@ -1780,6 +1801,7 @@ void * coordinator_thread(void * data)
 		}
 		checkStatus(l);
 	}
+	rc = pthread_mutex_unlock(&game_mutex);
 	return NULL;
 }
 

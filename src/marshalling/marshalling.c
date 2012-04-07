@@ -558,12 +558,16 @@ void choose_c(char * name){
 
 void consoleForDraft(void){
 	
+	if(item == 0)
+	{
+		printf("client:/$ ");
+	}
+
 	int input = getchar_unlocked();
 	
 	if(input == '\n'){
 			forDraft[item++] = 0;
 			parseCommand(forDraft);
-			printf("client:/$ ");
 			item = 0;
 			forDraft[item] = 0;
 			
