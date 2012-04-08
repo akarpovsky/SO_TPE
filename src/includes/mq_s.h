@@ -40,4 +40,6 @@ int sendmessage(Channel ch, Msg_s msg);
 
 Channel createChannel(Msg_t msg);
 
+Msg_t rcvmessage(Channel ch);
+
 #endif

@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
@@ -31,7 +32,9 @@ static int sockfd;
 int newsockfd = 0; // Server socket file descriptor
 struct sockaddr_in * client_address;
 struct sockaddr_in * server_address;
-struct sockaddr_in * new_server_address;	
+struct sockaddr_in * new_server_address;
+
+int socket_flags; // Default socket flags	
 
 struct sockaddr_in * fillServerData(){
 
@@ -86,7 +89,7 @@ void bindToAssignedSocket(int port){
 	return ;
 }
 
-Msg_s rcvmessage(void){
+Msg_s _rcvmessage(void){
 
 	
 	int rcvFlag = FALSE;
@@ -104,6 +107,10 @@ Msg_s rcvmessage(void){
 		}else{
 			listenFD = newsockfd;
 		}
+
+		/* Blocking socket */
+		printf("_rcvmessaege: Using blocking sockets!\n");
+		fcntl(listenFD,F_SETFL,socket_flags);
 		
 		if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, (socklen_t *) &client_len)) == -1){
 			perror("Error while receiving data");
@@ -128,6 +135,53 @@ Msg_s rcvmessage(void){
 				rcvFlag = TRUE;
 			}
 	}while(!rcvFlag);
+
+	return msg;
+}
+
+Msg_s rcvmessage(void){
+
+	
+	int rcvFlag = FALSE;
+	Msg_s msg;
+
+	int msgSize;
+	int client_len = SOCKET_SIZE;
+	void * bytestring;
+	void * aux;
+
+	int listenFD;
+	if(newsockfd == 0){
+		listenFD = sockfd;
+	}else{
+		listenFD = newsockfd;
+	}
+
+	/* Non blocking socket */
+	printf("rcvmessage: Using NON blocking sockets!\n");
+	fcntl(listenFD,F_SETFL,socket_flags | O_NONBLOCK);
+	
+	if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, (socklen_t *) &client_len)) == -1){
+		perror("Error while receiving data");
+		return NULL;
+	}
+	
+	if(msgSize > 0){
+		printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
+
+		aux = bytestring = calloc(msgSize, sizeof(char));
+							
+
+		if( (recv(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0)) == -1){
+			perror("Reading server message failed");
+			return NULL;
+		}else{
+			memcpy(&(msg->status), aux, sizeof(int));
+			aux += sizeof(int);
+			msg = (Msg_s) deserialize_s(aux);
+
+			}
+	}
 
 	return msg;
 }
@@ -185,7 +239,7 @@ Msg_s communicate(Msg_t msg)
 {
 
 	if(sendmessage(msg) == SUCCESSFUL){
-		return rcvmessage();
+		return _rcvmessage();
 	}
 
 	return NULL;
@@ -203,6 +257,9 @@ void connectToServer(void){
 		exit(EXIT_FAILURE);
 	}
 
+	/* Save the socket default flags */
+	socket_flags = fcntl(sockfd,F_GETFL,0);
+
 	int pid = getpid();
 
 	// Create a connection message
@@ -216,7 +273,7 @@ void connectToServer(void){
 
 	Element elem;
 	
-	/* Imprimo todos los msjs */
+	/* Printf response */
 	FOR_EACH(elem, response->msgList){
 		printf("%s\n",(char*)(elem->data));
 	}
