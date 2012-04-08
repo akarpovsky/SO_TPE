@@ -13,22 +13,6 @@
 int msgqID;
 int pid;
 
-typedef struct msg_String{
-    long  pid;  
-	struct dataString{
-		int fromPid;
-		char string[MAX_STRING];
-		}dataString;
-}msg_String;
-
-typedef struct msg_Int{
-	long pid;
-	struct dataInt{
-		int num;
-		int fromPid;
-	}dataInt;
-}msg_Int;
-
 Msg_s communicate(Msg_t msg){
 	
 	if(sendmessage(msg) == SUCCESSFUL){
@@ -67,201 +51,36 @@ void connectToServer(void){
 
 int sendmessage(Msg_t msg){
 	
-	int size;
+	int msgSize;
+	void * msgStr = serializeMsg(msg);
+	memcpy(&msgSize, msgStr, sizeof(int));
+	
 	msg_Int toSendNum;
 	toSendNum.dataInt.fromPid = getpid();
 	
 	msg_String toSendString;
 	toSendString.dataString.fromPid = getpid();
-	toSendString.pid = getpid() + CONVENTION;
 	
 	/* Seteo el destino */
 	if(msg->type == CONTACT){
 		toSendNum.pid = MAIN_SERVER_PRIORITY;	
+		toSendString.pid = MAIN_SERVER_PRIORITY;
 	}else{
 		toSendNum.pid = getpid() + CONVENTION;
+		toSendString.pid = getpid() + CONVENTION;
 	}
-	
-	/* Mando el comando */
-	toSendNum.dataInt.num = msg->type;
+
+	/* Mando el size del stream */
+	toSendNum.dataInt.num = msgSize;
 	if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
 		perror("msgsnd");
 	}
-
-	switch(msg->type){
-		case REGISTER:	
-			/* Mando size de user */
-			size = strlen(msg->data.register_t.user) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando user */
-			strcpy(toSendString.dataString.string,msg->data.register_t.user);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando size de pass */
-			size = strlen(msg->data.register_t.pass) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando pass */
-			strcpy(toSendString.dataString.string,msg->data.register_t.pass);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			break;
-						
-		case LOGIN:
-			/* Mando size de user */
-			size = strlen(msg->data.login_t.user) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando user */
-			strcpy(toSendString.dataString.string,msg->data.login_t.user);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando size de pass */
-			size = strlen(msg->data.login_t.pass) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando pass */
-			strcpy(toSendString.dataString.string,msg->data.login_t.pass);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			break;
-		
-		case LEAGUE_SHOW:
-		case TEAM_SHOW:
-		case TRADE_SHOW:
-			/* ENVIO ID */
-			toSendNum.dataInt.num = msg->data.show_t.ID;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			break;
-						
-		case TRADE:
-			/* Mando size de from */
-			size = strlen(msg->data.trade_t.from) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando from */
-			strcpy(toSendString.dataString.string,msg->data.trade_t.from);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando size de to */
-			size = strlen(msg->data.trade_t.to) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando to */
-			strcpy(toSendString.dataString.string,msg->data.trade_t.to);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando TeamID */
-			toSendNum.dataInt.num = msg->data.trade_t.teamID;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			break;
-
-		case TRADE_WITHDRAW:
-		case TRADE_ACCEPT:
-			
-			/* Mando TradeID */
-			toSendNum.dataInt.num = msg->data.trade_t.tradeID;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			break;
-			
-		case TRADE_NEGOTIATE:
-			
-			/* Mando size de from */
-			size = strlen(msg->data.trade_t.from) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando from */
-			strcpy(toSendString.dataString.string,msg->data.trade_t.from);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando size de to */
-			size = strlen(msg->data.trade_t.to) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando to */
-			strcpy(toSendString.dataString.string,msg->data.trade_t.to);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando TradeID */
-			toSendNum.dataInt.num = msg->data.trade_t.tradeID;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			break;
-		
-		
-		case JOIN_LEAGUE:
-		case DRAFT:
-			/* Mando ID */
-			toSendNum.dataInt.num = msg->data.ID;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			break;
-						
-		case CREATE_LEAGUE:
-		case CHOOSE:
-		
-			/* Mando size de name */
-			size = strlen(msg->data.name) + 1;
-			toSendNum.dataInt.num = size;
-			if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
-				perror("msgsnd");
-			}
-			
-			/* Mando name */
-			strcpy(toSendString.dataString.string,msg->data.name);
-			if(msgsnd(msgqID,&toSendString,sizeof(int) + size ,0) == -1){
-				perror("msgsnd");
-			}
-			
-			
-	}	
+	
+	/* Mando el stream */
+	toSendString.dataString.string = msgStr;
+	if(msgsnd(msgqID,&toSendString, sizeof(int) + msgSize ,0) == -1){
+		perror("msgsnd");
+	}
 	
 	return SUCCESSFUL;
 	
