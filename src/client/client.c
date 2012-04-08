@@ -52,18 +52,3 @@ void readPrompt(char * s, int size){
 
 }
 
-void readPromptUnlocked(char * s, int size){
-	
-	int input = 0;
-
-	while(--size && (input = getchar_unlocked()) != EOF && input != '\n'){
-		
-		*s = input;
-		s++;
-	}
-	
-	if(input == EOF){
-		printf("\n");
-	}
-	*s = 0;
-}
