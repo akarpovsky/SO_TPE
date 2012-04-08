@@ -1435,7 +1435,7 @@ void executeCreateLeague(Msg_t msg, Channel ch, User * me){
 		exit(EXIT_FAILURE);
 	}
 	league->status = INACTIVE;
-	league->availablePlayers = 0;
+	league->cantAvailablePlayers = 0;
 	league->cantDraft = 0;
 	league->answer = FALSE;
 	
@@ -1487,8 +1487,9 @@ void executeCreateLeague(Msg_t msg, Channel ch, User * me){
 
 		player->name = (char*)elemPlayer->data;
 		player->points = 0;
-		
+
 		AddToList(player, league->availablePlayers);
+		(league->cantAvailablePlayers)++;
 				
 	}
 	
