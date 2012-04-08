@@ -77,7 +77,7 @@ int sendmessage(Msg_t msg){
 		perror("msgsnd");
 	}
 	
-	sprintf(toSendString.dataString.string, "%s", (char *) msgStr);
+	memcpy(toSendString.dataString.string, (char *) msgStr, msgSize + sizeof(int));
 	
 	if(msgsnd(msgqID, &toSendString, sizeof(msg_String) - sizeof(long),0) == -1){
 		perror("msgsnd 2");

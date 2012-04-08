@@ -68,7 +68,7 @@ Msg_t IPClisten(Channel ch){
 
 
 	char * climsg = calloc(msgSize + sizeof(int), sizeof(char));
-	sprintf(climsg, "%s", string.dataString.string);
+	memcpy(climsg, string.dataString.string, msgSize + sizeof(int));
 	climsg+=sizeof(int);
 		
 	msg = deserializeMsg(climsg);
