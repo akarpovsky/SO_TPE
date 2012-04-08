@@ -112,7 +112,7 @@ void execute(Msg_t msg, Channel ch, User * me){
 					break;
 
 		case CREATE_LEAGUE:
-					executeCreateLeague(msg,ch);
+					executeCreateLeague(msg,ch,me);
 					break;
 
 		case DRAFT:
@@ -1407,14 +1407,26 @@ void executeJoinLeague(Msg_t msg, Channel ch, User * me){
 	}
 }
 
-void executeCreateLeague(Msg_t msg, Channel ch){
+void executeCreateLeague(Msg_t msg, Channel ch, User * me){
 	
 	Msg_s answer = createMsg_s(CREATE_LEAGUE);
 	char * toPrint;
 	int name = msg->data.name;
-	List players = loadPlayers();
 	Player player;
 	Element elemPlayer;
+	
+	if((*me) == NULL){
+		/* Si no esta loggeado el usuario */
+		printRedColor(answer);
+		toPrint = noLogged;
+		AddToList(toPrint,answer->msgList);
+		answer->status = ERROR;
+		releasePrintColor(answer);
+		communicate(ch,answer);
+		return;
+	}
+	
+	List players = loadPlayers();
 	
 	/* malloqueo la liga */
 	League league = (League)malloc(sizeof(league_t));
@@ -1423,7 +1435,7 @@ void executeCreateLeague(Msg_t msg, Channel ch){
 		exit(EXIT_FAILURE);
 	}
 	league->status = INACTIVE;
-	league->availablePlayers = 0;
+	league->cantAvailablePlayers = 0;
 	league->cantDraft = 0;
 	league->answer = FALSE;
 	
@@ -1475,8 +1487,9 @@ void executeCreateLeague(Msg_t msg, Channel ch){
 
 		player->name = (char*)elemPlayer->data;
 		player->points = 0;
-		
+
 		AddToList(player, league->availablePlayers);
+		(league->cantAvailablePlayers)++;
 				
 	}
 	
@@ -1619,6 +1632,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 					AddToList(draftStarting, answer->msgList);
 					communicate(ch, answer);
 					((League)elemLeague->data)->status = DRAFTING;
+					((League)elemLeague->data)->turn = ((Team)((League)elemLeague->data)->teams->pFirst->data)->owner;
 					rc = pthread_mutex_unlock(&game_mutex);
 					makeDraft((League)elemLeague->data, ch, me);
 
@@ -1775,7 +1789,6 @@ void makeDraft(League league,Channel ch, User * me)
 void * coordinator_thread(void * data)
 {
 	League l = (League)data;
-	l->turn = ((Team)l->teams->pFirst->data)->owner;
 	int repeatFlag = FALSE;
 	int rc = pthread_mutex_lock(&game_mutex);
 
