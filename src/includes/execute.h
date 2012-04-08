@@ -59,8 +59,8 @@ void executeDraft(Msg_t msg,Channel ch, User * me);
 void executeLogout(Msg_t msg,Channel ch,User * me);
 
 void * coordinator_thread(void * data);
-void changeTurn(League l, int * repeatFlag);
-void autoAsign(League l, int * repeatFlag);
+void changeTurn(League l);
+void autoAsign(League l);
 void checkStatus(League l);
 void makeDraft(League league,Channel ch, User * me);
 
