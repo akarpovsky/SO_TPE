@@ -33,7 +33,40 @@ void sigint(){
 	exit(EXIT_FAILURE);
 }
 
+Msg_t IPClisten(Channel ch){
+	
+	printf("\nServer listening ...\n\n");
 
+	msg_String string;
+	msg_Int num;
+	Msg_t msg;
+	int msgSize;
+	int listenTo;
+	
+	if(ch == NULL){
+		listenTo = MAIN_SERVER_PRIORITY;
+	}else{
+		listenTo = ch->pid;
+	}
+		
+	/* Escucho el size del msg y el pid del nuevo cliente*/
+	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), listenTo, 0)) == -1){
+		perror("Error in msgrcv");
+		exit(EXIT_FAILURE);
+	}
+	msgSize = num.dataInt.num;	
+		
+	/* Escucho el stream Y EL PID DEL NUEVO CLIENTE */
+	if((msgrcv(msgqID, &string, sizeof(int) + msgSize, listenTo, 0)) == -1){
+		perror("Error in msgrcv");
+		exit(EXIT_FAILURE);
+	}
+		
+	msg = deserializeMsg(string.dataString.string);
+	free(string.dataString.string);
+	return msg;
+
+}
 
 int communicate(Channel ch, Msg_s msg){
 	return sendmessage(ch,msg);
