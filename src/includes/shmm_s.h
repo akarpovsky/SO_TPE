@@ -21,8 +21,6 @@
 #include "../includes/share_ex.h"
 #include "../includes/message_serialization.h"
 
-
-
 typedef struct channel_t {
 	Sem memory_lock_sem; // Locks the shared memory so no data is corrupted
 	Sem clitoserv_sem;  // Signals the the server saying: "You have data to read"
@@ -45,5 +43,7 @@ Msg_s establishChannel(Channel ch);
 int sendmessage(Channel ch, Msg_s msg);
 
 Channel createChannel(Msg_t msg);
+
+Msg_t rcvmessage(Channel ch);
 
 #endif /* SHMM_S_H_ */

@@ -182,9 +182,6 @@ void * client_thread(void * ch){
 void * saver_thread_main(void * data)
 {
     
-    int rc;	                 
-    Request a_request;      /* Stores pointer to a request. */
-
     /* Lock the mutex, to access the requests list exclusively. */
 
     while (1) {
@@ -272,7 +269,7 @@ int main(void){
 
 	int save_time = SAVING_DELAY;
 	printf("In main creating saver thread");
-	rc = pthread_create(&saver_thread, NULL, saver_thread_main, save_time);
+	rc = pthread_create(&saver_thread, NULL, saver_thread_main, (void *) &save_time);
 	if(rc)
 	{
 		printf("ERROR; return code from phtread_create() is %d\n", rc);

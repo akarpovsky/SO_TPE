@@ -27,6 +27,7 @@
 int sockfd; // Server socket file descriptor
 void * sockets_hmap;
 int openedSockets = 1;
+int socket_flags;
 
 
  struct sockaddr_in * getClientChannel(int pid){
@@ -103,7 +104,7 @@ void uplink(void){
 		-2- start listening for incoming connections
 
 		-3- loop
-				accept a connection
+				accept incomming connections
 				spawn a chld to deal with the connection (thread!)
 				if child
 					send an receive information with the client
@@ -116,6 +117,9 @@ void uplink(void){
 		perror("<LOG socket_s.c> Bind call failed in upLink() <end>");
 		exit(EXIT_FAILURE);
 	}
+
+	/* Save the socket default flags */
+	socket_flags = fcntl(sockfd,F_GETFL,0);
 
 	sockets_hmap = hashmap_new(10); // Initialize hashmap with space for 10 clients
 }
@@ -177,7 +181,6 @@ int sendmessage(Channel ch, Msg_s msg){
 		listenFD = sockfd;
 		
 
-	// sendto(listenFD, &c, 1,0, msg->data.socket_client_t.client, SOCKET_SIZE);
 	if((sendto(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, cli_size) == -1)){
 		perror("<LOG socket_s.c> Server: Could not write message size <end>");
 		return !SUCCESSFUL;
@@ -222,6 +225,10 @@ Msg_t IPClisten(Channel ch){
 			listenFD = (int) hashmap_get( sockets_hmap , ch->port);
 		}
 
+		/* Blocking socket */
+		printf("IPCListen: Using blocking sockets!\n");
+		fcntl(listenFD,F_SETFL,socket_flags);
+
 		if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
 			perror("Error while receiving data");
 			continue ;
@@ -248,7 +255,7 @@ Msg_t IPClisten(Channel ch){
 					printf("Tengo client: port - %d\n", client->sin_port);			
 				}
 
-				printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
+					printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
 
 				}
 				free(bytestring);
@@ -260,7 +267,6 @@ Msg_t IPClisten(Channel ch){
 }
 
 Msg_t rcvmessage(Channel ch){
-
 
 	if(ch == NULL){
 		printf("\nServer listening on port 7000 ...\n\n");
@@ -277,12 +283,17 @@ Msg_t rcvmessage(Channel ch){
 	void * aux;
 	struct sockaddr_in * client = calloc(1, SOCKET_SIZE);
 
+
 	int listenFD;
 	if(ch == NULL){
 		listenFD = sockfd;
 	}else{
 		listenFD = (int) hashmap_get( sockets_hmap , ch->port);
 	}
+
+	/* Non non blocking socket */
+	printf("rcvMessage: Using NON blocking sockets!\n");
+	fcntl(listenFD,F_SETFL,socket_flags | O_NONBLOCK);
 
 	if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
 		perror("Error while receiving data");
