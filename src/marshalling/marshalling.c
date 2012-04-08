@@ -19,8 +19,11 @@
 	#include "../includes/shmm_c.h"
 #endif
 
+#define STDIN 0
+
 int draftFlag = FALSE;
 int draftStarted = FALSE;
+int newLineFlag = TRUE;
 char forDraft[COMMAND_MAX_LENGHT];
 int item = 0;
 
@@ -558,12 +561,20 @@ void choose_c(char * name){
 
 void consoleForDraft(void){
 	
-	if(item == 0)
+	if(newLineFlag)
 	{
 		printf("client:/$ ");
+		newLineFlag = FALSE
 	}
 
-	int input = getchar_unlocked();
+	if(checkstdin())
+	{
+		char input[1024];
+		gets(input);
+		newLineFlag = TRUE;
+		parseCommand(input);
+	}
+	/*int input = getchar_unlocked();
 	
 	if(input == '\n'){
 			forDraft[item++] = 0;
@@ -576,5 +587,17 @@ void consoleForDraft(void){
 			forDraft[item++] = input;
 		}
 	}
+*/
+}
 
+int checkstdin(void)
+{
+	struct timeval tv;
+	fd_set fds;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	FD_ZERO(&fds);
+	FD_SET(STDIN, &fds); //STDIN_FILENO is 0
+	select(STDIN+1, &fds, NULL, NULL, &tv);
+	return FD_ISSET(STDIN, &fds);
 }
