@@ -77,7 +77,7 @@ int sendmessage(Msg_t msg){
 	}
 	
 	/* Mando el stream */
-	toSendString.dataString.string = msgStr;
+	memcpy(toSendString.dataString.string, msgStr, msgSize);
 	if(msgsnd(msgqID,&toSendString, sizeof(int) + msgSize ,0) == -1){
 		perror("msgsnd");
 	}
