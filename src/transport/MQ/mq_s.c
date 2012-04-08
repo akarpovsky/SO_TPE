@@ -44,7 +44,7 @@ Msg_t IPClisten(Channel ch){
 	msg_Int num;
 	Msg_t msg;
 	int msgSize;
-	int listenTo;
+	long listenTo;
 	
 	if(ch == NULL){
 		listenTo = MAIN_SERVER_PRIORITY;
@@ -52,20 +52,21 @@ Msg_t IPClisten(Channel ch){
 		listenTo = ch->pid;
 	}
 		
-	/* Escucho el size del msg y el pid del nuevo cliente*/
+	/* Escucho el size del msg */
 	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), listenTo, 0)) == -1){
 		perror("Error in msgrcv");
 		exit(EXIT_FAILURE);
 	}
 	msgSize = num.dataInt.num;	
 		
-	/* Escucho el stream Y EL PID DEL NUEVO CLIENTE */
+	/* Escucho el stream */
 	if((msgrcv(msgqID, &string, sizeof(int) + msgSize, listenTo, 0)) == -1){
 		perror("Error in msgrcv");
 		exit(EXIT_FAILURE);
 	}
 		
 	msg = deserializeMsg(string.dataString.string);
+	printf("DESP DEL LISTEN\n" );
 	return msg;
 
 }
@@ -78,6 +79,7 @@ Msg_s establishChannel(Channel ch){
 	
 	Msg_s serverMsg = createMsg_s();
 	AddToList("Connection established.", serverMsg->msgList);
+		printf("SALI DEL ESTABLISHCH\n");
 	return serverMsg;
 }
 	
@@ -89,7 +91,7 @@ Channel createChannel(Msg_t msg){
 	}
 	
 	ch->pid = (msg->pidFrom) + CONVENTION;
-	
+	printf("SALI DEL CREATE\n");
 	return ch;
 	
 }

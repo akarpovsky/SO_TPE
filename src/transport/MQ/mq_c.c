@@ -81,6 +81,7 @@ int sendmessage(Msg_t msg){
 	if(msgsnd(msgqID,&toSendString, sizeof(int) + msgSize ,0) == -1){
 		perror("msgsnd");
 	}
+	printf("MANDEE\n");
 	
 	return SUCCESSFUL;
 	
