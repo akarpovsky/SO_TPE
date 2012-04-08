@@ -12,7 +12,7 @@ SOCKET_SERVER = ./src/transport/sockets/socket_s.c ./src/transport/sockets/socke
 socket_server: $(FILES)
 	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(SOCKET_SERVER) $(LDOPTS) -D sockets $(MATH)
 
-MQ_SERVER = ./src/transport/MQ/mq_s.c
+MQ_SERVER = ./src/transport/MQ/mq_s.c ./src/transport/MQ/mq_contact_serialization.c ./src/marshalling/message_serialization.c
 
 mq_server: $(FILES)
 	$(CC) $(COPTS) -o $(OUT_EXE) $(FILES) $(MQ_SERVER) $(LDOPTS) -D msgqueue $(MATH)
@@ -40,7 +40,7 @@ SOCKET_CLIENT = ./src/transport/sockets/socket_c.c ./src/transport/sockets/socke
 socket_client: $(CLIENT_FILES)
 	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(SOCKET_CLIENT) -D sockets $(CLIENT_LDOPTS)
 
-MQ_CLIENT = ./src/transport/MQ/mq_c.c
+MQ_CLIENT = ./src/transport/MQ/mq_c.c ./src/transport/MQ/mq_contact_serialization.c ./src/marshalling/message_serialization.c
 
 mq_client: $(CLIENT_FILES)
 	$(CLIENT_CC) $(CLIENT_COPTS) -o $(CLIENT_OUT_EXE) $(CLIENT_FILES) $(MQ_CLIENT) -D msgqueue $(CLIENT_LDOPTS)

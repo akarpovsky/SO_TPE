@@ -12,16 +12,16 @@
 #include "defines.h"
 
 #ifdef fifo
-	#include "./fifo_contact_serialization.h"
+	#include "fifo_contact_serialization.h"
 #endif
 #ifdef shmm
-	#include "./shmm_contact_serialization.h"
+	#include "shmm_contact_serialization.h"
 #endif
  #ifdef sockets
-	#include "./sockets_contact_serialization.h"
+	#include "sockets_contact_serialization.h"
 #endif
  #ifdef msgqueue
-	#include "./mq_contact_serialization.h"
+	#include "mq_contact_serialization.h"
 #endif
 
 
