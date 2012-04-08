@@ -57,18 +57,18 @@ Msg_t IPClisten(Channel ch){
 		exit(EXIT_FAILURE);
 	}
 	printf("Received msg size = %d\n", num.dataInt.num);
-	msgSize = num.dataInt.num;	
+	msgSize = num.dataInt.num; /* TAMANIO DE TODO EL STRAM */	
 
 		
 	/* Escucho el stream */
-	if((msgrcv(msgqID, &string,  sizeof(msg_String) - sizeof(long), listenTo, 0)) == -1){
+	if((msgrcv(msgqID, &string,  msgSize + sizeof(int), listenTo, 0)) == -1){
 		perror("Error in msgrcv");
 		exit(EXIT_FAILURE);
 	}
 
 
-	char * climsg = calloc(msgSize + sizeof(int), sizeof(char));
-	memcpy(climsg, string.dataString.string, msgSize + sizeof(int));
+	char * climsg = calloc(msgSize, sizeof(char));
+	memcpy(climsg, string.dataString.string, msgSize);
 	climsg+=sizeof(int);
 		
 	msg = deserializeMsg(climsg);

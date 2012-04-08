@@ -72,14 +72,14 @@ int sendmessage(Msg_t msg){
 	}
 
 	/* Mando el size del stream */
-	toSendNum.dataInt.num = msgSize;
+	toSendNum.dataInt.num = msgSize + sizeof(int);
 	if(msgsnd(msgqID,&toSendNum,sizeof(msg_Int) - sizeof(long),0) == -1){
 		perror("msgsnd");
 	}
 	
 	memcpy(toSendString.dataString.string, (char *) msgStr, msgSize + sizeof(int));
 	
-	if(msgsnd(msgqID, &toSendString, sizeof(msg_String) - sizeof(long),0) == -1){
+	if(msgsnd(msgqID, &toSendString, sizeof(int) + sizeof(int) + msgSize, 0) == -1){
 		perror("msgsnd 2");
 	}
 	
