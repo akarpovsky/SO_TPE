@@ -31,15 +31,19 @@ void * serialize_contact (Msg_t msg){
 		exit(1);
 	}
 
+	printf("Serialize size = %d\n", msgSize);
+
 	memcpy(msgstraux, &(msgSize), sizeof(int));
 	msgstraux += sizeof(int);
 
 	memcpy(msgstraux, &(msg->type), sizeof(int));
+	printf("Serialize type = %d\n", msg->type);
 	msgstraux += sizeof(int);
 	
 	int client_pid = msg->pidFrom;
 
 	memcpy(msgstraux, &client_pid, sizeof(int));
+	printf("Serialize PID = %d\n", client_pid);
 	msgstraux += sizeof(int);
 
 	return msgstr;

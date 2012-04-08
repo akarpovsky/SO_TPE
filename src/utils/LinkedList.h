@@ -27,6 +27,7 @@ typedef llist * List;
 
 void CreateList(List list);
 Element AddToList(void *item, List list);
+void AddElemToList(Element NewEl, List list);
 void Remove(Element elem, List list);
 
 #endif

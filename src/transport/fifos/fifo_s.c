@@ -78,8 +78,7 @@ Msg_t rcvmessage(Channel ch)
 	return msg;
 }
 
-int communicate(Channel ch, Msg_s msg)
-{
+int communicate(Channel ch, Msg_s msg){
 	return sendmessage(ch, msg);
 }
 

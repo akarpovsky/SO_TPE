@@ -2,8 +2,10 @@
 	IO.h
 */
 
-#if !defined( IO_H )
+#ifndef IO_H
 #define IO_H
+
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/inotify.h>
 #include <stdlib.h>
@@ -22,7 +24,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/dir.h>
+
 #include "../includes/structs.h"
+#include "../includes/execute.h"
 #include "../utils/LinkedList.h"
 
 #define DIGIT_COUNT(X) ((int)(log10((((X)>0)?(X):-(X)))))
@@ -81,5 +85,8 @@ void checkMatches(void);
 void saveUser(char * path, User usr);
 void saveLeague(char * path, League lg);
 void saveGame(void);
+
+List loadPlayers(void);
+
 
 #endif

@@ -352,17 +352,17 @@ void executeListLeagues(Msg_t msg, Channel ch){
 void executeListTeams(Msg_t msg, Channel ch){
 
 	Msg_s answer = createMsg_s(LIST_TEAMS);
-	char * toPrint;
+	char * toPrint = NULL;
 	int rc;
 
 	rc = pthread_mutex_lock(&game_mutex);
 
 	if(gameAux->cantTeams == 0){
 		printRedColor(answer);
-		toPrint = noTeam;
+		toPrint = noTeams;
 		AddToList(toPrint,answer->msgList);
 		releasePrintColor(answer);
-		answer->status = OK;
+		answer->status = ERROR;
 
 		rc = pthread_mutex_unlock(&game_mutex);
 
@@ -420,8 +420,6 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 
 		FOR_EACH(elemTrade, ((League)elem->data)->trades){
 
-
-
 				if(strcmp((*me)->user,((Trade)elemTrade->data)->userFrom) == 0 ||
 					strcmp((*me)->user,((Trade)elemTrade->data)->userTo) == 0){
 						switch(((Trade)elemTrade->data)->state){
@@ -437,6 +435,7 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 								AddToList(toPrint,answer->msgList);
 								releasePrintColor(answer);
 								break;
+						
 						case ACCEPTED:
 
 								asprintf(&toPrint,"\n%c[%d;%dmTrade ID %d: %c[%d;%dm%s (%s) ---> %s (%s)\n\t\t%c[%d;%dm[ACCEPTED]", 0x1B,1,36, ((Trade)elemTrade->data)->ID, 0x1B,0,36, ((Trade)elemTrade->data)->playerFrom, ((Trade)elemTrade->data)->userFrom, ((Trade)elemTrade->data)->userTo, ((Trade)elemTrade->data)->playerTo, 0x1B,5,32);
@@ -450,9 +449,10 @@ void executeListTrades(Msg_t msg, Channel ch, User * me){
 
 	if(answer->msgList->NumEl == 0){
 		printRedColor(answer);
-		toPrint = noTrade;
+		toPrint = noTrades;
 		AddToList(toPrint,answer->msgList);
 		releasePrintColor(answer);
+		answer->status = ERROR;
 	}
 	
 	}else{
@@ -1648,7 +1648,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 							if(incoming->type != DRAFT_OUT || incoming->type != LOGOUT)
 							{
 								answer->status = !OK;
-								AddElemToList(invalidCommand, answer->msgList);
+								AddToList(invalidCommand, answer->msgList);
 								communicate(ch, answer);
 							}
 							else
@@ -1657,7 +1657,7 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 								((League)elemLeague->data)->cantDraft--;
 								rc = pthread_mutex_unlock(&game_mutex);
 								answer->status = OK;
-								AddElemToList(draftOutSuccessful, answer->msgList);
+								AddToList(draftOutSuccessful, answer->msgList);
 								communicate(ch, answer);
 								return;
 							}

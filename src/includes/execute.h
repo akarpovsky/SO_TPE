@@ -1,6 +1,7 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -54,6 +55,7 @@ void executeTeamShow(Msg_t msg, Channel ch);
 void executeTradeShow(Msg_t msg, Channel ch);
 void executeTrade(Msg_t msg, Channel ch, User * me);
 void executeTradeWithdraw(Msg_t msg,Channel ch, User * me);
+void executeTradeNegotiate(Msg_t msg, Channel ch, User * me);
 void executeTradeAccept(Msg_t msg,Channel ch, User * me);
 void executeCreateLeague(Msg_t msg, Channel ch, User * me);
 void executeJoinLeague(Msg_t msg, Channel ch, User * me);
@@ -65,7 +67,5 @@ void changeTurn(League l);
 void autoAsign(League l);
 void checkStatus(League l);
 void makeDraft(League league,Channel ch, User * me);
-
-
 
 #endif
