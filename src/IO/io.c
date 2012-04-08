@@ -1240,7 +1240,6 @@ void saveGame(void){
 	printf("Finished saving game ... \n");
 	free(league_ptr);
 	free(user_ptr);
-	free(filePath);
 	return ;
 }
 
