@@ -447,7 +447,7 @@ void draft_c(char * id){
 		draftFlag = TRUE;
 		do
 		{
-			response = rcvmessage();
+			response = (Msg_s) rcvmessage();
 			if(response == NULL){
 				consoleForDraft();
 			}

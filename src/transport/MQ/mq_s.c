@@ -45,7 +45,6 @@ Msg_t IPClisten(Channel ch){
 	Msg_t msg;
 	int msgSize;
 	long listenTo;
-	
 	if(ch == NULL){
 		listenTo = MAIN_SERVER_PRIORITY;
 	}else{
@@ -54,18 +53,25 @@ Msg_t IPClisten(Channel ch){
 		
 	/* Escucho el size del msg */
 	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), listenTo, 0)) == -1){
-		perror("Error in msgrcv");
+		perror("Error in msgrcv 1");
 		exit(EXIT_FAILURE);
 	}
+	printf("Received msg size = %d\n", num.dataInt.num);
 	msgSize = num.dataInt.num;	
+
 		
 	/* Escucho el stream */
-	if((msgrcv(msgqID, &string, sizeof(int) + msgSize, listenTo, 0)) == -1){
+	if((msgrcv(msgqID, &string,  sizeof(msg_String) - sizeof(long), listenTo, 0)) == -1){
 		perror("Error in msgrcv");
 		exit(EXIT_FAILURE);
 	}
+
+
+	char * climsg = calloc(msgSize + sizeof(int), sizeof(char));
+	sprintf(climsg, "%s", string.dataString.string);
+	climsg+=sizeof(int);
 		
-	msg = deserializeMsg(string.dataString.string);
+	msg = deserializeMsg(climsg);
 	printf("DESP DEL LISTEN\n" );
 	return msg;
 
@@ -77,7 +83,7 @@ int communicate(Channel ch, Msg_s msg){
 
 Msg_s establishChannel(Channel ch){
 	
-	Msg_s serverMsg = createMsg_s();
+	Msg_s serverMsg = (Msg_s) createMsg_s();
 	AddToList("Connection established.", serverMsg->msgList);
 		printf("SALI DEL ESTABLISHCH\n");
 	return serverMsg;
@@ -114,14 +120,14 @@ int sendmessage(Channel ch, Msg_s msg){
 	/* Envio el responseType */
 	num.dataInt.num = msg->responseType;
 	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
-		perror("Could not communicate to server. In msgsnd");
+		perror("Could not communicate to client 1 . In msgsnd");
 		exit(EXIT_FAILURE);
 	}
 	
 	/* Envio el status */
 	num.dataInt.num = msg->status;
 	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
-		perror("Could not communicate to server. In msgsnd");
+		perror("Could not communicate to client 2. In msgsnd");
 		exit(EXIT_FAILURE);
 	}
 	

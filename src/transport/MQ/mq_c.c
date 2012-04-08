@@ -40,6 +40,7 @@ void connectToServer(void){
 	com.pidFrom = pid;
 	Msg_s response;
 	response = communicate(&com);
+	printf("RESPONSE!\n");
 
 	Element elem;
 	
@@ -52,7 +53,7 @@ void connectToServer(void){
 int sendmessage(Msg_t msg){
 	
 	int msgSize;
-	void * msgStr = serializeMsg(msg);
+	void * msgStr = (void * ) serializeMsg(msg);
 	memcpy(&msgSize, msgStr, sizeof(int));
 	
 	msg_Int toSendNum;
@@ -76,12 +77,11 @@ int sendmessage(Msg_t msg){
 		perror("msgsnd");
 	}
 	
-	/* Mando el stream */
-	memcpy(toSendString.dataString.string, msgStr, msgSize);
-	if(msgsnd(msgqID,&toSendString, sizeof(int) + msgSize ,0) == -1){
-		perror("msgsnd");
+	sprintf(toSendString.dataString.string, "%s", (char *) msgStr);
+	
+	if(msgsnd(msgqID, &toSendString, sizeof(msg_String) - sizeof(long),0) == -1){
+		perror("msgsnd 2");
 	}
-	printf("MANDEE\n");
 	
 	return SUCCESSFUL;
 	
