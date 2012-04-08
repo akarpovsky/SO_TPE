@@ -28,7 +28,7 @@
 #define DRAFT_START 20
 #define DRAFT_END 21
 
-#define MSG_T_MAX_COMMANDS 18
+#define MSG_T_MAX_COMMANDS 19
 #define DRAFT_STARTED 1
 #define DRAFT_ENDED 2
 

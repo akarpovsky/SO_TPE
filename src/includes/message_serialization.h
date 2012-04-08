@@ -49,6 +49,7 @@ void * serialize_createLeague (Msg_t msg);
 void * serialize_draft (Msg_t msg);
 void * serialize_draftOut (Msg_t msg);
 void * serialize_logout (Msg_t msg);
+void * serialize_choose (Msg_t msg);
 
 Msg_t deserialize_register (Msg_t msg, void * stream);
 Msg_t deserialize_login (Msg_t msg, void * stream);
@@ -67,7 +68,7 @@ Msg_t deserialize_createLeague (Msg_t msg, void * stream);
 Msg_t deserialize_draft (Msg_t msg, void * stream);
 Msg_t deserialize_draftOut (Msg_t msg, void * stream);
 Msg_t deserialize_logout (Msg_t msg, void * stream);
-
+Msg_t deserialize_choose (Msg_t msg, void * stream);
 
 Msg_s deserialize_s (void * stream);
 void * serialize_s (Msg_s msg);

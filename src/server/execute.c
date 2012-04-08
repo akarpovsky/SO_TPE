@@ -1709,25 +1709,20 @@ void makeDraft(League league,Channel ch, User * me)
 
 		if(fromClient != NULL)
 		{
-			if(fromClient->type == DRAFT_OUT)
+			switch(fromClient->type)
 			{
-				//league->cantDraft--;
+			case DRAFT_OUT:
 				toClient = createMsg_s(DRAFT_OUT);
 				AddToList(draftOutSuccessful, toClient->msgList);
 				communicate(ch, toClient);
 				return;
-			}
-			if(fromClient->type == LOGOUT)
-			{
+				break;
+			case LOGOUT:
 				executeLogout(fromClient,ch,me);
 				return;
-			}
-
-			/* Mi turno*/
-			if(fromClient->type == CHOOSE)
-			{
-
-				int rc = pthread_mutex_lock(&game_mutex);
+				break;
+			case CHOOSE:
+				rc = pthread_mutex_lock(&game_mutex);
 				if(strcmp(league->turn, (*me)->user) == 0)
 				{
 					player = fromClient->data.name;
@@ -1748,7 +1743,6 @@ void makeDraft(League league,Channel ch, User * me)
 									break;
 								}
 							}
-
 							AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
 
 							/* Seteo en la liga la variable que indica que respondi */
@@ -1757,26 +1751,35 @@ void makeDraft(League league,Channel ch, User * me)
 							toClient->status = OK;
 							AddToList(playerChooseSuccessful, toClient->msgList);
 							communicate(ch, toClient);
+							turnFlag = FALSE;
 						}
 					}
 
-					if(league->answer == TRUE)
+					if(league->answer != TRUE)
 					{
-						Remove(elemPlayer, league->availablePlayers);
+						toClient = createMsg_s(CHOOSE);
+						toClient->status = ERROR;
+						AddToList(playerUnavailable, toClient->msgList);
+						communicate(ch, toClient);
 					}
-					turnFlag = FALSE;
+					rc = pthread_mutex_unlock(&game_mutex);
 				}
-				rc = pthread_mutex_unlock(&game_mutex);
-			}
-			else
-			{
-				toClient = createMsg_s(CHOOSE);
+				else
+				{
+					toClient = createMsg_s(CHOOSE);
+					toClient->status = !OK;
+					AddToList(cannotChoose, toClient->msgList);
+					communicate(ch, toClient);
+				}
+				break;
+			default:
+				toClient = createMsg_s(DRAFT);
 				toClient->status = !OK;
-				AddToList(cannotChoose, toClient->msgList);
+				AddToList(lockedCommand, toClient->msgList);
 				communicate(ch, toClient);
+				break;
 			}
 		}
-
 		sleep(1);
 	}
 	toClient = createMsg_s(DRAFT_END);
@@ -1789,28 +1792,29 @@ void makeDraft(League league,Channel ch, User * me)
 void * coordinator_thread(void * data)
 {
 	League l = (League)data;
-	int repeatFlag = FALSE;
 	int rc = pthread_mutex_lock(&game_mutex);
 
 	while(l->status == DRAFTING)
 	{
 		int time = 0;
 		l->answer = FALSE;
+		printf("Turn: %s\n", l->turn);
 		while(time < TIME_OUT)
 		{
 			if(l->answer == TRUE)
 			{
-				changeTurn(l, &repeatFlag);
+				changeTurn(l);
 				break;
 			}
 			time++;
 			rc = pthread_mutex_unlock(&game_mutex);
 			sleep(1);
+			printf("%ds left\n", TIME_OUT-time);
 			rc = pthread_mutex_lock(&game_mutex);
 		}
-		if(time == TIME_OUT && l->answer == FALSE)
+		if(time >= TIME_OUT && l->answer == FALSE)
 		{
-			autoAsign(l, &repeatFlag);
+			autoAsign(l);
 		}
 		checkStatus(l);
 	}
@@ -1818,7 +1822,7 @@ void * coordinator_thread(void * data)
 	return NULL;
 }
 
-void changeTurn(League l, int * repeatFlag)
+void changeTurn(League l)
 {
 	Element e;
 
@@ -1836,23 +1840,17 @@ void changeTurn(League l, int * repeatFlag)
 		exit(EXIT_FAILURE);
 	}
 
-	if((e->next == NULL || e->prev == NULL) && *repeatFlag == FALSE)
-	{
-		*repeatFlag = TRUE;
-		return;
-	}
-
 	if(e->next == NULL)
 	{
 		l->turn = ((Team)l->teams->pFirst->data)->owner;
 		return;
 	}
 
-	l->turn = ((Team)e->data)->owner;
+	l->turn = ((Team)e->next->data)->owner;
 	return;
 }
 
-void autoAsign(League l, int * repeatFlag)
+void autoAsign(League l)
 {
 	Element e;
 
@@ -1865,12 +1863,14 @@ void autoAsign(League l, int * repeatFlag)
 	}
 
 	int n = (rand() % l->availablePlayers->NumEl);
+	printf("Player no %d of %d\n", n, l->availablePlayers->NumEl);
 	int i;
 
 	Element p = l->availablePlayers->pFirst;
 
 	for(i = 0; i <= n; i++)
 	{
+		printf("%s\n", (char*)p->data);
 		p = p->next;
 		if(p == NULL)
 		{
@@ -1880,8 +1880,9 @@ void autoAsign(League l, int * repeatFlag)
 	}
 
 	AddElemToList(p,((Team)e->data)->players);
+	Remove(p, l->availablePlayers);
 
-	changeTurn(l, repeatFlag);
+	changeTurn(l);
 	return;
 }
 

@@ -458,9 +458,11 @@ void draft_c(char * id){
 					draftFlag = FALSE;
 				}
 				/* Imprimo todos los msjs */
+				printf("\n");
 				FOR_EACH(elem, response->msgList){
 					printf("%s\n",(char*)(elem->data));
 				}
+				printf("client:/$ ");
 			}
 			
 		}while(draftFlag);

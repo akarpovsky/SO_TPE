@@ -52,5 +52,8 @@ char leagueFull[] = "The league is full";
 char alreadyBelongToLeague[] = "You already belong to that league.";
 char successfulJoin[] = "You have successfully joined the league";
 char successfulCreation[] = "You have successfully created the league";
+char playerUnavailable[] = "The player you've chosen is unavailable";
+char lockedCommand[] = "You can't perform that action right now!";
+
 
 #endif

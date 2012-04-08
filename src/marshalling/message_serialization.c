@@ -27,7 +27,8 @@ Msg_t deserializeMsg(void * stream){
 			deserialize_joinLeague,
 			deserialize_createLeague,
 			deserialize_draft,
-			deserialize_draftOut
+			deserialize_draftOut,
+			deserialize_choose
 	};
 
 	memcpy(&(msg->type), stream, sizeof(int));
@@ -55,7 +56,8 @@ void * serializeMsg(Msg_t msg){
 			serialize_joinLeague,
 			serialize_createLeague,
 			serialize_draft,
-			serialize_draftOut
+			serialize_draftOut,
+			serialize_choose
 	};
 
 	printf("Serializing a %d, message\n", msg->type);
@@ -636,4 +638,36 @@ Msg_t deserialize_logout (Msg_t msg, void * stream){
 	 */
 
 	return msg;
+}
+
+Msg_t deserialize_choose (Msg_t msg, void * stream)
+{
+	int size;
+
+	msg->data.name = malloc((size = strlen(stream)+1));
+
+	strcpy(msg->data.name, stream);
+
+	return msg;
+}
+
+void * serialize_choose (Msg_t msg)
+{
+	int msgSize;
+	void * msgstraux;
+	void * msgstr;
+	int nameSize;
+
+	nameSize = strlen(msg->data.name)+1;
+	msgSize = sizeof(int)+nameSize;
+
+	msgstr = msgstraux = malloc(msgSize+sizeof(int));
+
+	memcpy(msgstraux, &(msgSize), sizeof(int));
+	msgstraux += sizeof(int);
+	memcpy(msgstraux, &(msg->type), sizeof(int));
+	msgstraux += sizeof(int);
+	strcpy(msgstraux, msg->data.name);
+
+	return msgstr;
 }
