@@ -13,6 +13,9 @@
 #include "../../includes/mq_s.h"
 #include "../../includes/transport_s.h"
 
+#include "../../includes/message_serialization.h"
+#include "../../includes/mq_contact_serialization.h"
+
 int msgqID;
 
 void uplink(void){
@@ -100,10 +103,10 @@ int sendmessage(Channel ch, Msg_s msg){
 	int i,sizeString;
 	
 	num.pid = (ch->pid) - CONVENTION;
-	num.dataInt.pidFrom = ch->pid;
+	num.dataInt.fromPid = ch->pid;
 	
 	string.pid = (ch->pid) - CONVENTION;
-	string.dataString.pidFrom = ch->pid;
+	string.dataString.fromPid = ch->pid;
 	
 	Element elem;
 	
@@ -155,257 +158,35 @@ Msg_t rcvmessage(Channel ch){
 
 	msg_String string;
 	msg_Int num;
-	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
-	int sizeString;
+	Msg_t msg;
+	int msgSize;
+	int listenTo;
 	
-	/* Escucho como server */
 	if(ch == NULL){
-		/* Escucho el comando CONTACT Y EL PID DEL NUEVO CLIENTE */
-		if((msgrcv(msgqID, &num, sizeof(msg_Int)- sizeof(long),MAIN_SERVER_PRIORITY,IPC_NOWAIT)) == -1)
-		{
-			if(errno == ENOMSG){
-				return NULL;
-			}else{		
-				perror("Error in msgrcv");
-				exit(EXIT_FAILURE);
-			}
-		}
-		
-		if(num.dataInt.num == CONTACT){
-			msg->type = num.dataInt.num;
-			msg->pidFrom = num.dataInt.pidFrom;
-			printf("\nCONTACT message received\n");
-			printf("\n<data>\n");
-			printf("\tCLIENT_PID = %d\n", msg->pidFrom);
-			printf("</data>\n\n");
-			return msg;
-		}else{
-			return NULL;
-		}
+		listenTo = MAIN_SERVER_PRIORITY;
 	}else{
-		/* Escucho como thread */
-		
-		/* Escucho el comando */
-		if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,IPC_NOWAIT) == -1){
-			if(errno == ENOMSG){
-				return NULL;
-			}else{		
-				perror("Error in msgrcv");
-				exit(EXIT_FAILURE);
-			}
-		}
-		msg->type = num.dataInt.num;
-		msg->pidFrom = num.dataInt.pidFrom;
-		
-		switch(msg->type){
-			
-			case REGISTER:
-						/* Escucho size de user */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.register_t.user = (char *) malloc(sizeString);
-						
-						/* Recibo user */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.register_t.user, string.dataString.string);
-						
-						/* Escucho size de pass */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.register_t.pass = (char *) malloc(sizeString);
-						
-						/* Recibo pass */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.register_t.pass, string.dataString.string);
-						
-						break;
-			
-			case LOGIN:
-						/* Escucho size de user */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.login_t.user = (char *) malloc(sizeString);
-						
-						/* Recibo user */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.login_t.user,string.dataString.string);
-						
-						/* Escucho size de pass */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.login_t.pass = (char *) malloc(sizeString);
-						
-						/* Recibo pass */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.login_t.pass, string.dataString.string);
-						
-						break;
-						
-			case LEAGUE_SHOW:
-			case TEAM_SHOW:
-			case TRADE_SHOW:
-				
-						/* Recibo ID */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						msg->data.show_t.ID = num.dataInt.num;
-						
-						break;
-			
-			case TRADE:
-						/* Escucho size de from */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.trade_t.from = (char *) malloc(sizeString);
-						
-						/* Recibo from */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.trade_t.from,string.dataString.string);
-						
-						/* Escucho size de to */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.trade_t.to = (char *) malloc(sizeString);
-						
-						/* Recibo to */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.trade_t.to,string.dataString.string);
-						
-						/* Recibo ID */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						msg->data.trade_t.teamID = num.dataInt.num;
-						
-						break;
-						
-			case TRADE_WITHDRAW:
-			case TRADE_ACCEPT:
-			
-						/* Recibo ID */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						msg->data.trade_t.tradeID = num.dataInt.num;
-						
-						break;
-			
-			case TRADE_NEGOTIATE:
-				
-						/* Escucho size de from */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.trade_t.from = (char *) malloc(sizeString);
-						
-						/* Recibo from */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.trade_t.from,string.dataString.string);
-						
-						/* Escucho size de to */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.trade_t.to = (char *) malloc(sizeString);
-						
-						/* Recibo to */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.trade_t.to,string.dataString.string);
-						
-						/* Recibo ID */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						msg->data.trade_t.tradeID = num.dataInt.num;
-						
-						break;
-						
-			case JOIN_LEAGUE:
-			case DRAFT:
-						/* Recibo ID */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						msg->data.ID = num.dataInt.num;
-						
-						break;
-						
-			case CREATE_LEAGUE:
-			case CHOOSE:
-						
-						/* Escucho size de name */
-						if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long) ,ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						sizeString = num.dataInt.num;
-						msg->data.name = (char *) malloc(sizeString);
-						
-						/* Recibo to */
-						if(msgrcv(msgqID,&string, sizeof(int) + sizeString, ch->pid ,0) == -1){
-								perror("Error in msgrcv");
-								exit(EXIT_FAILURE);
-						}
-						strcpy(msg->data.name,string.dataString.string);
-						
-							
-		}
-		
-		return msg;
+		listenTo = ch->pid;
 	}
-	
-	return NULL;
-	
+		
+	/* Escucho el size del msg y el pid del nuevo cliente*/
+	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), listenTo, IPC_NOWAIT)) == -1){
+		if(errno == ENOMSG){
+			return NULL;
+		}else{		
+			perror("Could not communicate to server. In msgrcv");
+			exit(EXIT_FAILURE);
+		}
+	}
+	msgSize = num.dataInt.num;	
+		
+	/* Escucho el stream Y EL PID DEL NUEVO CLIENTE */
+	if((msgrcv(msgqID, &string, sizeof(int) + msgSize, listenTo, 0)) == -1){
+		perror("Error in msgrcv");
+		exit(EXIT_FAILURE);
+	}
+		
+	msg = deserializeMsg(string.dataString.string);
+	free(string.dataString.string);
+	return msg;
+
 }
