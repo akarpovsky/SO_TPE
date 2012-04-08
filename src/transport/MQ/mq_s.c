@@ -66,7 +66,6 @@ Msg_t IPClisten(Channel ch){
 	}
 		
 	msg = deserializeMsg(string.dataString.string);
-	free(string.dataString.string);
 	return msg;
 
 }
@@ -186,7 +185,6 @@ Msg_t rcvmessage(Channel ch){
 	}
 		
 	msg = deserializeMsg(string.dataString.string);
-	free(string.dataString.string);
 	return msg;
 
 }

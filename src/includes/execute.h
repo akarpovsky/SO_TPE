@@ -55,6 +55,8 @@ void executeTradeShow(Msg_t msg, Channel ch);
 void executeTrade(Msg_t msg, Channel ch, User * me);
 void executeTradeWithdraw(Msg_t msg,Channel ch, User * me);
 void executeTradeAccept(Msg_t msg,Channel ch, User * me);
+void executeCreateLeague(Msg_t msg, Channel ch, User * me);
+void executeJoinLeague(Msg_t msg, Channel ch, User * me);
 void executeDraft(Msg_t msg,Channel ch, User * me);
 void executeLogout(Msg_t msg,Channel ch,User * me);
 

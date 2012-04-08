@@ -1411,7 +1411,7 @@ void executeCreateLeague(Msg_t msg, Channel ch, User * me){
 	
 	Msg_s answer = createMsg_s(CREATE_LEAGUE);
 	char * toPrint;
-	int name = msg->data.name;
+	char * name = msg->data.name;
 	Player player;
 	Element elemPlayer;
 	
