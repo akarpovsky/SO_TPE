@@ -33,7 +33,6 @@ Msg_t deserializeMsg(void * stream){
 
 	memcpy(&(msg->type), stream, sizeof(int));
 	stream += sizeof(int);
-	printf("Deserializing a %d message \n", msg->type);
 	return _deserialize_t[msg->type](msg, stream);
 }
 
@@ -60,13 +59,11 @@ void * serializeMsg(Msg_t msg){
 			serialize_choose
 	};
 
-	printf("Serializing a %d, message\n", msg->type);
 	return _serialize_t[msg->type](msg);
 }
 
 void * serialize_s (Msg_s msg){
 
-	printf("Serializing a %d server message\n", msg->responseType);
 
 	void * msgstr;
 	void * msgstraux;
@@ -152,7 +149,6 @@ Msg_s deserialize_s (void * stream){
 		AddToList(str, msg->msgList);
 	}
 
-	printf("Deserialized a %d server message\n", msg->responseType);
 	return msg;
 
 }
