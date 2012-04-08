@@ -527,10 +527,10 @@ void draftout_c(){
 
 void choose_c(char * name){
 	
-	if(draftStarted == FALSE || draftFlag == FALSE){
-		printf("You have to be in draft mode to use this command\n");
-		return;
-	}
+//	if(draftStarted == FALSE || draftFlag == FALSE){
+//		printf("You have to be in draft mode to use this command\n");
+//		return;
+//	}
 	
 	Msg_s response;
 	Msg_t msg = (Msg_t) malloc(sizeof(msg_t));
@@ -561,10 +561,10 @@ void choose_c(char * name){
 
 void consoleForDraft(void){
 	
-	if(newLineFlag)
+	if(newLineFlag == TRUE)
 	{
 		printf("client:/$ ");
-		newLineFlag = FALSE
+		newLineFlag = FALSE;
 	}
 
 	if(checkstdin())
@@ -574,20 +574,6 @@ void consoleForDraft(void){
 		newLineFlag = TRUE;
 		parseCommand(input);
 	}
-	/*int input = getchar_unlocked();
-	
-	if(input == '\n'){
-			forDraft[item++] = 0;
-			parseCommand(forDraft);
-			item = 0;
-			forDraft[item] = 0;
-			
-	}else{
-		if(input != EOF){
-			forDraft[item++] = input;
-		}
-	}
-*/
 }
 
 int checkstdin(void)
@@ -597,7 +583,7 @@ int checkstdin(void)
 	tv.tv_sec = 0;
 	tv.tv_usec = 0;
 	FD_ZERO(&fds);
-	FD_SET(STDIN, &fds); //STDIN_FILENO is 0
+	FD_SET(STDIN, &fds);
 	select(STDIN+1, &fds, NULL, NULL, &tv);
 	return FD_ISSET(STDIN, &fds);
 }
