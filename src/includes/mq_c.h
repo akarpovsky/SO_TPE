@@ -8,6 +8,24 @@
 #define MAX_STRING 1024
 #define SUCCESSFUL 1
 
+
+typedef struct msg_String{
+    long  pid;  
+	struct dataString{
+		int fromPid;
+		char string[MAX_STRING];
+		}dataString;
+}msg_String;
+
+typedef struct msg_Int{
+	long pid;
+	struct dataInt{
+		int num;
+		int fromPid;
+	}dataInt;
+}msg_Int;
+
+
 Msg_s communicate(Msg_t msg);
 
 Msg_s _rcvmessage(void);
