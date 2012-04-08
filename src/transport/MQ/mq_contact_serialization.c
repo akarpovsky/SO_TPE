@@ -10,9 +10,9 @@ Msg_t deserialize_contact (Msg_t msg, void * stream){
 	printf("Deserializing contact message...\n");
 	printf("\nCONTACT message received\n");
 	printf("\n<data>\n");
-	memcpy(&(msg->data.pidFrom), stream, sizeof(int));
+	memcpy(&(msg->pidFrom), stream, sizeof(int));
 	stream += sizeof(int);
-	printf("\tCLIENT_PID = %d \n", msg->data.pidFrom);
+	printf("\tCLIENT_PID = %d \n", msg->pidFrom);
 	printf("</data>\n\n");
 
 	return msg;
@@ -37,7 +37,7 @@ void * serialize_contact (Msg_t msg){
 	memcpy(msgstraux, &(msg->type), sizeof(int));
 	msgstraux += sizeof(int);
 	
-	int client_pid = msg->data.pidFrom;
+	int client_pid = msg->pidFrom;
 
 	memcpy(msgstraux, &client_pid, sizeof(int));
 	msgstraux += sizeof(int);
