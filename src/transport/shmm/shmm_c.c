@@ -80,13 +80,13 @@ void sigint(){
 Msg_s communicate(Msg_t msg)
 {
 	if(sendmessage(msg) == SUCCESSFUL){
-		return rcvmessage();
+		return _rcvmessage();
 	}
 
 	return NULL;
 }
 
-Msg_s rcvmessage(void)
+Msg_s _rcvmessage(void)
 {
 	
 	Sem new_msg;
@@ -98,7 +98,9 @@ Msg_s rcvmessage(void)
 		new_msg = servtocli_sem;
 	}
 
-	printf("En rcv msg esperando nuevo mensaje ... \n");
+	printf("_rcvmessaege: Using blocking shared memory!\n");
+	printf("Waiting for new messages ... \n");
+
 	down(new_msg);
 
 	int rcvFlag = FALSE;
@@ -125,6 +127,39 @@ Msg_s rcvmessage(void)
 		rcvFlag = TRUE;
 
 	}while(rcvFlag != TRUE);
+
+	return msg;
+}
+
+Msg_s rcvmessage(void)
+{
+	
+	printf("_rcvmessaege: Using NON blocking shared memory!\n");
+
+	Msg_s msg = malloc(sizeof(msg_s));
+
+	int msgSize;
+	void * bytestring;
+	void * aux;
+
+	down(memory_lock_sem);
+		memcpy(&msgSize, offset, sizeof(int));
+
+		if(msgSize == 0){
+			return NULL;
+		}
+
+		aux = bytestring = malloc(msgSize);
+		memcpy(aux, offset+sizeof(int), msgSize);
+		msg = deserialize_s(aux);
+	up(memory_lock_sem);
+
+	if(msg->status == -1){ // Server cant handle my connection
+		printf("\nERROR: No more slots available in server for new clients. Closing connection.\n");
+		exit(EXIT_FAILURE);
+	}
+
+
 
 	return msg;
 }

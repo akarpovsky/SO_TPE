@@ -181,9 +181,8 @@ void * client_thread(void * ch){
  */
 void * saver_thread_main(void * data)
 {
+	printf("Sleep %d secs and then save!\n", (int) data);
     
-    /* Lock the mutex, to access the requests list exclusively. */
-
     while (1) {
     		sleep((int) data);
     		printf("Saving all the data to the harddrive!\n");
@@ -255,21 +254,21 @@ int main(void){
 	rc = pthread_create(&creator_client_thread, NULL, creator_client_main, NULL);
 	if (rc)
 	{
-		printf("ERROR; return code from pthread_create() is %d\n", rc);
+		printf("ERROR; return code from pthread_create() is %d", rc);
 		exit(EXIT_FAILURE);
 	}	
 
-	printf("In main creating match reviewer thread");
+	printf("In main creating match reviewer thread\n");
 	rc = pthread_create(&match_reviewer_thread, NULL, match_reviewer_main, NULL);
 	if(rc)
 	{
-		printf("ERROR; return code from phtread_create() is %d\n", rc);
+		printf("ERROR; return code from phtread_create() is %d", rc);
 		exit(EXIT_FAILURE);
 	}
 
 	int save_time = SAVING_DELAY;
-	printf("In main creating saver thread");
-	rc = pthread_create(&saver_thread, NULL, saver_thread_main, (void *) &save_time);
+	printf("In main creating saver thread\n");
+	rc = pthread_create(&saver_thread, NULL, saver_thread_main, (void *) save_time);
 	if(rc)
 	{
 		printf("ERROR; return code from phtread_create() is %d\n", rc);
