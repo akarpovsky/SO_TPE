@@ -161,38 +161,42 @@ int sendmessage(Channel ch, Msg_s msg){
 
 Msg_t rcvmessage(Channel ch){
 	
-	printf("\nServer listening ...\n\n");
-
 	msg_String string;
 	msg_Int num;
 	Msg_t msg;
 	int msgSize;
-	int listenTo;
-	
+	long listenTo;
 	if(ch == NULL){
 		listenTo = MAIN_SERVER_PRIORITY;
 	}else{
 		listenTo = ch->pid;
 	}
 		
-	/* Escucho el size del msg y el pid del nuevo cliente*/
+	/* Escucho el size del msg */
 	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), listenTo, IPC_NOWAIT)) == -1){
 		if(errno == ENOMSG){
 			return NULL;
 		}else{		
-			perror("Could not communicate to server. In msgrcv");
+			perror("rcv from server.");
 			exit(EXIT_FAILURE);
 		}
 	}
-	msgSize = num.dataInt.num;	
+	printf("Received msg size = %d\n", num.dataInt.num);
+	msgSize = num.dataInt.num; /* TAMANIO DE TODO EL STRAM */	
+
 		
-	/* Escucho el stream Y EL PID DEL NUEVO CLIENTE */
-	if((msgrcv(msgqID, &string, sizeof(int) + msgSize, listenTo, 0)) == -1){
+	/* Escucho el stream */
+	if((msgrcv(msgqID, &string,  msgSize + sizeof(int), listenTo, 0)) == -1){
 		perror("Error in msgrcv");
 		exit(EXIT_FAILURE);
 	}
-		
-	msg = deserializeMsg(string.dataString.string);
-	return msg;
 
+
+	char * climsg = calloc(msgSize, sizeof(char));
+	memcpy(climsg, string.dataString.string, msgSize);
+	climsg+=sizeof(int);
+		
+	msg = deserializeMsg(climsg);
+	printf("DESP DEL LISTEN\n" );
+	return msg;
 }
