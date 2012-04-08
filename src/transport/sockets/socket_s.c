@@ -274,7 +274,6 @@ Msg_t rcvmessage(Channel ch){
 		printf("Client server listening on port %d ... \n", ch->port);
 	}
 
-	int rcvFlag = FALSE;
 	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
 
 	int msgSize;
@@ -297,7 +296,9 @@ Msg_t rcvmessage(Channel ch){
 
 	if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) client, (socklen_t *) &client_len)) == -1){
 		perror("Error while receiving data");
+		return NULL;
 	}
+	
 	if(msgSize > 0){
 		aux = bytestring = calloc(msgSize+sizeof(int), sizeof(char));
 
@@ -322,7 +323,6 @@ Msg_t rcvmessage(Channel ch){
 
 			}
 			free(bytestring);
-			rcvFlag = TRUE;
 	}
 	
 	return msg;

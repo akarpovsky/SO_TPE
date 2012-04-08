@@ -251,6 +251,9 @@ Msg_t IPClisten(Channel ch){
 		offset = ch->buffer;
 	}
 
+	printf("Shared memory: Using blocking shared memory!\n");
+
+
 	printf("in buffer %d\n", (int) offset);
 
 	int rcvFlag = FALSE;
@@ -258,7 +261,6 @@ Msg_t IPClisten(Channel ch){
 	int msgSize = 0;
 	do{
 		down(msg_signal_sem);
-		printf("Me despertaron en IPCListen\n");
 		void * stream;	
 		void * streamAux;
 
@@ -268,6 +270,10 @@ Msg_t IPClisten(Channel ch){
 			printf("Message size %d\n", msgSize);
 			stream = streamAux = calloc(1, msgSize * sizeof(char));
 			memcpy(stream, offset+sizeof(int), msgSize);
+
+			/* Reset memory zone so nonblocking shmm work properly */
+			int resetZone = 0;
+			memcpy(offset, &resetZone, sizeof(int));
 		
 		up(server_lock_sem);
 
@@ -276,10 +282,8 @@ Msg_t IPClisten(Channel ch){
 		printf("Msg type %d\n", ti);
 		
 		msg = deserializeMsg(stream);
-		printf("Deserialization end!\n");
 		// free(streamAux);
 		rcvFlag = TRUE;
-
 
 	}while(rcvFlag != TRUE);
 
@@ -287,6 +291,52 @@ Msg_t IPClisten(Channel ch){
 }
 
 Msg_t rcvmessage(Channel ch){
+
+	printf("Waiting in IPC listen with ");
+	void * offset;
+	if(ch == NULL){
+		printf("null channel ");
+		offset = bufferShMem;
+	}else{
+		printf("NOT null channel ");
+		offset = ch->buffer;
+	}
+
+	printf("Shared memory: Using NON blocking shared memory!\n");
+
+
+	Msg_t msg = (Msg_t) calloc(1, sizeof(msg_t));
+	int msgSize = 0;
+
+	void * stream;	
+	void * streamAux;
+
+	down(server_lock_sem);
+	
+		memcpy(&msgSize, offset, sizeof(int));
+
+		if(msgSize == 0){
+			return NULL;
+		}
+
+		printf("Message size %d\n", msgSize);
+		stream = streamAux = calloc(1, msgSize * sizeof(char));
+		memcpy(stream, offset+sizeof(int), msgSize);
+
+		/* Reset memory zone so nonblocking shmm work properly */
+		int resetZone = 0;
+		memcpy(offset, &resetZone, sizeof(int));
+	
+	up(server_lock_sem);
+
+	int ti = 0;
+	memcpy(&ti, stream, sizeof(int));
+	printf("Msg type %d\n", ti);
+	
+	msg = deserializeMsg(stream);
+	// free(streamAux);
+
+	return msg;
 
 }
 
