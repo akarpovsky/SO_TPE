@@ -91,63 +91,32 @@ Msg_s _rcvmessage(void){
 	
 	msg_String string;
 	msg_Int num;
-	int cantStrings, sizeString,i;
+	Msg_s msg;
+	int msgSize;
 	
-	/* Pido memoria para el retorno e inicializo todo*/
-	Msg_s response = (Msg_s) malloc(sizeof(msg_s));
-	if(response == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);	
-	}
-	response->msgList = (List) malloc(sizeof(llist));
-	if(response->msgList == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);	
-	}
-	CreateList(response->msgList);
-	
-	
-	/* Recibo el responseType y lo pongo en response */
-	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-		perror("Could not communicate to server. In msgsnd");
+	/* Escucho el size del msg */
+	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), pid, 0)) == -1){
+		perror("Error in msgrcv 1");
 		exit(EXIT_FAILURE);
 	}
-	response->responseType = num.dataInt.num;
-	
-	/* Recibo el status y lo pongo en response */
-	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-		perror("Could not communicate to server. In msgsnd");
-		exit(EXIT_FAILURE);
-	}
-	response->status = num.dataInt.num;
-	
-	/* Recibo la cantidad de strings que me va a enviar */
-	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-		perror("Could not communicate to server. In msgsnd");
-		exit(EXIT_FAILURE);
-	}
-	cantStrings = num.dataInt.num;
-	
-	for(i = 0; i < cantStrings; i++){
+	printf("Received msg size = %d\n", num.dataInt.num);
+	msgSize = num.dataInt.num; /* TAMANIO DE TODO EL STRAM */	
+
 		
-		/* Recibo la dimension del prox string (incluido el 0) */
-		if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-			perror("Could not communicate to server. In msgsnd");
-			exit(EXIT_FAILURE);
-		}
-		sizeString = num.dataInt.num;
-		
-		/* Recibo string y lo pongo en response */
-		if(msgrcv(msgqID,&string,sizeString + sizeof(int),pid,0) == -1){
-			perror("Could not communicate to server. In msgsnd");
-			exit(EXIT_FAILURE);
-		}
-		char *s = (char *) malloc(sizeString);
-		strcpy(s,string.dataString.string);
-		AddToList(s,response->msgList);
+	/* Escucho el stream */
+	if((msgrcv(msgqID, &string,  msgSize + sizeof(int), pid, 0)) == -1){
+		perror("Error in msgrcv");
+		exit(EXIT_FAILURE);
 	}
+
+
+	char * climsg = calloc(msgSize, sizeof(char));
+	memcpy(climsg, string.dataString.string, msgSize);
+	climsg+=sizeof(int);
+		
+	msg = deserialize_s(climsg);
 	
-	return response;
+	return msg;
 	
 }
 
@@ -155,67 +124,36 @@ Msg_s rcvmessage(void){
 	
 	msg_String string;
 	msg_Int num;
-	int cantStrings, sizeString,i;
+	Msg_s msg;
+	int msgSize;
 	
-	/* Pido memoria para el retorno e inicializo todo*/
-	Msg_s response = (Msg_s) malloc(sizeof(msg_s));
-	if(response == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);	
+	/* Escucho el size del msg */
+	if((msgrcv(msgqID, &num, sizeof(msg_Int) - sizeof(long), pid, 0)) == -1){
+		perror("Error in msgrcv 1");
+		exit(EXIT_FAILURE);
 	}
-	response->msgList = (List) malloc(sizeof(llist));
-	if(response->msgList == NULL){
-		perror("Insufficient memory\n");
-		exit(EXIT_FAILURE);	
-	}
-	CreateList(response->msgList);
-	
-	
-	/* Recibo el responseType y lo pongo en response */
-	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,IPC_NOWAIT) == -1){
+	printf("Received msg size = %d\n", num.dataInt.num);
+	msgSize = num.dataInt.num; /* TAMANIO DE TODO EL STRAM */	
+
+		
+	/* Escucho el stream */
+	if((msgrcv(msgqID, &string,  msgSize + sizeof(int), pid, IPC_NOWAIT)) == -1){
 		if(errno == ENOMSG){
 			return NULL;
 		}else{		
-			perror("Could not communicate to server. In msgsnd");
+			perror("Client: rcvmsg");
 			exit(EXIT_FAILURE);
 		}
 	}
-	response->responseType = num.dataInt.num;
-	
-	/* Recibo el status y lo pongo en response */
-	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-		perror("Could not communicate to server. In msgsnd");
-		exit(EXIT_FAILURE);
-	}
-	response->status = num.dataInt.num;
-	
-	/* Recibo la cantidad de strings que me va a enviar */
-	if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-		perror("Could not communicate to server. In msgsnd");
-		exit(EXIT_FAILURE);
-	}
-	cantStrings = num.dataInt.num;
-	
-	for(i = 0; i < cantStrings; i++){
+
+
+	char * climsg = calloc(msgSize, sizeof(char));
+	memcpy(climsg, string.dataString.string, msgSize);
+	climsg+=sizeof(int);
 		
-		/* Recibo la dimension del prox string (incluido el 0) */
-		if(msgrcv(msgqID,&num, sizeof(msg_Int) - sizeof(long),pid,0) == -1){
-			perror("Could not communicate to server. In msgsnd");
-			exit(EXIT_FAILURE);
-		}
-		sizeString = num.dataInt.num;
-		
-		/* Recibo string y lo pongo en response */
-		if(msgrcv(msgqID,&string,sizeString + sizeof(int),pid,0) == -1){
-			perror("Could not communicate to server. In msgsnd");
-			exit(EXIT_FAILURE);
-		}
-		char *s = (char *) malloc(sizeString);
-		strcpy(s,string.dataString.string);
-		AddToList(s,response->msgList);
-	}
+	msg = deserialize_s(climsg);
 	
-	return response;
+	return msg;
 	
 }
 
