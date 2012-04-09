@@ -885,6 +885,36 @@ char * teamToString(Team t)
 	return str;
 }
 
+
+void checkResFolder(){
+
+DIR * d;
+struct dirent * entry;
+
+/* Open the resources directory. */
+d = opendir("./res/");
+
+    if(!d) {
+    // printf("Cannot open directory '%s'\n",dir_name);
+    perror("Cannot open directory");
+    if(errno == ENOENT ){
+    	int status = mkdir("./res/", 0666);
+		if(status == -1){
+			perror("./res/ directory could not be created");
+			exit(EXIT_FAILURE);
+		}else{
+			d = opendir("./res/");
+			if(!d) {
+				perror("Cannot open neither create directory. Closing the app.");
+				exit(EXIT_FAILURE);
+			}
+
+			}
+    	}
+	}
+
+}
+
 Game loadGame(void){
 
 	Game game = (Game) malloc(sizeof(game_t));
@@ -892,6 +922,8 @@ Game loadGame(void){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);
 	}
+
+	checkResFolder();
 
 	game->users = loadUsers("./res/users/");
 	game->leagues = loadLeagues("./res/leagues/");

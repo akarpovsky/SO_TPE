@@ -87,6 +87,7 @@ void saveLeague(char * path, League lg);
 void saveGame(void);
 
 List loadPlayers(void);
+void checkResFolder();
 
 
 #endif
