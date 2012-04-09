@@ -1143,7 +1143,7 @@ void updatePlayers(List l){
 
 void dumpMatch(char * path){
 
-	char string[];
+	char string[FILENAME_MAX];
 	
 	sprintf(string, "mv -n %s %s", path, MATCHES_DUMP);
 	system(string);
