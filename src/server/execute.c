@@ -1645,11 +1645,14 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 						if(incoming != NULL)
 						{
 							answer = createMsg_s(incoming->type);
-							if(incoming->type != DRAFT_OUT || incoming->type != LOGOUT)
+							if(incoming->type != DRAFT_OUT && incoming->type != LOGOUT)
 							{
 								answer->status = !OK;
+								printRedColor(answer);
 								AddToList(invalidCommand, answer->msgList);
+								releasePrintColor(answer);
 								communicate(ch, answer);
+
 							}
 							else
 							{
@@ -1657,7 +1660,9 @@ void executeDraft(Msg_t msg, Channel ch, User * me){
 								((League)elemLeague->data)->cantDraft--;
 								rc = pthread_mutex_unlock(&game_mutex);
 								answer->status = OK;
+								printGreenColor(answer);
 								AddToList(draftOutSuccessful, answer->msgList);
+								releasePrintColor(answer);
 								communicate(ch, answer);
 								return;
 							}
@@ -1713,7 +1718,9 @@ void makeDraft(League league,Channel ch, User * me)
 			{
 			case DRAFT_OUT:
 				toClient = createMsg_s(DRAFT_OUT);
+				printGreenColor(toClient);
 				AddToList(draftOutSuccessful, toClient->msgList);
+				releasePrintColor(toClient);
 				communicate(ch, toClient);
 				return;
 				break;
@@ -1726,34 +1733,48 @@ void makeDraft(League league,Channel ch, User * me)
 				if(strcmp(league->turn, (*me)->user) == 0)
 				{
 					player = fromClient->data.name;
-
+					int playerFound = FALSE;
 					FOR_EACH(elemPlayer, league->availablePlayers)
 					{
 						/* Encontre el jugador */
 						if(strcmp(player,((Player)elemPlayer->data)->name) == 0)
 						{
-							/* Saco el jugador de availablePlayers */
-							Remove(elemPlayer, league->availablePlayers);
-							/* Busco en que team ponerlo */
-							FOR_EACH(elemTeam, league->teams)
-							{
-								if(strcmp(((Team)elemTeam->data)->owner,(*me)->user) == 0)
-								{
-									break;
-								}
-							}
-							AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
-
-							/* Seteo en la liga la variable que indica que respondi */
-							league->answer = TRUE;
-							toClient = createMsg_s(CHOOSE);
-							toClient->status = OK;
-							AddToList(playerChooseSuccessful, toClient->msgList);
-							communicate(ch, toClient);
-							turnFlag = FALSE;
+							playerFound = TRUE;
+							break;
 						}
 					}
+					if(playerFound == TRUE)
+					{
+						/* Saco el jugador de availablePlayers */
+						Remove(elemPlayer, league->availablePlayers);
 
+						/* Busco en que team ponerlo */
+						FOR_EACH(elemTeam, league->teams)
+						{
+							if(strcmp(((Team)elemTeam->data)->owner,(*me)->user) == 0)
+							{
+								break;
+							}
+						}
+						AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
+
+						/* Seteo en la liga la variable que indica que respondi */
+						league->answer = TRUE;
+						toClient = createMsg_s(CHOOSE);
+						toClient->status = OK;
+						AddToList(playerChooseSuccessful, toClient->msgList);
+						communicate(ch, toClient);
+						turnFlag = FALSE;
+					}
+					else
+					{
+						toClient = createMsg_s(CHOOSE);
+						toClient->status = ERROR;
+						printRedColor(toClient);
+						AddToList(playerUnavailable, toClient->msgList);
+						releasePrintColor(toClient);
+						communicate(ch, toClient);
+					}
 					if(league->answer != TRUE)
 					{
 						toClient = createMsg_s(CHOOSE);

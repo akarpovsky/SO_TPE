@@ -38,7 +38,7 @@
 #define DRAFTING 2
 #define ACTIVE 3
 
-#define TIME_OUT 60
+#define TIME_OUT 1
 
 void reverse(char s[]);
 void itoa(int n, char s[]);
