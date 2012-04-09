@@ -1890,7 +1890,7 @@ void checkStatus(League l)
 	Element e;
 	FOR_EACH(e, l->teams)
 	{
-		if(l->teams->NumEl < CANT_PLAYERS)
+		if(((Team)e->data)->players->NumEl < CANT_PLAYERS)
 		{
 			return;
 		}
