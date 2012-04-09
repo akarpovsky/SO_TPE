@@ -104,10 +104,11 @@ Channel createChannel(Msg_t msg){
 
 int sendmessage(Channel ch, Msg_s msg){
 	
+	int msgSize;
 	msg_Int num;
 	msg_String string;
-	int cantStrings = msg->msgList->NumEl;
-	int i,sizeString;
+	void * msgStr = (void *) serialize_s(msg);
+	memcpy(&msgSize, msgStr, sizeof(int));
 	
 	num.pid = (ch->pid) - CONVENTION;
 	num.dataInt.fromPid = ch->pid;
@@ -115,49 +116,23 @@ int sendmessage(Channel ch, Msg_s msg){
 	string.pid = (ch->pid) - CONVENTION;
 	string.dataString.fromPid = ch->pid;
 	
-	Element elem;
-	
-	/* Envio el responseType */
-	num.dataInt.num = msg->responseType;
+	/* Mando el size del stream */
+	num.dataInt.num = msgSize + sizeof(int);
 	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
-		perror("Could not communicate to client 1 . In msgsnd");
-		exit(EXIT_FAILURE);
+		perror("In server: msgsnd");
 	}
 	
-	/* Envio el status */
-	num.dataInt.num = msg->status;
-	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
-		perror("Could not communicate to client 2. In msgsnd");
-		exit(EXIT_FAILURE);
-	}
+	memcpy(string.dataString.string, (char *) msgStr, msgSize + sizeof(int));
 	
-	/* Envio la cantidad de strings que voy a enviar */
-	num.dataInt.num = cantStrings;
-	if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
-		perror("Could not communicate to server. In msgsnd");
-		exit(EXIT_FAILURE);
-	}
-	
-	for(i = 0, elem = msg->msgList->pFirst; i < cantStrings; i++, elem=elem->next){
-		
-		/* Envio la dimension del string (incluido 0) q voy a enviar desp */
-		sizeString = strlen((char*)elem->data) + 1;
-		num.dataInt.num = sizeString;
-		if(msgsnd(msgqID,&num,sizeof(msg_Int) - sizeof(long),0) == -1){
-			perror("Could not communicate to server. In msgsnd");
-			exit(EXIT_FAILURE);
-		}
-		
-		/* Envio el string */
-		strcpy(string.dataString.string,(char*) elem->data);
-		if(msgsnd(msgqID,&string,sizeString + sizeof(int),0) == -1){
-			perror("Could not communicate to server. In msgsnd");
-			exit(EXIT_FAILURE);
-		}
+	if(msgsnd(msgqID, &string, sizeof(int) + sizeof(int) + msgSize, 0) == -1){
+		perror("In server: msgsnd 2");
 	}
 	
 	return SUCCESSFUL;
+	
+	
 }
+
 
 Msg_t rcvmessage(Channel ch){
 	
