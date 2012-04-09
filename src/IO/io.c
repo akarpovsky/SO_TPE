@@ -1068,6 +1068,7 @@ void checkMatches(void)
 				strcpy(filename, ine->name);
 				path = malloc(strlen(MATCHES_NEW)+ine->len+1);
 				strcpy(path, MATCHES_NEW);
+				strcat(path, "/");
 				strcat(path, filename);
 				if(fileType(path) == FILE_TYPE)
 				{
@@ -1075,28 +1076,26 @@ void checkMatches(void)
 					{
 						printf("Impossible to read file: %s\n", filename);
 						fclose(fp);
-
-						if((l = loadMatch(fp)) != NULL){
-							updatePlayers(l);
-							fclose(fp);
-							Element e;
-							FOR_EACH(e, l)
-							{
-								free(((Player)e->data)->name);
-								free(e->data);
-							}
-							e = l->pFirst;
-							Element oe;
-							oe = e->next;
-							while(e != NULL)
-							{
-								free(e);
-								e = oe;
-								oe = ((e != NULL)?e->next:NULL);
-							}
-							dumpMatch(path);
-
+					}
+					else if((l = loadMatch(fp)) != NULL){
+						updatePlayers(l);
+						fclose(fp);
+						Element e;
+						FOR_EACH(e, l)
+						{
+							free(((Player)e->data)->name);
+							free(e->data);
 						}
+						e = l->pFirst;
+						Element oe;
+						oe = e->next;
+						while(e != NULL)
+						{
+							free(e);
+							e = oe;
+							oe = ((e != NULL)?e->next:NULL);
+						}
+						dumpMatch(path);
 					}
 					free(path);
 				}
