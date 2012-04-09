@@ -34,7 +34,7 @@ struct sockaddr_in * client_address;
 struct sockaddr_in * server_address;
 struct sockaddr_in * new_server_address;
 
-int socket_flags; // Default socket flags	
+int socket_flags; // Default socket flags
 
 struct sockaddr_in * fillServerData(){
 
@@ -116,14 +116,13 @@ Msg_s _rcvmessage(void){
 			perror("Error while receiving data");
 			return NULL;
 		}
+		printf("msgSize = %d\n", msgSize );
 		
 		if(msgSize > 0){
 			printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
-
 			aux = bytestring = calloc(msgSize, sizeof(char));
-								
 
-			if( (recv(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0)) == -1){
+			if( (recv(listenFD, aux, msgSize + sizeof(int), 0)) == -1){
 				perror("Reading server message failed");
 				return NULL;
 			}else{
@@ -162,28 +161,30 @@ Msg_s rcvmessage(void){
 	fcntl(listenFD,F_SETFL,socket_flags | O_NONBLOCK);
 	
 	if( (recvfrom(listenFD, &msgSize, sizeof(int), 0, (struct sockaddr *) new_server_address, (socklen_t *) &client_len)) == -1){
-		perror("Error while receiving data");
+		perror("Error while receiving data 1");
+		printf("Returning NULL\n");
 		return NULL;
-	}
-	
-	if(msgSize > 0){
-		printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
+	}else{
+		printf("Here!!\n\n");
+		if(msgSize > 0){
+			printf("<LOG socket_c.c> Client - Message header received OK. Full message size = %d <end>\n", msgSize);
 
-		aux = bytestring = calloc(msgSize, sizeof(char));
-							
+			aux = bytestring = calloc(msgSize, sizeof(char));
+								
 
-		if( (recv(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0)) == -1){
-			perror("Reading server message failed");
-			return NULL;
-		}else{
-			memcpy(&(msg->status), aux, sizeof(int));
-			aux += sizeof(int);
-			msg = (Msg_s) deserialize_s(aux);
+			if( (recv(listenFD, aux, (msgSize * sizeof(char)) + sizeof(int), 0)) == -1){
+				perror("Reading server message failed");
+				return NULL;
+			}else{
+				memcpy(&(msg->status), aux, sizeof(int));
+				aux += sizeof(int);
+				msg = (Msg_s) deserialize_s(aux);
 
+				}
 			}
-	}
 
-	return msg;
+			return msg;
+	}
 }
 
 

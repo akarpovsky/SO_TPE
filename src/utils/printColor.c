@@ -64,7 +64,7 @@ void printGreenBlink(Msg_s answer){
 void releasePrintColor(Msg_s answer){
 	
 	char * toPrint = NULL;
-	asprintf(&toPrint, "%c[%dm", 0x1B, 0);
+	asprintf(&toPrint, "%c[%d;%dm", 0x1B, 0, 37);
 	if(toPrint == NULL){
 		perror("Insufficient memory\n");
 		exit(EXIT_FAILURE);

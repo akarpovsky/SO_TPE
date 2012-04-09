@@ -32,24 +32,24 @@ int socket_flags;
 
  struct sockaddr_in * getClientChannel(int pid){
 
-		struct sockaddr_in * address = malloc(sizeof(struct sockaddr_in));
+	struct sockaddr_in * address = malloc(sizeof(struct sockaddr_in));
 
-		address->sin_family = AF_INET;
-		address->sin_port = 7000 + pid;
-		address->sin_addr.s_addr = htonl(INADDR_ANY);
-		
-		return address;
+	address->sin_family = AF_INET;
+	address->sin_port = 7000 + pid;
+	address->sin_addr.s_addr = htonl(INADDR_ANY);
+	
+	return address;
 }
 
  struct sockaddr_in * getServerAddress(){
 
-		struct sockaddr_in * address = malloc(sizeof(struct sockaddr_in));
+	struct sockaddr_in * address = malloc(sizeof(struct sockaddr_in));
 
-		address->sin_family = AF_INET;
-		address->sin_port = 7000;
-		address->sin_addr.s_addr = htonl(INADDR_ANY);
+	address->sin_family = AF_INET;
+	address->sin_port = 7000;
+	address->sin_addr.s_addr = htonl(INADDR_ANY);
 
-		return address;
+	return address;
 }
 
 void closeMainServer(){
@@ -188,6 +188,7 @@ int sendmessage(Channel ch, Msg_s msg){
 		printf("<LOG socket_s.c> Server: Envio el message size = %d <end>\n", msgSize);
 	}
 
+	printf("msgStr %s\n", msgstr);
 	if((sendto(listenFD, msgstr, msgSize+sizeof(int), MSG_WAITALL, (struct sockaddr *) client, cli_size) == -1)){
 		perror("<LOG socket_s.c> Server: Could not write message <end>");
 		return !SUCCESSFUL;
@@ -200,7 +201,6 @@ int sendmessage(Channel ch, Msg_s msg){
 }
 
 Msg_t IPClisten(Channel ch){
-
 
 	if(ch == NULL){
 		printf("\nServer listening on port 7000 ...\n\n");
@@ -234,7 +234,6 @@ Msg_t IPClisten(Channel ch){
 			continue ;
 		}
 
-
 		if(msgSize > 0){
 			aux = bytestring = calloc(msgSize+sizeof(int), sizeof(char));
 
@@ -245,16 +244,13 @@ Msg_t IPClisten(Channel ch){
 				return NULL;
 			}else{
 
-
 				aux+=sizeof(int);
-				
 				msg = deserializeMsg(aux);
 				
 				if(msg->type == CONTACT){
 					msg->data.socket_client_t.client = client;
 					printf("Tengo client: port - %d\n", client->sin_port);			
 				}
-
 					printf("<LOG socket_s.c> Server - Received message type: %d <end>\n", msg->type);
 
 				}
