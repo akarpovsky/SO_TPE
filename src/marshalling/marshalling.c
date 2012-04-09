@@ -455,6 +455,7 @@ void draft_c(char * id){
 				if(response->responseType == DRAFT_STARTED){
 					draftStarted = TRUE;		
 				}else if(response->responseType == DRAFT_ENDED){
+					draftStarted = FALSE;
 					draftFlag = FALSE;
 				}
 				/* Imprimo todos los msjs */
