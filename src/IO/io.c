@@ -372,9 +372,22 @@ List loadUsers(char * path){
     d = opendir(dir_name);
 
     if(!d) {
-        printf("Cannot open directory '%s'.\n",dir_name);
-        exit(EXIT_FAILURE);
+        perror("Cannot open users directory");
+        if(errno == ENOENT ){
+        	int status = mkdir(path, 0666);
+			if(status == -1){
+				perror("League directory could not be created");
+				exit(EXIT_FAILURE);
+			}else{
+				d = opendir(dir_name);
+    			if(!d) {
+    				perror("Cannot open neither create users directory. Closing the app.");
+    				exit(EXIT_FAILURE);
+    			}
+			}
+        }
     }
+
 
     while(1){
         entry = readdir(d);
@@ -681,8 +694,21 @@ List loadLeagues(char * path){
 	    d = opendir(dir_name);
 
 	    if(!d) {
-	        printf("Cannot open directory '%s'\n",dir_name);
-	        exit(EXIT_FAILURE);
+	        perror("Cannot open leagues directory");
+	        if(errno == ENOENT ){
+	        	int status = mkdir(path, 0666);
+				if(status == -1){
+					perror("League directory could not be created");
+					exit(EXIT_FAILURE);
+				}else{
+					d = opendir(dir_name);
+	    			if(!d) {
+	    				perror("Cannot open neither create directory. Closing the app.");
+	    				exit(EXIT_FAILURE);
+	    			}
+
+				}
+	        }
 	    }
 
 	    while(1){
