@@ -1201,10 +1201,10 @@ void updatePlayers(List l){
 
 void dumpMatch(char * path){
 
-	char string[200];
+	char string[];
 	
-	sprintf("mv %s %s",string,path,MATCHES_DUMP);
-	
+	sprintf(string, "mv -n %s %s", path, MATCHES_DUMP);
+	system(string);
 	//exec(string);
 	
 }

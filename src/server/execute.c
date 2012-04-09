@@ -1775,20 +1775,14 @@ void makeDraft(League league,Channel ch, User * me)
 						releasePrintColor(toClient);
 						communicate(ch, toClient);
 					}
-					if(league->answer != TRUE)
-					{
-						toClient = createMsg_s(CHOOSE);
-						toClient->status = ERROR;
-						AddToList(playerUnavailable, toClient->msgList);
-						communicate(ch, toClient);
-					}
-					rc = pthread_mutex_unlock(&game_mutex);
 				}
 				else
 				{
 					toClient = createMsg_s(CHOOSE);
 					toClient->status = !OK;
+					printRedColor(toClient);
 					AddToList(cannotChoose, toClient->msgList);
+					releasePrintColor(toClient);
 					communicate(ch, toClient);
 				}
 				break;
