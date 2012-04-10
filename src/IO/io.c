@@ -849,6 +849,7 @@ char * teamToString(Team t)
 
 	if(t->players->NumEl > 0){
 		FOR_EACH(e, t->players){
+			printf("%s\n", ((Player)e->data)->name);
 
 			asprintf(&str, "%s\n%s\n%d", str, ((Player)e->data)->name, ((Player)e->data)->points);
 
@@ -938,6 +939,10 @@ void checkMatchesDir(void)
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	closedir(matches_dp);
+	closedir(new_matches_dp);
+	closedir(dump_matches_dp);
 
 	struct dirent * d;
 	List l;
@@ -1107,47 +1112,49 @@ void checkMatches(void)
 
 void updatePlayers(List l){
 
-       Element p,league,team,player;
-       int rc;
+	Element p,league,team,player;
+	int rc;
 
-       rc = pthread_mutex_lock(&game_mutex);
+	rc = pthread_mutex_lock(&game_mutex);
 
-       FOR_EACH(p, l){
+	FOR_EACH(p, l){
 
-               FOR_EACH(league, gameAux->leagues){
+		FOR_EACH(league, gameAux->leagues){
 
-                       /* Cargo points en availablePlayers de una league */
-                       FOR_EACH(player, ((League)league->data)->availablePlayers){
+			if(((League)league->data)->status == ACTIVE)
+			{
 
-                               if(strcmp(((Player)p->data)->name,((Player)player->data)->name) == 0){
-                                       ((Player)player->data)->points += ((Player)p->data)->points;
-                               }
-                       }
+				/* Cargo points en availablePlayers de una league */
+				FOR_EACH(player, ((League)league->data)->availablePlayers){
+					if(strcmp(((Player)p->data)->name,((Player)player->data)->name) == 0){
+						((Player)player->data)->points += ((Player)p->data)->points;
+					}
+				}
 
-                       /* Cargo points en cada player de un team y en el team */
-                       FOR_EACH(team, ((League)league->data)->teams){
+				/* Cargo points en cada player de un team y en el team */
+				FOR_EACH(team, ((League)league->data)->teams){
 
-                               FOR_EACH(player, ((Team)team->data)->players){
+					FOR_EACH(player, ((Team)team->data)->players){
 
-                                       if(strcmp(((Player)p->data)->name,((Player)player->data)->name) == 0){
-                                               ((Player)player->data)->points += ((Player)p->data)->points;
-                                               ((Team)team->data)->points += ((Player)p->data)->points;
-                                       }
-                               }
-                       }
-               }
-       }
+						if(strcmp(((Player)p->data)->name,((Player)player->data)->name) == 0){
+							((Player)player->data)->points += ((Player)p->data)->points;
+							((Team)team->data)->points += ((Player)p->data)->points;
+						}
+					}
+				}
+			}
+		}
+	}
 
-       rc = pthread_mutex_unlock(&game_mutex);
+	rc = pthread_mutex_unlock(&game_mutex);
 }
 
 void dumpMatch(char * path){
 
 	char string[FILENAME_MAX];
 	
-	sprintf(string, "mv -n %s %s", path, MATCHES_DUMP);
+	sprintf(string, "mv -f %s %s", path, MATCHES_DUMP);
 	system(string);
-	//exec(string);
 	
 }
 
