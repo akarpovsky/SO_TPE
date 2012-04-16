@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 
@@ -9,11 +10,27 @@
 #include "../includes/parseCommand.h"
 #include "../includes/transport_c.h"
 
+#ifdef fifo
+	#include "../includes/fifo_c.h"
+#endif
+#ifdef sockets
+	#include "../includes/socket_c.h"
+#endif
+#ifdef msgqueue
+	#include "../includes/mq_c.h"
+#endif
+#ifdef shmm
+	#include "../includes/shmm_c.h"
+#endif
+
 int main(void){
 	
 	char input[COMMAND_MAX_LENGTH];
 
 	signal(SIGINT, sigint);
+	signal(SIGPIPE, closeConnection);
+
+	atexit(closeConnection);
 
 	connectToServer();
 	

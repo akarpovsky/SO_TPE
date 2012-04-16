@@ -1748,6 +1748,8 @@ void makeDraft(League league,Channel ch, User * me)
 						/* Saco el jugador de availablePlayers */
 						Remove(elemPlayer, league->availablePlayers);
 
+						league->cantAvailablePlayers--;
+
 						/* Busco en que team ponerlo */
 						FOR_EACH(elemTeam, league->teams)
 						{
@@ -1757,6 +1759,7 @@ void makeDraft(League league,Channel ch, User * me)
 							}
 						}
 						AddElemToList(elemPlayer,((Team)elemTeam->data)->players);
+						((Team)elemTeam->data)->cantPlayers++;
 
 						/* Seteo en la liga la variable que indica que respondi */
 						league->answer = TRUE;
@@ -1877,7 +1880,6 @@ void autoAsign(League l)
 	}
 
 	int n = (rand() % l->availablePlayers->NumEl);
-	printf("Player no %d of %d\n", n, l->availablePlayers->NumEl);
 	int i;
 
 	Element p = l->availablePlayers->pFirst;
@@ -1894,7 +1896,9 @@ void autoAsign(League l)
 	}
 
 	Remove(p, l->availablePlayers);
+	l->cantAvailablePlayers--;
 	AddElemToList(p,((Team)e->data)->players);
+	((Team)e->data)->cantPlayers++;
 
 	changeTurn(l);
 	return;

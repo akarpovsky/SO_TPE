@@ -468,6 +468,11 @@ void draft_c(char * id){
 			
 		}while(draftFlag);
 	}
+	else
+	{
+		draftStarted = FALSE;
+		draftFlag = FALSE;
+	}
 }
 
 void logout_c(){
