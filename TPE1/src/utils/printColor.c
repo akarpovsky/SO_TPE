@@ -70,4 +70,5 @@ void releasePrintColor(Msg_s answer){
 		exit(EXIT_FAILURE);
 	}		
 	AddToList(toPrint,answer->msgList);	
+	AddToList(toPrint,answer->msgList);	
 }

@@ -1,4 +1,5 @@
 #include "./io.h"
+#include <sys/errno.h>
 
 /*
 * function loadUser
@@ -13,7 +14,6 @@ User loadUser(char * path){
 
 	FILE * file;
 	int * id;
-	
 
 	User auxUser; // Will store the loaded user
 	char aux[BUFFER_SIZE]; // For reading the file line by line
