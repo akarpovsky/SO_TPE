@@ -1,4 +1,2 @@
 ./compila
-cd ./bin
-mcopy ../src/menu.lst a:boot/grub/ -o
-mcopy kernel.bin a:boot/ -o
+genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -boot-info-table -o BrunOS.iso isofiles/

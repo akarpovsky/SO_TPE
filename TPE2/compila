@@ -14,3 +14,4 @@ gcc -m32 -c  ../src/drivers/keyboard.c -o keyboard.o -fno-builtin
 gcc -m32 -c  ../src/drivers/mouse.c -o mouse.o -fno-builtin
 gcc -m32 -c  ../src/drivers/video.c -o video.o -fno-builtin
 ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o io.o shell.o devices.o keyboard.o mouse.o video.o exceptions.o strings.o 
+cp ./kernel.bin ../isofiles/boot/
