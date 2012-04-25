@@ -49,6 +49,15 @@ void exception_handler(int exception_num)
         printfcolor(ERROR_COLOR,"%s", exception_messages[exception_num]);
         printfcolor(ERROR_COLOR," Exception!\n\tSystem failure, please reboot.\n");
     }
+
+    if (exception_num == 13)
+       {
+    	int offset = 80*9;
+    	int r;
+    	char ticks_color = 0x0E;
+    	char * video = (char *) 0xb8000;
+       }
+
     _Sti();
     _debug();
 }

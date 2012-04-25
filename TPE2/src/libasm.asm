@@ -11,7 +11,7 @@ GLOBAL	_excp_25_hand, _excp_26_hand, _excp_27_hand, _excp_28_hand, _excp_29_hand
 GLOBAL	_excp_30_hand, _invop
 
 GLOBAL  _debug, _excp_0_hand
-EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler
+EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler, getSSPointer, getSPPointer, printStack
 
 SECTION .text
 
@@ -253,7 +253,7 @@ _excp_30_hand:
 isr_common_stub:
 
 	cli
-	pusha
+	pushad
 
 
 	mov 	eax, ebx
@@ -265,14 +265,25 @@ isr_common_stub:
 
 _int_20_hand:				; Handler de INT 20 ( Timer tick)
 
-        pusha                          
+        pushad
+        call 	printStack
+        call	getSPPointer
+        mov		[eax],esp
+        call	getSSPointer
+        mov 	[eax],ss
         call    int_20
+        call	printStack
+        call	getSPPointer
+        mov		edi, eax
+        call	getSSPointer
+        mov		esp, [edi]
+        mov		ss, [eax]
         jmp	EOI			; Envio de EOI generico al PIC
 
 _int_21_hand:                                ; Handler de INT 21 ( Teclado )
 	cli
 
-	pusha
+	pushad
 
 	in 	al, 60h
 	push 	eax
@@ -284,7 +295,7 @@ _int_21_hand:                                ; Handler de INT 21 ( Teclado )
 _int_74_hand:                                ; Handler de INT 74 ( Mouse )
 
 
-	pusha
+	pushad
 	in al, 60h
 	push eax
 	call int_74
@@ -299,7 +310,7 @@ _int_74_hand:                                ; Handler de INT 74 ( Mouse )
 EOI:
 	mov	al,20h
 	out	20h,al
-	popa
+	popad
 	sti
 	iret
 
@@ -365,6 +376,8 @@ _SysCall:
 	mov esp, ebp
 	pop ebp
 	ret
+
+switch:
 
 ; Debug para el BOCHS, detiene la ejecució; Para continuar colocar en el BOCHSDBG: set $eax=0
 

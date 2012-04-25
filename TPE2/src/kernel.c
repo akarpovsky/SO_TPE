@@ -6,6 +6,7 @@
 #include "../include/mouse.h"
 #include "../include/structs.h"
 #include "../include/kernel.h"
+#include "structs.h"
 
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
@@ -21,7 +22,10 @@ int timer_tick_hz = 10;
 
 int ticks = TTY_SCREEN_TICSTART;
 int actualTTY = TTY_1;
-
+Task_t process[2];
+int active_process = 0;
+//TODO:
+void CreateProcess(int i, PROCESS p, unsigned int stack_start);
 
 /* Atencion de Interrupcion por Software */
 void int_80(int sysCallNumber, void ** args){
@@ -43,9 +47,33 @@ void int_80(int sysCallNumber, void ** args){
 
 /* Atencion de Interrupcion de Timer Tick */
 
+int proc1(int argc, char **argv){
+	while(1){
+		printf("a");
+	}
+	return 0;
+}
+
+int proc2(int argc, char **argv){
+	while(1){
+		printf("b");
+	}
+	return 0;
+}
+
+int * getSPPointer(){
+	printf("SP %d\n", process[active_process%2].sp);
+	return &process[active_process%2].sp;
+}
+
+int * getSSPointer(){
+	printf("SS %d\n", process[active_process%2].ss);
+	return &process[active_process%2].ss;
+}
+
 void int_20(){
 
-	char * video = (char *) 0xb8000;
+/*	char * video = (char *) 0xb8000;
 	video[ticks++]=ticks_tile;
 	video[ticks++]=ticks_color;
 
@@ -58,9 +86,9 @@ void int_20(){
 		}
 	
 		ticks = TTY_SCREEN_TICSTART;
-	}	
+	}	*/
 
-
+	active_process++;
 }
 
 
@@ -241,6 +269,11 @@ kmain()
 	callbck = &mouseButtonAction;
 	mouseInitialize(callbck);
 	initializeTTYScreens();
+
+	//TODO;
+	CreateProcess(0, proc1, 0x200000);
+	CreateProcess(1, proc2, 0x100500);
+
 	print_header();
 
 	printTicks();
@@ -250,9 +283,27 @@ kmain()
 	_Sti();
 }
 
+void CreateProcess(int i, PROCESS p, unsigned int stack_start){
+	process[i].ss = stack_start;
+	process[i].sp = stack_start - sizeof(STACK_FRAME)-1;
+	((STACK_FRAME *) process[i].sp)->EIP = p;
+	((STACK_FRAME *) process[i].sp)->CS = (void *)0x08;
+	((STACK_FRAME *) process[i].sp)->EBP = 0;
+	((STACK_FRAME *) process[i].sp)->EFLAGS = 0;
+
+}
+
 void shellLoop(){
   	while(1)
         {
 			shell();
         }
+}
+
+void printStack(){
+	void * p = (void*)(process[active_process].sp - sizeof(STACK_FRAME));
+	while (p != process[active_process].sp){
+		printf("%d\n", *((int *)p));
+		p+= sizeof(int);
+	}
 }

@@ -49,4 +49,12 @@ size_t __read(int fd, void* buffer, size_t count);
 
 void shellLoop(void);
 
+//TODO:
+
+int proc1(int argc, char **argv);
+int proc2(int argc, char **argv);
+int * getSSPointer();
+int * getSPPointer();
+void printStack(void);
+
 #endif
