@@ -24,6 +24,7 @@ int ticks = TTY_SCREEN_TICSTART;
 int actualTTY = TTY_1;
 Task_t process[2];
 int active_process = 0;
+int first = true;
 //TODO:
 void CreateProcess(int i, PROCESS p, unsigned int stack_start);
 
@@ -62,11 +63,17 @@ int proc2(int argc, char **argv){
 }
 
 int * getSPPointer(){
+	if(first){
+		return 0;
+	}
 	printf("SP %d\n", process[active_process%2].sp);
 	return &process[active_process%2].sp;
 }
 
 int * getSSPointer(){
+	if(first){
+		return 0;
+	}
 	printf("SS %d\n", process[active_process%2].ss);
 	return &process[active_process%2].ss;
 }
@@ -87,7 +94,10 @@ void int_20(){
 	
 		ticks = TTY_SCREEN_TICSTART;
 	}	*/
-
+	if(first){
+		first = false;
+		return;
+	}
 	active_process++;
 }
 
@@ -290,6 +300,9 @@ void CreateProcess(int i, PROCESS p, unsigned int stack_start){
 	((STACK_FRAME *) process[i].sp)->CS = (void *)0x08;
 	((STACK_FRAME *) process[i].sp)->EBP = 0;
 	((STACK_FRAME *) process[i].sp)->EFLAGS = 0;
+	((STACK_FRAME *) process[i].sp)->retaddr = 0;
+	((STACK_FRAME *) process[i].sp)->argc = 0;
+	((STACK_FRAME *) process[i].sp)->argv = 0;
 
 }
 

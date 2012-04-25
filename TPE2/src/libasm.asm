@@ -268,9 +268,12 @@ _int_20_hand:				; Handler de INT 20 ( Timer tick)
         pushad
         call 	printStack
         call	getSPPointer
+       	cmp		eax, 0
+       	jz		sched
         mov		[eax],esp
         call	getSSPointer
         mov 	[eax],ss
+sched:
         call    int_20
         call	printStack
         call	getSPPointer
