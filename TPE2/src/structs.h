@@ -17,7 +17,8 @@ typedef enum
 	TaskWaiting,
 	TaskSending,
 	TaskReceiving,
-	TaskTerminated
+	TaskTerminated,
+	TaskEmpty
 }
 TaskState_t;
 
@@ -72,7 +73,7 @@ typedef struct stack_frame {
 } STACK_FRAME;
 
 struct task {
-	char *			name;
+	char 			name[64];
 	TaskState_t		state;
 	Prio_t			priority;
 	unsigned		atomic_level;

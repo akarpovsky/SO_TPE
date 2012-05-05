@@ -264,6 +264,7 @@ isr_common_stub:
 	jmp	EOI
 
 _int_20_hand:				; Handler de INT 20 ( Timer tick)
+        cli
         pushad
         call	getSPPointer
        	cmp		eax, 0
