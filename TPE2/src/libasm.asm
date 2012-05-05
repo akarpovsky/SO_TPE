@@ -11,7 +11,7 @@ GLOBAL	_excp_25_hand, _excp_26_hand, _excp_27_hand, _excp_28_hand, _excp_29_hand
 GLOBAL	_excp_30_hand, _invop
 
 GLOBAL  _debug, _excp_0_hand
-EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler, getSSPointer, getSPPointer, printStack
+EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler, getSSPointer, getSPPointer, printStack, printEntre
 
 SECTION .text
 
@@ -264,23 +264,15 @@ isr_common_stub:
 	jmp	EOI
 
 _int_20_hand:				; Handler de INT 20 ( Timer tick)
-
         pushad
-        call 	printStack
         call	getSPPointer
        	cmp		eax, 0
        	jz		sched
         mov		[eax],esp
-        call	getSSPointer
-        mov 	[eax],ss
 sched:
         call    int_20
-        call	printStack
         call	getSPPointer
-        mov		edi, eax
-        call	getSSPointer
-        mov		esp, [edi]
-        mov		ss, [eax]
+        mov		esp, [eax]
         jmp	EOI			; Envio de EOI generico al PIC
 
 _int_21_hand:                                ; Handler de INT 21 ( Teclado )
@@ -394,3 +386,22 @@ vuelve:	mov     ax, 1
 	pop	ax
 	pop     bp
         retn
+_debugBuenaOnda:
+	push eax
+		mov eax, 0fdh
+		push eax
+			call _mascaraPIC1
+		pop eax
+		mov ax,1
+		mov [0x123450], ax
+	otravez:
+		mov ax, [0x123450]
+		cmp ax ,0
+		jne otravez
+		mov eax, 0fch
+		push eax
+			call _mascaraPIC1
+		pop eax
+	pop eax
+
+	retn

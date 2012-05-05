@@ -50,33 +50,44 @@ void int_80(int sysCallNumber, void ** args){
 
 int proc1(int argc, char **argv){
 	while(1){
-		printf("a");
+		printf("O");
+		//video[1800]='a';
+		//video[1801]=ticks_color;
 	}
 	return 0;
 }
 
 int proc2(int argc, char **argv){
-	while(1){
-		printf("b");
-	}
+	//asm volatile ("hlt");
+		while(1){
+			printf("l");
+			//video[2800]='b';
+			//video[2801]=ticks_color;
+		}
 	return 0;
 }
 
 int * getSPPointer(){
 	if(first){
+		printf("Primer SP %d\n", process[active_process%2].sp);
+
 		return 0;
 	}
-	printf("SP %d\n", process[active_process%2].sp);
+	//printf("SP %d\n", process[active_process%2].sp);
+
 	return &process[active_process%2].sp;
 }
 
-int * getSSPointer(){
+short * getSSPointer(){
 	if(first){
+		printf("Primer SS %d\n", process[active_process%2].ss);
+
 		return 0;
 	}
-	printf("SS %d\n", process[active_process%2].ss);
+	//printf("SS %d\n", process[active_process%2].ss);
 	return &process[active_process%2].ss;
 }
+
 
 void int_20(){
 
@@ -315,8 +326,15 @@ void shellLoop(){
 
 void printStack(){
 	void * p = (void*)(process[active_process].sp - sizeof(STACK_FRAME));
+	printf("Stack: ");
 	while (p != process[active_process].sp){
-		printf("%d\n", *((int *)p));
+		printf("%d, ", *((int *)p));
 		p+= sizeof(int);
 	}
+	printf("\n");
+
+}
+
+void printEntre(){
+	printf("\n\nEntre!\n\n");
 }

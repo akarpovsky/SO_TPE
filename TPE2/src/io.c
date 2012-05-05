@@ -186,6 +186,7 @@ void putu(unsigned int u){
 
 int printf(char *fmt, ...)
 {
+	_Cli();
 	void *param=&fmt + 1;
 	char c;
 	while( (c = *fmt++) != 0 )
@@ -222,6 +223,7 @@ int printf(char *fmt, ...)
 			}
 		}
 	}
+	_Sti();
 }
 
 int printfcolor(char color, char *fmt, ...)

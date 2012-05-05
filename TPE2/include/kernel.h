@@ -53,8 +53,9 @@ void shellLoop(void);
 
 int proc1(int argc, char **argv);
 int proc2(int argc, char **argv);
-int * getSSPointer();
+short * getSSPointer();
 int * getSPPointer();
 void printStack(void);
+void printEntre();
 
 #endif
