@@ -1,13 +1,13 @@
-#include "../include/structs.h"
-#include "../include/defs.h"
 
 /***************************************************
   Stdio.h
 	
 ****************************************************/
 
-#ifndef _STDIO_
-#define _STDIO_
+#ifndef _STDIO_H
+#define _STDIO_H
+#include "../include/structs.h"
+#include "../include/defs.h"
 
 
 

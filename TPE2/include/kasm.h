@@ -2,7 +2,8 @@
 kasm.h
 
 ************************************************/
-
+#ifndef _KASM_H
+#define _KASM_H
 #include "defs.h"
 
 
@@ -60,4 +61,6 @@ void		_excp_30_hand();
 
 
 void		_debug (void);
+
+#endif
 

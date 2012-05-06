@@ -186,7 +186,7 @@ void putu(unsigned int u){
 
 int printf(char *fmt, ...)
 {
-	_Cli();
+	//_Cli();
 	void *param=&fmt + 1;
 	char c;
 	while( (c = *fmt++) != 0 )
@@ -223,11 +223,12 @@ int printf(char *fmt, ...)
 			}
 		}
 	}
-	_Sti();
+	//_Sti();
 }
 
 int printfcolor(char color, char *fmt, ...)
 {
+	//_Cli();
 	char color_aux=color_p;
 	color_p=color;
 	void *param=&fmt + 1;
@@ -267,6 +268,7 @@ int printfcolor(char color, char *fmt, ...)
 		}
 	}
 	color_p=color_aux;
+	//_Sti();
 }
 
 char isNumeric(char c) {

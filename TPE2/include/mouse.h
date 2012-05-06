@@ -5,10 +5,10 @@
  *      Author: dgrandes
  */
 
-#include "structs.h"
 
 #ifndef _MOUSE_H_
 #define _MOUSE_H_
+#include "structs.h"
 
 
 

@@ -1,8 +1,8 @@
-#include "defs.h"
-#include "structs.h"
 
 #ifndef _VIDEO_H
 #define _VIDEO_H
+#include "defs.h"
+#include "structs.h"
 
 /********************************** 
 *

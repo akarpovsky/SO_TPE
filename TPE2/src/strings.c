@@ -14,6 +14,13 @@ int strlen(const char *str){
 	return i;
 }
 
+char * strcpy(char* d, const char* s){
+	while(*(s++) != '\0')
+		*(d++) = *s;
+	*(++d) = '\0';
+	return d;
+}
+
 int streq(char* s, char* t) {
 
     for(; *s == *t; s++, t++)

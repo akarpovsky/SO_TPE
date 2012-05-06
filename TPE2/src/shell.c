@@ -60,6 +60,7 @@ void shell(){
 				ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos]=0;
 			}
 			putc(c);
+			break;
 		}
 	}
 	
@@ -189,16 +190,17 @@ static
 void mouse() {
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Mouse usage: \n\n");
-    
+
 	printfcolor(ERROR_COLOR,"Left Click");
 	printfcolor(MARINE_COLOR,"\t\t => \t");
 	printfcolor(COMMAND_COLOR,"Increments the timer tick frecuency\n");
 
 	printfcolor(ERROR_COLOR,"Right Click");
 	printfcolor(MARINE_COLOR,"\t\t => \t");
-	printfcolor(COMMAND_COLOR,"Decrements the timer tick frecuency\n");	
+	printfcolor(COMMAND_COLOR,"Decrements the timer tick frecuency\n");
 
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
+
 }
 
 static

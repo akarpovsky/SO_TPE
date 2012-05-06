@@ -1,11 +1,11 @@
 /**********************
  kc.h
 **********************/
+
+#ifndef _KC_H
+#define _KC_H
+
 #include "defs.h"
-
-#ifndef _kc_
-#define _kc_
-
 
 /* Muestra la imagen de inicio */
 void showSplashScreen();

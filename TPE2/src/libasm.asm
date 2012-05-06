@@ -1,5 +1,5 @@
 GLOBAL  _read_msw,_lidt
-GLOBAL  _int_20_hand,_int_21_hand, _int_80_hand, _int_74_hand, _SysCall
+GLOBAL  _int_20_hand,_int_21_hand, _int_80_hand, _int_74_hand, _SysCall, _debug, _sleep
 GLOBAL	EOI
 GLOBAL  _mascaraPIC1,_mascaraPIC2,_Cli,_Sti
 GLOBAL	_excp_00_hand, _excp_01_hand, _excp_02_hand, _excp_03_hand, _excp_04_hand
@@ -314,7 +314,7 @@ _int_80_hand:                                ; Handler de INT 80 ( Syscall )
 	push ebp
 	mov ebp, esp				;StackFrame
 
-	sti		
+	;sti
 	push edi
 	push esi
 	push edx
@@ -406,3 +406,17 @@ _debugBuenaOnda:
 	pop eax
 
 	retn
+
+_sleep:
+	push ebp
+	mov ebp, esp
+
+	mov	ecx, 999999
+loop:
+	nop
+	dec ecx
+	jnz loop
+
+	mov esp, ebp
+	pop ebp
+	ret

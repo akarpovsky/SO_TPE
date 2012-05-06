@@ -1,7 +1,7 @@
-#include "structs.h"
 
 #ifndef _IO_H
 #define _IO_H
+#include "structs.h"
 
 /********************************** 
 *

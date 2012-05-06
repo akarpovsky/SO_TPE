@@ -1,5 +1,3 @@
-#include "defs.h"
-#include "structs.h"
 
 /********************************** 
 *
@@ -7,8 +5,10 @@
 *
 ***********************************/
 
-#ifndef _kernel_
-#define _kernel_
+#ifndef _KERNEL_H
+#define _KERNEL_H
+#include "defs.h"
+#include "structs.h"
 
 #define OS_PID	0
 
@@ -46,16 +46,5 @@ size_t __write(int fd, const void* buffer, size_t count);
 *
 **/
 size_t __read(int fd, void* buffer, size_t count);
-
-void shellLoop(void);
-
-//TODO:
-
-int proc1(int argc, char **argv);
-int proc2(int argc, char **argv);
-short * getSSPointer();
-int * getSPPointer();
-void printStack(void);
-void printEntre();
 
 #endif

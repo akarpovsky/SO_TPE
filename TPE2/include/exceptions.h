@@ -3,8 +3,8 @@
 	
 ****************************************************/
 
-#ifndef _EXCEPTIONS_
-#define _EXCEPTIONS_
+#ifndef _EXCEPTIONS_H
+#define _EXCEPTIONS_H
 
 void exception_handler(int exceptionNumber);
 

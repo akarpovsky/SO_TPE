@@ -1,8 +1,7 @@
-#include "../include/structs.h"
-#include "../include/defs.h"
-
 #ifndef _SHELL_H
 #define _SHELL_H
+#include "../include/structs.h"
+#include "../include/defs.h"
 
 void shell();
 void parse_command();

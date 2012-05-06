@@ -3,8 +3,8 @@
 	
 ****************************************************/
 
-#ifndef _defs_
-#define _defs_
+#ifndef _DEFS_H
+#define _DEFS_H
 
 #pragma pack(1)
 

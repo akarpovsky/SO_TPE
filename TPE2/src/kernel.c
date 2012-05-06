@@ -5,8 +5,7 @@
 #include "../include/defs.h"
 #include "../include/mouse.h"
 #include "../include/structs.h"
-#include "../include/kernel.h"
-#include "structs.h"
+#include "../include/scheduler.h"
 
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
@@ -22,11 +21,8 @@ int timer_tick_hz = 10;
 
 int ticks = TTY_SCREEN_TICSTART;
 int actualTTY = TTY_1;
-Task_t process[2];
-int active_process = 0;
-int first = true;
+int sarasa = 0;
 //TODO:
-void CreateProcess(int i, PROCESS p, unsigned int stack_start);
 
 /* Atencion de Interrupcion por Software */
 void int_80(int sysCallNumber, void ** args){
@@ -48,50 +44,9 @@ void int_80(int sysCallNumber, void ** args){
 
 /* Atencion de Interrupcion de Timer Tick */
 
-int proc1(int argc, char **argv){
-	while(1){
-		printf("O");
-		//video[1800]='a';
-		//video[1801]=ticks_color;
-	}
-	return 0;
-}
-
-int proc2(int argc, char **argv){
-	//asm volatile ("hlt");
-		while(1){
-			printf("l");
-			//video[2800]='b';
-			//video[2801]=ticks_color;
-		}
-	return 0;
-}
-
-int * getSPPointer(){
-	if(first){
-		printf("Primer SP %d\n", process[active_process%2].sp);
-
-		return 0;
-	}
-	//printf("SP %d\n", process[active_process%2].sp);
-
-	return &process[active_process%2].sp;
-}
-
-short * getSSPointer(){
-	if(first){
-		printf("Primer SS %d\n", process[active_process%2].ss);
-
-		return 0;
-	}
-	//printf("SS %d\n", process[active_process%2].ss);
-	return &process[active_process%2].ss;
-}
-
-
 void int_20(){
 
-/*	char * video = (char *) 0xb8000;
+	char * video = (char *) 0xb8000;
 	video[ticks++]=ticks_tile;
 	video[ticks++]=ticks_color;
 
@@ -104,12 +59,12 @@ void int_20(){
 		}
 	
 		ticks = TTY_SCREEN_TICSTART;
-	}	*/
-	if(first){
-		first = false;
-		return;
 	}
-	active_process++;
+//	if(first){
+//		first = false;
+//		return;
+//	}
+	select_next();
 }
 
 
@@ -221,16 +176,13 @@ void print_header(){
 	char color_aux = color_p;
 	ttys[actualTTY].screen->wpos=TTY_SCREEN_HSTART;
 	color_p = HEADER_COLOR;
-	printf("\t\t\t\tTP Sistemas Operativos - 1do Cuatrimestre 2012 \n");
-	printf("\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n");
-	printf("\t\t\t\t\t\t\t Keyboard: ");
+	printf("\t\t\t\tTP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t Keyboard: ");
 	printfcolor(ERROR_COLOR,"%s",(ttys[actualTTY].keyboard->lang == ENGLISH) ? "EN" : "ES");
 	printf(" | TTY: ");
 	printfcolor(ERROR_COLOR,"%d",actualTTY+1);
 	printf("\n");
 	color_p = color_aux;
 	ttys[actualTTY].screen->wpos=wpos;
-  
 }
  
 /**********************************************
@@ -292,49 +244,34 @@ kmain()
 	initializeTTYScreens();
 
 	//TODO;
-	CreateProcess(0, proc1, 0x200000);
-	CreateProcess(1, proc2, 0x100500);
-
+	SetupScheduler();
+//	CreateProcess(0, proc1, 0x200000);
+//	CreateProcess(1, proc2, 0x100500);
+//
 	print_header();
 
+//
+	//while(true);
 	printTicks();
+//
+//	shellLoop();
 
-	shellLoop();
-	
 	_Sti();
+
+	_int_20_hand();
 }
 
-void CreateProcess(int i, PROCESS p, unsigned int stack_start){
-	process[i].ss = stack_start;
-	process[i].sp = stack_start - sizeof(STACK_FRAME)-1;
-	((STACK_FRAME *) process[i].sp)->EIP = p;
-	((STACK_FRAME *) process[i].sp)->CS = (void *)0x08;
-	((STACK_FRAME *) process[i].sp)->EBP = 0;
-	((STACK_FRAME *) process[i].sp)->EFLAGS = 0;
-	((STACK_FRAME *) process[i].sp)->retaddr = 0;
-	((STACK_FRAME *) process[i].sp)->argc = 0;
-	((STACK_FRAME *) process[i].sp)->argv = 0;
+//void CreateProcess(int i, PROCESS p, unsigned int stack_start){
+//	process[i].ss = stack_start;
+//	process[i].sp = stack_start - sizeof(STACK_FRAME)-1;
+//	((STACK_FRAME *) process[i].sp)->EIP = p;
+//	((STACK_FRAME *) process[i].sp)->CS = (void *)0x08;
+//	((STACK_FRAME *) process[i].sp)->EBP = 0;
+//	((STACK_FRAME *) process[i].sp)->EFLAGS = 0;
+//	((STACK_FRAME *) process[i].sp)->retaddr = 0;
+//	((STACK_FRAME *) process[i].sp)->argc = 0;
+//	((STACK_FRAME *) process[i].sp)->argv = 0;
+//
+//}
 
-}
 
-void shellLoop(){
-  	while(1)
-        {
-			shell();
-        }
-}
-
-void printStack(){
-	void * p = (void*)(process[active_process].sp - sizeof(STACK_FRAME));
-	printf("Stack: ");
-	while (p != process[active_process].sp){
-		printf("%d, ", *((int *)p));
-		p+= sizeof(int);
-	}
-	printf("\n");
-
-}
-
-void printEntre(){
-	printf("\n\nEntre!\n\n");
-}

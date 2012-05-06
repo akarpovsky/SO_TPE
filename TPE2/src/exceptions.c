@@ -58,6 +58,6 @@ void exception_handler(int exception_num)
     	char * video = (char *) 0xb8000;
        }
 
-    _Sti();
     _debug();
+    _Sti();
 }
