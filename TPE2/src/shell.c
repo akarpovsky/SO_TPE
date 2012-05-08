@@ -10,7 +10,7 @@ extern int actualTTY;
 int printing_command = FALSE;
 extern int printing_header;
 
-#define NUM_COMMANDS 7
+#define NUM_COMMANDS 10
 #define LINEBUF_LEN 100
 
 
@@ -19,7 +19,7 @@ typedef void(*commandFnct)(void);
 static struct {
 	char name[LINEBUF_LEN];
 	char args[LINEBUF_LEN - 2];
-	
+
 } command;
 
 static struct {
@@ -27,13 +27,16 @@ static struct {
     char* description;
     commandFnct exec;
 } commands[NUM_COMMANDS] =  {
-		{"echo", "Prints string", echo},
 		{"help", "Display system commands", help},
-		{"mouse", "Display information about the mouse usage", mouse},		
-		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpcode},		
+		{"echo", "Prints string", echo},
+		{"mouse", "Display information about the mouse usage", mouse},
 		{"shortcuts", "Display keyboard shorcuts", shortcuts},
-		{"clearScreen", "Erase all the content of the actual TTY", clear_screen},		
-		{"divideByZero", "Tries to perform a division by zero", divideByZero}
+		{"top", "Display ongoing look at processor activity in real time.", top},
+		{"kill PIDn", "Kills the proces with PID = PIDn .", pkill},
+		{"imprimeUnos", "Process that prints 1s forever", imprimeUnos},
+		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpcode},
+		{"divideByZero", "Tries to perform a division by zero", divideByZero},
+		{"clearScreen", "Erase all the content of the actual TTY", clear_screen}
 
 	};
 
@@ -63,7 +66,7 @@ void shell(){
 			break;
 		}
 	}
-	
+
 	putc('\n');
 
 	parse_command();
@@ -98,7 +101,7 @@ int run_command(){
 	int i;
 	if(streq(command.name, ""))
 		return 0;
-		
+
 	for (i = 0; i < NUM_COMMANDS; i++) {
 	    if (streq(command.name, commands[i].name)) {
 	        commands[i].exec();
@@ -135,7 +138,7 @@ void auto_complete(){
 			ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos++]=commName[j];
 			ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos]=0;
 			putc(commName[j]);
-			
+
 		}
 	    }
 	    eq=!eq;
@@ -170,7 +173,7 @@ clear_screen(){
 	printTicks();
 	ttys[actualTTY].screen->wpos=TTY_SCREEN_SSTART;
 	move_cursor(ttys[actualTTY].screen->wpos/2);
-	
+
 }
 
 static void
@@ -207,7 +210,7 @@ static
 void shortcuts() {
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Keyboard shortcuts: \n\n");
-    
+
 	printfcolor(ERROR_COLOR,"F1");
 	printfcolor(MARINE_COLOR,"\t\t\t\t => \t");
 	printfcolor(COMMAND_COLOR,"Goes to TTY #1\n");
@@ -231,7 +234,7 @@ void shortcuts() {
 	printfcolor(ERROR_COLOR,"CTRL + SHIFT");
 	printfcolor(MARINE_COLOR,"\t => \t");
 	printfcolor(COMMAND_COLOR,"Change keyboard language (ES | EN)\n");
-		
+
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
 }
 
@@ -249,11 +252,11 @@ void help() {
 		printfcolor(ERROR_COLOR,"%s", commands[i].name);
 
 		if(len < 1)
-			printfcolor(MARINE_COLOR,"\t\t\t");			
+			printfcolor(MARINE_COLOR,"\t\t\t");
 		else if(len < 2)
-			printfcolor(MARINE_COLOR,"\t\t");			
+			printfcolor(MARINE_COLOR,"\t\t");
 		else if(len < 3)
-			printfcolor(MARINE_COLOR,"\t");			
+			printfcolor(MARINE_COLOR,"\t");
 
 
 		printfcolor(MARINE_COLOR," => \t");
@@ -261,4 +264,19 @@ void help() {
     }
 
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
+}
+
+static
+void top(){
+
+}
+
+static
+void pkill(int pid){
+
+}
+
+static
+void imprimeUnos(){
+
 }

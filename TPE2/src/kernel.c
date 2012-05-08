@@ -28,7 +28,7 @@ int sarasa = 0;
 void int_80(int sysCallNumber, void ** args){
 
 	switch(sysCallNumber){
-	
+
 		case SYSCALL_READ:
 			sysread((int) args[0], args[1],(int)args[2]);
 			break;
@@ -57,7 +57,7 @@ void int_20(){
 		else{
 			ticks_color = TICKS_COLOR;
 		}
-	
+
 		ticks = TTY_SCREEN_TICSTART;
 	}
 //	if(first){
@@ -80,7 +80,7 @@ void changeTTY(int tty){
     if(tty != actualTTY){
 	actualTTY=tty;
 	updateLeds();
-	v_changeTTY();	
+	v_changeTTY();
     }
 }
 
@@ -91,7 +91,7 @@ void int_21(unsigned char scancode){
 		insertKey(key->ascii);
      }
      else if(key->keyType == FUNCTION_KEY){
-	 
+
      }
 }
 
@@ -99,10 +99,10 @@ void int_21(unsigned char scancode){
 void int_74(unsigned char new_byte){
 
 	mouse_routine(new_byte);
- 
+
 }
-	
-/* Carga en las primeras 32 posiciones del vector 
+
+/* Carga en las primeras 32 posiciones del vector
 de atencion de interrupciones, las rutinas de atencion
 a las excepciones */
 
@@ -141,25 +141,25 @@ void setup_IDT_exceptions(){
  	setup_IDT_entry (&idt[29], 0x08, (dword)&_excp_29_hand, ACS_INT, 0);
  	setup_IDT_entry (&idt[30], 0x08, (dword)&_excp_30_hand, ACS_INT, 0);
 
-  
+
   }
-  
+
 /* Carga en el vector las rutinas de atencion de interrupciones */
 
 void setup_IDT_interrupts(){
-	
+
 	// IRQ20: Timer tick
    	setup_IDT_entry (&idt[32], 0x08, (dword)&_int_20_hand, ACS_INT, 0);
-	
+
 	// IRQ21: Teclado
 	setup_IDT_entry (&idt[33], 0x08, (dword)&_int_21_hand, ACS_INT, 0);
-	
+
 	// IRQ74: Mouse
  	setup_IDT_entry (&idt[44], 0x08, (dword)&_int_74_hand, ACS_INT, 0);
-	
+
 	// IRQ80: SysCALL
  	setup_IDT_entry (&idt[0x80], 0x08, (dword)&_int_80_hand, ACS_INT, 0);
-	  
+
   }
 
 
@@ -170,7 +170,7 @@ void timer_phase(int hz)
     _out(0x40, divisor & 0xFF);   /* Set low byte of divisor */
     _out(0x40, ((divisor >> 8) & 0xFF));     /* Set high byte of divisor */
 }
-  
+
 void print_header(){
 	int wpos = ttys[actualTTY].screen->wpos;
 	char color_aux = color_p;
@@ -184,18 +184,18 @@ void print_header(){
 	color_p = color_aux;
 	ttys[actualTTY].screen->wpos=wpos;
 }
- 
+
 /**********************************************
-kmain() 
+kmain()
 Punto de entrada de cóo C.
 *************************************************/
 
-kmain() 
+kmain()
 {
 
 	_Cli();
 
-/* Borra la pantalla. */ 
+/* Borra la pantalla. */
 	k_clear_screen();
 
 
@@ -211,19 +211,19 @@ kmain()
 /* CARGA DE IDT CON LAS RUTINA DE ATENCION DE EXCEPCIONES  */
 
 	setup_IDT_exceptions();
-	
+
 /* CARGA DE IDT CON LAS RUTINA DE ATENCION DE INTERRUPCIONES  */
 
 	setup_IDT_interrupts();
-	
+
 /* Carga de IDTR  */
 
-	idtr.base = 0;  
+	idtr.base = 0;
 	idtr.base +=(dword) &idt;
 	idtr.limit = sizeof(idt)-1;
-	
-	_lidt (&idtr);	
-	
+
+	_lidt (&idtr);
+
 /* Habilito interrupciones necesarias */
 
 	_mascaraPIC1(0xF8);
@@ -232,8 +232,8 @@ kmain()
 /* Frecuencia inicial del Timer Tick */
 
 	timer_phase(timer_tick_hz);
-        
-	
+
+
 
 /* Puntero a funcion a ser llamada por las acciones
 	del mouse */

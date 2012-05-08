@@ -18,7 +18,7 @@ unsigned char _in(unsigned char port) {
             :"=a" (c)                   /* Output variables */
             :"d" (port)                 /* Input variabless */
            );
-    
+
     return c;
 }
 
@@ -49,7 +49,7 @@ void _out(unsigned char port, unsigned char c) {
 size_t __write(int fd, void * buffer, size_t count){
 
       _SysCall(SYSCALL_WRITE,fd, buffer, count);
-      
+
       return count;
 }
 
@@ -62,11 +62,11 @@ size_t __write(int fd, void * buffer, size_t count){
 *
 **/
 size_t __read(int fd, void * buffer, size_t count){
-      
+
       _SysCall(SYSCALL_READ,fd, buffer, count);
-      
+
       return count;
-  
+
 }
 
 void sysread(int fd, void * buffer, size_t count){
@@ -81,7 +81,7 @@ void syswrite(int fd, void * buffer, size_t count){
 	if(fd==STDOUT){
 		_memcpy(buffer, ttys[actualTTY].screen->buffer,count);
 		writeInVideo(*((char *) buffer));
-		
+
 	}
 }
 
@@ -89,8 +89,8 @@ void syswrite(int fd, void * buffer, size_t count){
 int sscanf(char* str, char* fmt, ...) {
     int ret;
     void* param;
-    char *cs, *cf, *cparam; 
-    
+    char *cs, *cf, *cparam;
+
     ret = 0;
     param = &fmt + 1;
 
@@ -102,54 +102,54 @@ int sscanf(char* str, char* fmt, ...) {
                     /* Formato inválido! Ignorar el símbolo y finalizar el loop */
                     cf--;
                     break;
-                    
+
                 case '%':
                     if (*cs == '%')
                         cs++;
                     else
                         return ret;
                     break;
-                
+
                 case 'd':
                     if (isNumeric(*cs)) {
                         ** (int**) param = 0;
                         do {
                             ** (int**) param *= 10;
-                            ** (int**) param += (*cs - '0');               
+                            ** (int**) param += (*cs - '0');
                         } while (isNumeric(*(++cs)));
-                        
+
                         param += sizeof(int*);
                         ret++;
-                        
+
                     } else
                         return ret;
-                        
+
                 case 's':
                     *cf++; /* cf ahora tiene el delimitador para el string */
-                    cparam = * (char**) param; 
-                    
+                    cparam = * (char**) param;
+
                     while( (*cs != *cf) && (*cs != 0) )
                         * ((char*) cparam++) = *(cs++);
-                        
+
                     * (char*) cparam++ = 0;
-                    
-                    if (*cs != 0) *cs++; 
-                    
+
+                    if (*cs != 0) *cs++;
+
                     param+= sizeof(char*);
                     ret++;
             }
-        
+
         } else {
             if (*cs == *cf)
                 cs++;
             else
                 return ret;
         }
-        
+
     }
-    
+
     return ret;
-    
+
 }
 
 void putc(char c){
@@ -200,22 +200,22 @@ int printf(char *fmt, ...)
 				case '%':
 					putc('%');
 					break;
-					
+
 				case 'd':
 					putd(* (int*) param);
 					param += sizeof(int*);
                     break;
-					
+
 				case 'u':
                     putu(* (unsigned int*) param);
                     param += sizeof(unsigned int*);
                     break;
-					
+
 				case 'c':
 					putc((char)(* (int*) param));
 					param += sizeof(int*);
                     break;
-                
+
                 case 's':
                     puts(* (char**) param);
                     param += sizeof(char**);
@@ -244,22 +244,22 @@ int printfcolor(char color, char *fmt, ...)
 				case '%':
 					putc('%');
 					break;
-					
+
 				case 'd':
 					putd(* (int*) param);
 					param += sizeof(int*);
                     break;
-					
+
 				case 'u':
                     putu(* (unsigned int*) param);
                     param += sizeof(unsigned int*);
                     break;
-					
+
 				case 'c':
 					putc((char)(* (int*) param));
 					param += sizeof(int*);
                     break;
-                
+
                 case 's':
                     puts(* (char**) param);
                     param += sizeof(char**);
@@ -273,7 +273,7 @@ int printfcolor(char color, char *fmt, ...)
 
 char isNumeric(char c) {
 	return (c >= '0' && c <= '9');
-	
+
 }
 
 int getchar(){
@@ -281,7 +281,7 @@ int getchar(){
 
 	__read(STDIN, &rta, 1);
 	return rta;
-} 
+}
 
 
 void debugger(char c){

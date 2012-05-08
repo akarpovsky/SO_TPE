@@ -107,15 +107,15 @@ struct tty_t ttys[TTY_NUMBER] = {{
 
 struct system_t system = {
     0
-} ;
+};
 
-void initializeTTYScreens(){
-    int i, j;
-    for( i=0; i<TTY_NUMBER; i++){
-	for ( j=0; j<SCREEN_SIZE ; j++){
-	    ttys[i].screen->buffer[j++]=0;
-	    ttys[i].screen->buffer[j]=WHITE_TXT;
+void initializeTTYScreens() {
+	int i, j;
+	for (i = 0; i < TTY_NUMBER; i++) {
+		for (j = 0; j < SCREEN_SIZE; j++) {
+			ttys[i].screen->buffer[j++] = 0;
+			ttys[i].screen->buffer[j] = WHITE_TXT;
+		}
 	}
-    }
 }
- 
+

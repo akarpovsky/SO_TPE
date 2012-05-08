@@ -49,8 +49,8 @@ _lidt:				; Carga el IDTR
         push    ebp
         mov     ebp, esp
         push    ebx
-        mov     ebx, [ss: ebp + 6] ; ds:bx = puntero a IDTR 
-	rol	ebx,16		    	
+        mov     ebx, [ss: ebp + 6] ; ds:bx = puntero a IDTR
+	rol	ebx,16
 	lidt    [ds: ebx]          ; carga IDTR
         pop     ebx
         pop     ebp
@@ -58,7 +58,7 @@ _lidt:				; Carga el IDTR
 
 
 _excp_00_hand:
-                               
+
     push ebx
     mov  ebx, 00h
     jmp isr_common_stub
@@ -67,8 +67,8 @@ _excp_00_hand:
 _invop:
 	mov ax, 25h
 	push ax
-	ret 
-    
+	ret
+
 _excp_01_hand:
     push ebx
     mov  ebx, 01h
@@ -80,49 +80,49 @@ _excp_02_hand:
     mov  ebx, 02h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_03_hand:
     push ebx
     mov  ebx, 03h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_04_hand:
     push ebx
     mov  ebx, 04h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_05_hand:
     push ebx
     mov  ebx, 05h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_06_hand:
     push ebx
     mov  ebx, 06h
     jmp isr_common_stub
-    pop ebx   
-    
+    pop ebx
+
 _excp_07_hand:
     push ebx
     mov  ebx, 07h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_08_hand:
     push ebx
     mov  ebx, 08h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_09_hand:
     push ebx
     mov  ebx, 09h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_10_hand:
     push ebx
     mov  ebx, 0ah
@@ -175,14 +175,14 @@ _excp_18_hand:
     push ebx
     mov  ebx, 12h
     jmp isr_common_stub
-    pop ebx 
+    pop ebx
 
 _excp_19_hand:
     push ebx
     mov  ebx, 13h
     jmp isr_common_stub
     pop ebx
-    
+
 _excp_20_hand:
     push ebx
     mov  ebx, 14h
@@ -193,7 +193,7 @@ _excp_21_hand:
     push ebx
     mov  ebx, 15h
     jmp isr_common_stub
-    pop ebx 
+    pop ebx
 
 _excp_22_hand:
     push ebx
@@ -248,8 +248,8 @@ _excp_30_hand:
     mov  ebx, 1eh
     jmp isr_common_stub
     pop ebx
-    
-    
+
+
 isr_common_stub:
 
 	cli
@@ -260,7 +260,7 @@ isr_common_stub:
 	push 	eax
 	call	exception_handler
 	pop	eax
-  
+
 	jmp	EOI
 
 _int_20_hand:				; Handler de INT 20 ( Timer tick)
@@ -285,7 +285,7 @@ _int_21_hand:                                ; Handler de INT 21 ( Teclado )
 	push 	eax
 	call	int_21
 	pop	eax
-  
+
 	jmp	EOI
 
 _int_74_hand:                                ; Handler de INT 74 ( Mouse )
@@ -297,11 +297,11 @@ _int_74_hand:                                ; Handler de INT 74 ( Mouse )
 	call int_74
 	mov al,20h
 	out 0A0h, al ;pic slave
-	out 20h, al 
+	out 20h, al
 	pop eax
 	popa
-	iret   
-	
+	iret
+
 
 EOI:
 	mov	al,20h
@@ -343,7 +343,7 @@ _int_80_hand:                                ; Handler de INT 80 ( Syscall )
 
 	iret
 
-	
+
 _SysCall:
 	push ebp
 	mov ebp, esp

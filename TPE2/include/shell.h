@@ -18,6 +18,11 @@ static void clear_screen();
 static void shortcuts();
 static void mouse();
 
+static void top();
+static void pkill();
+static void imprimeUnos();
+
+
 
 
 void auto_complete();
