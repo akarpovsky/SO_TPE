@@ -205,7 +205,12 @@ typedef struct {
   dword base;
 } IDTR;
 
-     
+/* Short long types */
+
+typedef unsigned int 	  uint;
+typedef unsigned short 	ushort;
+typedef unsigned char 	 uchar;
+typedef unsigned long	 ulong;
 
 #endif
 
