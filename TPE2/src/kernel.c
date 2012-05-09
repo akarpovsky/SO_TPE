@@ -6,6 +6,7 @@
 #include "../include/mouse.h"
 #include "../include/structs.h"
 #include "../include/scheduler.h"
+#include "../include/multiboot.h"
 
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
@@ -190,8 +191,11 @@ kmain()
 Punto de entrada de cóo C.
 *************************************************/
 
-kmain()
+kmain(multiboot_info_t * mbd, unsigned int magic)
 {
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC){
+		return;
+	}
 
 	_Cli();
 
