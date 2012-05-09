@@ -1,22 +1,15 @@
 /*
- * scheduler.h
+ * proc.h
  *
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef PROC_H_
+#define PROC_H_
 
-#include "../include/strings.h"
-#include "../include/limits.h"
-#include "../include/shell.h"
-#include "../include/io.h"
-#define MAX_PROCESSES 64
-#define MAX_PRIORITIES 5
-#define PRIORITY 0
-#define TASK_NO 1
-#define CURRENT_PROCESS active_processes[active_process[PRIORITY]][active_process[TASK_NO]]
-
-#define MAX_PROCESS_NAME 125
+#include "strings.h"
+#include "limits.h"
+#include "shell.h"
+#include "io.h"
 
 typedef unsigned long Time_t;
 typedef unsigned Prio_t;
@@ -105,10 +98,9 @@ struct task {
 	Task_t *		time_prev;
 	Task_t *		time_next;
 	Time_t			ticks;
-	void *			data;
-	Task_t *		from;
 	void *			msg;
 	unsigned 		size;
+	void *			descriptor_table[STREAM_MAX];
 	registers_t		registers;
 	TaskQueue_t 	send_queue;
 	char			video[SCREEN_SIZE];
@@ -116,13 +108,7 @@ struct task {
 
 typedef int (*PROCESS) (int argc, char **argv);
 
-void select_next(void);
-int CreateProcess(char* name, PROCESS process,int tty, int argc, char** argv, int stack_start, int priority, int isFront);
-void CreateStackFrame(Task_t * new_proc, PROCESS p, unsigned int stack_start);
-void SetupScheduler(void);
 int null_process(int argc, char **argv);
-short * getSSPointer();
-int * getSPPointer();
 int shellLoop(int argc, char ** argv);
 void add_to_queue(TaskQueue_t * q, Task_t * t);
 Task_t *pop(TaskQueue_t * q);
@@ -131,8 +117,4 @@ int proc1(int argc, char **argv);
 int proc2(int argc, char **argv);
 int proc3(int argc, char **argv);
 
-//XXX: made anew;
-
-#define MAX_PROCESS	SHRT_MAX
-
-#endif /* SCHEDULER_H_ */
+#endif /* PROC_H_ */

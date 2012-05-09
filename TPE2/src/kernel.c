@@ -5,7 +5,7 @@
 #include "../include/defs.h"
 #include "../include/mouse.h"
 #include "../include/structs.h"
-#include "../include/proc.h"
+#include "../include/scheduler.h"
 
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
