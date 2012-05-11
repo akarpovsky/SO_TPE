@@ -3,6 +3,7 @@
  *
  */
 #include "../include/scheduler.h"
+#include "../include/io.h"
 
 Task_t processes[MAX_PROCESSES];
 TaskQueue_t ready_tasks[MAX_PRIORITIES];
@@ -20,7 +21,6 @@ void select_next(){
 		if(current_task->atomic_level){
 			return;
 		}
-
 		switch(current_task->state){
 		case TaskReady:
 			add_to_queue(&(ready_tasks[current_task->priority]), current_task);
@@ -46,7 +46,7 @@ void select_next(){
 	}
 	int i;
 	for(i = 0; i < MAX_PRIORITIES && empty(&(ready_tasks[i])); i++);
-
+	//putc('1');
 	if(i == MAX_PRIORITIES){
 		current_task = &null_process_task;
 	} else	{
@@ -68,7 +68,7 @@ int CreateProcess(char* name, PROCESS process,int tty, int argc, char** argv, in
 	new_proc->background = isFront;
 	strcpy(new_proc->name, name);
 	new_proc->priority = priority;
-	new_proc->atomic_level = 0;
+	new_proc->atomic_level = false;
 	new_proc->state = TaskReady;
 
 	add_to_queue(&ready_tasks[priority], new_proc);
@@ -82,7 +82,7 @@ void CreateStackFrame( Task_t * new_proc, PROCESS p, unsigned int stack_start){
 	((STACK_FRAME *) new_proc->sp )->CS = (void *)0x08;
 	((STACK_FRAME *) new_proc->sp )->EBP = 0;
 	((STACK_FRAME *) new_proc->sp )->EFLAGS = 0;
-	((STACK_FRAME *) new_proc->sp )->retaddr = 0;
+	((STACK_FRAME *) new_proc->sp )->fin_retaddr = 0;
 	((STACK_FRAME *) new_proc->sp )->argc = 0;
 	((STACK_FRAME *) new_proc->sp )->argv = 0;
 	((STACK_FRAME *) new_proc->sp )->EAX = 0;
@@ -116,7 +116,7 @@ void SetupScheduler(){
 //	CreateProcess("Shell 3", shellLoop, 2, 0, NULL, 3000000, 2, true);
 //	CreateProcess("Shell 4", shellLoop, 3, 0, NULL, 4500000, 3, true);
 
-	current_task = NULL;
+	current_task = &null_process_task;
 }
 
 int * getSPPointer(){
@@ -131,6 +131,28 @@ Task_t * get_current_proces(){
 	return current_task;
 }
 
+void yield(void){
+	__asm__ __volatile__ ("pushf");
+	__asm__ __volatile__ ("push %cs");
+	_int_20_hand();
+}
 
+void atomize(){
+	current_task->atomic_level = true;
+}
 
+void unatomize(){
+	current_task->atomic_level = false;
+}
 
+//void _change_context(){
+//	putc('c');
+//	uint sp = current_task->sp;
+//	putu(sp);
+//	__asm__ __volatile__("mov %%esp, %0":"=g" (sp));
+//	int_20();
+//	sp = current_task->sp;
+//	putu(sp);
+//	putc('i');
+//	__asm__ __volatile__("mov %0, %%esp"::"g" (sp));
+//}

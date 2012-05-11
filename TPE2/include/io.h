@@ -25,5 +25,6 @@ void puts(char* str);
 void putd(int d);
 void putu(unsigned int u);
 int printf(char *fmt, ...);
+void putx(int x);
 
 #endif

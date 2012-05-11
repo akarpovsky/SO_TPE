@@ -184,6 +184,42 @@ void putu(unsigned int u){
     putc(u % 10 + '0');
 }
 
+void putx(int x){
+	if (x < 0){
+		putc('-');
+		x = -x;
+	}
+	int i, h;
+	for(i = sizeof(int) * 2; i > 0; i--){
+		h = (x >> i) & 0xF;
+		if(h < 10){
+			putu(h);
+		}
+		else {
+			switch(h){
+			case 10:
+				putc('a');
+				break;
+			case 11:
+				putc('b');
+				break;
+			case 12:
+				putc('c');
+				break;
+			case 13:
+				putc('d');
+				break;
+			case 14:
+				putc('e');
+				break;
+			case 15:
+				putc('f');
+				break;
+			}
+		}
+	}
+}
+
 int printf(char *fmt, ...)
 {
 	//_Cli();
@@ -220,6 +256,10 @@ int printf(char *fmt, ...)
                     puts(* (char**) param);
                     param += sizeof(char**);
                     break;
+                case 'x':
+                	putx(* (int *) param);
+                	param += sizeof(int*);
+                	break;
 			}
 		}
 	}

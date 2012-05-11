@@ -38,7 +38,7 @@
 #define TZNAME_MAX			   3
 #define SSIZE_MAX		   32767
 #define PROCNAME_MAX		 128
-#define MAX_PROCESSES 		4096
+#define MAX_PROCESSES 		127//4096
 #define MAX_PRIORITIES 		   5
 
 

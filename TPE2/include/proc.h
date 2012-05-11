@@ -75,7 +75,7 @@ typedef struct stack_frame {
 	void * EIP;
 	void * CS;
 	void * EFLAGS;
-	void * retaddr;
+	void * fin_retaddr;
 	int argc;
 	char** argv;
 } STACK_FRAME;

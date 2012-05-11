@@ -66,10 +66,13 @@ int shellLoop(int argc, char ** argv){
 
 int proc1(int argc, char **argv){
 	_Sti();
+	int i = 0;
 	while(1){
 		printf("x");
-		//video[1800]='a';
-		//video[1801]=ticks_color;
+//		i++;
+//		if(!(i%10)){
+//			yield();
+//		}
 	}
 	return 0;
 }
@@ -77,10 +80,14 @@ int proc1(int argc, char **argv){
 int proc2(int argc, char **argv){
 	//asm volatile ("hlt");
 	_Sti();
+
+	int i = 0;
 		while(1){
 			printf("y");
-			//video[2800]='b';
-			//video[2801]=ticks_color;
+			i++;
+			if(!(i%10)){
+				yield();
+			}
 		}
 	return 0;
 }
@@ -90,8 +97,6 @@ int proc3(int argc, char **argv){
 	_Sti();
 		while(1){
 			printf("z");
-			//video[2800]='b';
-			//video[2801]=ticks_color;
 		}
 	return 0;
 }
