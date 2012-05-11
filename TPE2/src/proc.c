@@ -69,10 +69,10 @@ int proc1(int argc, char **argv){
 	int i = 0;
 	while(1){
 		printf("x");
-//		i++;
-//		if(!(i%10)){
-//			yield();
-//		}
+		i++;
+		if(!(i%10)){
+			yield();
+		}
 	}
 	return 0;
 }
