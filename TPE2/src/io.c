@@ -4,6 +4,8 @@ extern struct tty_t ttys[];
 extern Task_t * current_task;
 extern screen_t main_screen;
 extern char color_p;
+extern char * video;
+size_t offset = 0x0;
 char wbuffer[20]; /*buffer para escribir*/
 
 unsigned char _in(unsigned char port) {
@@ -91,15 +93,11 @@ void syswrite(int fd, void * buffer, size_t count) {
 }
 
 void syskernelwrite(int fd, void * buffer, size_t count) {
-	int i;
-	if (fd == STDOUT) {
-		char * video = (char *) 0xb800;
-		while (*((char *) buffer) != 0) {
-			*video++ = *((char *) buffer++); // Print char to screen
-			*video++ = 0x20; // Char format
-		}
 
-	}
+			*(video+offset++) = *((char *) buffer++); // Print char to screen
+			*(video+offset++) = 0x20; // Char format
+
+
 }
 
 int sscanf(char* str, char* fmt, ...) {

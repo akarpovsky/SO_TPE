@@ -88,6 +88,7 @@ struct task {
 	unsigned short	ss;
 	unsigned int	sp;
 	void *			math_data;
+	Task_t *			parent;
 	TaskQueue_t	*	queue;
 	Task_t *		prev;
 	Task_t *		next;

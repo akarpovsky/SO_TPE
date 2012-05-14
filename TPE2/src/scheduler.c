@@ -54,15 +54,24 @@ void select_next(){
 
 }
 
-int CreateProcess(char* name, PROCESS process,int tty, int argc, char** argv, int stack_start, int priority, int isFront){
+int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char** argv, int stack_start, int priority, int isFront){
 	Task_t * new_proc = pop(&empty_tasks);
 
 	if(new_proc == NULL){
 		return 0;
 	}
-	int i;
 
+	new_proc->parent = parent;
+	if(parent != NULL)
+	{
+		new_proc->screen = parent->screen;
+		new_proc->keyboard = parent->keyboard;
+		new_proc->linebuffer = parent->linebuffer;
+	}
+	else
+	{
 
+	}
 	CreateStackFrame(new_proc, process, stack_start);
 	new_proc->background = isFront;
 	strcpy(new_proc->name, name);
@@ -101,16 +110,17 @@ void SetupScheduler(){
 	}
 
 	null_process_task.state = TaskNULL;
+	null_process_task.keyboard = null_process_task.screen = null_process_task.linebuffer = NULL;
 	strcpy(null_process_task.name, "Null Process");
 	CreateStackFrame(&null_process_task, null_process, 1050000);
 
-	CreateProcess("Shell 1", proc1, 0, 0, NULL, 2000000, 2, true);
+//	CreateProcess("Shell 1", proc1, 0, 0, NULL, 2000000, 2, true);
+//
+//	CreateProcess("Shell 2", proc2, 0, 0, NULL, 2500000, 2, true);
+//
+//	CreateProcess("Shell 3", proc3, 0, 0, NULL, 3000000, 2, true);
 
-	CreateProcess("Shell 2", proc2, 0, 0, NULL, 2500000, 2, true);
 
-	CreateProcess("Shell 3", proc3, 0, 0, NULL, 3000000, 2, true);
-
-//	CreateProcess("Shell 1", shellLoop, 0, 0, NULL, 2000000, 0, true);
 //	CreateProcess("Shell 2", shellLoop, 1, 0, NULL, 2500000, 1, true);
 //	CreateProcess("Shell 3", shellLoop, 2, 0, NULL, 3000000, 2, true);
 //	CreateProcess("Shell 4", shellLoop, 3, 0, NULL, 4500000, 3, true);
