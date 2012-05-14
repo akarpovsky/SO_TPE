@@ -1,6 +1,7 @@
 
 #ifndef _STRUCTS_H
 #define _STRUCTS_H
+#include "limits.h"
 #include "defs.h"
 
 
@@ -12,8 +13,6 @@
 ***********************************/
 
 void inicializeTTYScreens();
-
-typedef int size_t;
 
 typedef struct shellLine_t{
 	int pos;

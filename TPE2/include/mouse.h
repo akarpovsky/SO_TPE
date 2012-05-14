@@ -8,8 +8,21 @@
 
 #ifndef _MOUSE_H_
 #define _MOUSE_H_
+#include "defs.h"
 #include "structs.h"
+#include "kc.h"
 
+extern int timer_tick_hz;
+
+/*Puerto donde el mouse deja su estado actual
+ * Si esta listo para recibir comandos deja el bit 2 en 0
+ * Si tiene nueva información disponible deja el bit 1 en 1
+ */
+
+#define PORT_STATUS 0x64
+
+/*Definición de ACK del mouse*/
+#define ACK 0xFA
 
 
 /*Función que inicializa el mouse para habilitarlo a que reciba paquetes

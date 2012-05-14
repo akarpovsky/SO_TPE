@@ -6,6 +6,7 @@
 #define _KC_H
 
 #include "defs.h"
+#include "limits.h"
 
 /* Muestra la imagen de inicio */
 void showSplashScreen();

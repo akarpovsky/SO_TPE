@@ -1,127 +1,137 @@
 #include "../../include/video.h"
 
-extern struct screen_t screen;
+extern struct screen_t main_screen;
 extern struct tty_t ttys[];
-extern int actualTTY;
+extern Task_t * current_task;
 extern char color_p ;
 char * video = (char *) SCREEN_POS;
 
 void writeInVideo(char c){
+
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
+
 	int i;
 	int colpos;
 	c = fixKey(c);
 	switch (c) {
 	case '\t':
-		if (ttys[actualTTY].screen->wpos % SCREEN_TAB_SIZE == 0)
+		if (screen->wpos % SCREEN_TAB_SIZE == 0)
 			for (i = 0; i < 4; i++) {
-				screen.address[ttys[actualTTY].screen->wpos += 2] = 0;
-				ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos]
-						= 0;
+				main_screen.address[screen->wpos += 2] = 0;
+				screen->buffer[screen->wpos] = 0;
 			}
-		while (ttys[actualTTY].screen->wpos % SCREEN_TAB_SIZE > 0) {
-			screen.address[ttys[actualTTY].screen->wpos += 2] = 0;
-			ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos] = 0;
+		while (screen->wpos % SCREEN_TAB_SIZE > 0) {
+			main_screen.address[screen->wpos += 2] = 0;
+			screen->buffer[screen->wpos] = 0;
 		}
 		break;
 	case '\n':
-		if (ttys[actualTTY].screen->wpos >= SCREEN_LAST_ROW) {
+		if (screen->wpos >= SCREEN_LAST_ROW) {
 			scroll();
 		} else {
-			colpos = ttys[actualTTY].screen->wpos % SCREEN_ROW_SIZE;
+			colpos = screen->wpos % SCREEN_ROW_SIZE;
 			for (i = colpos; i < SCREEN_ROW_SIZE; i++) {
 				if (i % 2 == 0) {
-					screen.address[ttys[actualTTY].screen->wpos += 2] = 0;
-					ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos]
-							= 0;
+					main_screen.address[screen->wpos += 2] = 0;
+					screen->buffer[screen->wpos] = 0;
 				}
 			}
 		}
 		break;
 	case '\b':
-		if (ttys[actualTTY].screen->wpos != 0) {
-			if (screen.address[ttys[actualTTY].screen->wpos] == 0) {
-				while (screen.address[ttys[actualTTY].screen->wpos -= 2] == 0)
+		if (screen->wpos != 0) {
+			if (main_screen.address[screen->wpos] == 0) {
+				while (main_screen.address[screen->wpos -= 2] == 0)
 					;
-				ttys[actualTTY].screen->wpos += 2;
+				screen->wpos += 2;
 			}
-			screen.address[ttys[actualTTY].screen->wpos -= 2] = 0;
-			ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos] = 0;
+			main_screen.address[screen->wpos -= 2] = 0;
+			screen->buffer[screen->wpos] = 0;
 		}
 		break;
 	default:
-		screen.address[ttys[actualTTY].screen->wpos] = c;
-		ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos++] = c;
-		screen.address[ttys[actualTTY].screen->wpos] = color_p;
-		ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos++]
+		main_screen.address[screen->wpos] = c;
+		screen->buffer[screen->wpos++] = c;
+		main_screen.address[screen->wpos] = color_p;
+		screen->buffer[screen->wpos++]
 				= color_p;
-		if (ttys[actualTTY].screen->wpos >= SCREEN_SIZE) {
+		if (screen->wpos >= SCREEN_SIZE) {
 			scroll();
 		}
 		break;
 	}
-	move_cursor(ttys[actualTTY].screen->wpos / 2);
+	move_cursor(screen->wpos / 2);
 }
 
 void scroll(){
+
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
+
 	int i = 0;
 	for (i = TTY_SCREEN_RSTART; i < SCREEN_COLS - 1; i++) {
-		_memcpy(&screen.address[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
-				&screen.address[i * SCREEN_ROW_SIZE], SCREEN_ROW_SIZE);
+		_memcpy(&main_screen.address[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
+				&main_screen.address[i * SCREEN_ROW_SIZE], SCREEN_ROW_SIZE);
 		_memcpy(
-				&ttys[actualTTY].screen->buffer[i * SCREEN_ROW_SIZE
+				&screen->buffer[i * SCREEN_ROW_SIZE
 						+ SCREEN_ROW_SIZE],
-				&ttys[actualTTY].screen->buffer[i * SCREEN_ROW_SIZE],
+				&screen->buffer[i * SCREEN_ROW_SIZE],
 				SCREEN_ROW_SIZE);
 	}
 
-	ttys[actualTTY].screen->wpos = SCREEN_LAST_ROW;
-	while (ttys[actualTTY].screen->wpos < SCREEN_SIZE) {
-		screen.address[ttys[actualTTY].screen->wpos] = 0;
-		ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos++] = 0;
-		screen.address[ttys[actualTTY].screen->wpos] = WHITE_TXT;
-		ttys[actualTTY].screen->buffer[ttys[actualTTY].screen->wpos++]
-				= WHITE_TXT;
+	screen->wpos = SCREEN_LAST_ROW;
+	while (screen->wpos < SCREEN_SIZE) {
+		main_screen.address[screen->wpos] = 0;
+		screen->buffer[screen->wpos++] = 0;
+		main_screen.address[screen->wpos] = WHITE_TXT;
+		screen->buffer[screen->wpos++] = WHITE_TXT;
 	}
-	ttys[actualTTY].screen->wpos = SCREEN_LAST_ROW;
+	screen->wpos = SCREEN_LAST_ROW;
 }
 
 void v_changeTTY(){
+
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
+
 	int i;
 	clearScreen();
 	print_header();
 	printTicks();
 	for (i = TTY_SCREEN_SSTART; i < SCREEN_SIZE; i++) {
-		screen.address[i] = ttys[actualTTY].screen->buffer[i];
+		main_screen.address[i] = screen->buffer[i];
 	}
-	if (ttys[actualTTY].screen->wpos == TTY_SCREEN_SSTART) {
-		printf("CasKarOS tty%d:~$ ", actualTTY + 1);
+	if (screen->wpos == TTY_SCREEN_SSTART) {
+		printf("BrunOS tty%d:~$ ", current_task->tty_number);
 	}
-	move_cursor(ttys[actualTTY].screen->wpos / 2);
+	move_cursor(screen->wpos / 2);
 }
 
 void clearScreen(){
 	int i;
 	for (i = 0; i < SCREEN_SIZE; i++) {
-		screen.address[i++] = 0;
-		screen.address[i] = WHITE_TXT;
+		main_screen.address[i++] = 0;
+		main_screen.address[i] = WHITE_TXT;
 	}
 }
 
 void clearScreenBuffer(){
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
 	int i;
 	for (i = 0; i < SCREEN_SIZE; i++) {
-		ttys[actualTTY].screen->buffer[i++] = 0;
-		screen.address[i] = WHITE_TXT;
+		screen->buffer[i++] = 0;
+		main_screen.address[i] = WHITE_TXT;
 	}
 }
 
 void clearfromto(int from, int to){
+
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
+
 	int i;
 	for (i = from; i < to; i++) {
-		screen.address[i++] = 0;
-		screen.address[i] = WHITE_TXT;
+		main_screen.address[i++] = 0;
+		main_screen.address[i] = WHITE_TXT;
 	}
-	ttys[actualTTY].screen->wpos = from;
+	screen->wpos = from;
 }
 
 char fixKey(char c){

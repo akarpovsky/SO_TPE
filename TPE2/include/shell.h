@@ -1,7 +1,12 @@
 #ifndef _SHELL_H
 #define _SHELL_H
-#include "../include/structs.h"
-#include "../include/defs.h"
+
+#include "structs.h"
+#include "defs.h"
+#include "video.h"
+#include "strings.h"
+#include "scheduler.h"
+#include "limits.h"
 
 void shell();
 void parse_command();

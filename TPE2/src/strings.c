@@ -1,7 +1,6 @@
 /* string.c */
 
 #include "../include/strings.h"
-#include "../include/defs.h"
 
 int strlen(const char *str){
 	int i = 0;

@@ -27,15 +27,6 @@
 #define ACS_DATA        (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 #define ACS_STACK       (ACS_PRESENT | ACS_DSEG | ACS_WRITE)
 
-/* Dimensiones de la pantalla */
-#define SCREEN_ROWS	80
-#define SCREEN_COLS	25
-#define SCREEN_POS	0xb8000
-#define SCREEN_SIZE	4000
-#define SCREEN_LAST_ROW	3840
-#define SCREEN_ROW_SIZE	160
-#define SCREEN_TAB_SIZE	8
-
 /* Atributos de Video */
 
 #define WHITE_TXT 0x07 // Atributo de video. Letras blancas, fondo negro
@@ -113,18 +104,12 @@
 #define FUNCTION_KEY	2
 #define HIDDEN_KEY	3
 
-/* Buffer de teclado */
-
-#define K_BUFFER_SIZE	10
-
-/* Buffer de la linea de comando */
-
-#define S_BUFFER_SIZE	1024
-
 /* Booleans */
-
+#ifndef _BOOLEAN_DEF_
+#define _BOOLEAN_DEF_
 #define TRUE		1
 #define FALSE		0
+#endif /*_BOOLEAN_DEF_*/
 
 /* TTYs */
 
@@ -149,6 +134,7 @@
 
 #define SYSCALL_READ	3
 #define SYSCALL_WRITE	4
+#define SYSCALL_KERNELWRITE	5
 
 /* Error */
 
@@ -167,8 +153,10 @@
 #define A_ACC_U		0xa3
 
 
-
+#ifndef _NULL_
+#define _NULL_
 #define NULL (void *)0
+#endif /*_NULL_*/
 
 /* Mouse */
 
@@ -211,6 +199,9 @@ typedef unsigned int 	  uint;
 typedef unsigned short 	ushort;
 typedef unsigned char 	 uchar;
 typedef unsigned long	 ulong;
+
+typedef uint size_t;
+typedef int	ssize_t;
 
 #endif
 

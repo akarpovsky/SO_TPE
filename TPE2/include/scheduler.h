@@ -8,7 +8,8 @@
 
 #include "limits.h"
 #include "proc.h"
-#include "kernel.h"
+#include "structs.h"
+#include "io.h"
 
 void select_next(void);
 Task_t * get_current_proces();
@@ -18,7 +19,16 @@ void SetupScheduler(void);
 short * getSSPointer();
 void unatomize();
 void atomize();
-//void _change_context();
 void yield();
+
+ttyScreen_t * getScreen(Task_t * task);
+keyboard_t  * getKeyboard(Task_t * task);
+shellLine_t * getLineBuffer(Task_t * task);
+
+//TODO:
+
+int proc1(int argc, char **argv);
+int proc2(int argc, char **argv);
+int proc3(int argc, char **argv);
 
 #endif /* SCHEDULER_H_ */

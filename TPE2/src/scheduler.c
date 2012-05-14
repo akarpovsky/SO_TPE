@@ -3,7 +3,6 @@
  *
  */
 #include "../include/scheduler.h"
-#include "../include/io.h"
 
 Task_t processes[MAX_PROCESSES];
 TaskQueue_t ready_tasks[MAX_PRIORITIES];
@@ -145,14 +144,55 @@ void unatomize(){
 	current_task->atomic_level = false;
 }
 
-//void _change_context(){
-//	putc('c');
-//	uint sp = current_task->sp;
-//	putu(sp);
-//	__asm__ __volatile__("mov %%esp, %0":"=g" (sp));
-//	int_20();
-//	sp = current_task->sp;
-//	putu(sp);
-//	putc('i');
-//	__asm__ __volatile__("mov %0, %%esp"::"g" (sp));
-//}
+ttyScreen_t * getScreen(Task_t * task)
+{
+	return task->screen;
+}
+keyboard_t  * getKeyboard(Task_t * task)
+{
+	return task->keyboard;
+}
+shellLine_t * getLineBuffer(Task_t * task)
+{
+	return task->linebuffer;
+}
+
+
+//TODO:
+
+int proc1(int argc, char **argv){
+	_Sti();
+	int i = 0;
+	while(1){
+		printf("x");
+		i++;
+		if(!(i%10)){
+			yield();
+		}
+	}
+	return 0;
+}
+
+int proc2(int argc, char **argv){
+	//asm volatile ("hlt");
+	_Sti();
+
+	int i = 0;
+		while(1){
+			printf("y");
+			i++;
+			if(!(i%10)){
+				yield();
+			}
+		}
+	return 0;
+}
+
+int proc3(int argc, char **argv){
+	//asm volatile ("hlt");
+	_Sti();
+		while(1){
+			printf("z");
+		}
+	return 0;
+}

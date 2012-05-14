@@ -55,49 +55,5 @@ int null_process(int argc, char **argv){
 	return 0;
 }
 
-int shellLoop(int argc, char ** argv){
-  	while(1)
-        {
-  			_Sti();
-			shell();
-        }
-  	return 0;
-}
 
-int proc1(int argc, char **argv){
-	_Sti();
-	int i = 0;
-	while(1){
-		printf("x");
-		i++;
-		if(!(i%10)){
-			yield();
-		}
-	}
-	return 0;
-}
-
-int proc2(int argc, char **argv){
-	//asm volatile ("hlt");
-	_Sti();
-
-	int i = 0;
-		while(1){
-			printf("y");
-			i++;
-			if(!(i%10)){
-				yield();
-			}
-		}
-	return 0;
-}
-
-int proc3(int argc, char **argv){
-	//asm volatile ("hlt");
-	_Sti();
-		while(1){
-			printf("z");
-		}
-	return 0;
-}
 
