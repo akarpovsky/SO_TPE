@@ -4,7 +4,7 @@
 
 struct key_t * key;
 extern struct tty_t ttys[];
-extern int actualTTY;
+extern Task_t * current_task;
 
 char e_lowercase[256] =
 		{ 0, 0x1b, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
@@ -73,14 +73,12 @@ char s_capsuppercase[256] = { 0, 0xa7, '!', '"', '#', '$', '%', '&', '/', '(',
 		84, 85, '>' };
 
 unsigned char insertKey(unsigned char c) {
+	keyboard_t * keyboard = getKeyboard(current_task);
 
 	if (!bufferIsFull()) {
-		ttys[actualTTY].keyboard->buffer[ttys[actualTTY].keyboard->tail] = c;
-		// 	  keyBoardBuffer[actualTTY][bufferTail] = c;
-		//  	  int tail = (ttys[actualTTY].keyboard->tail)+1;
-		//	  ttys[actualTTY].keyboard->tail = 2;
-		if (++(ttys[actualTTY].keyboard->tail) == K_BUFFER_SIZE) {
-			ttys[actualTTY].keyboard->tail = 0;
+		keyboard->buffer[keyboard->tail] = c;
+		if (++(keyboard->tail) == K_BUFFER_SIZE) {
+			keyboard->tail = 0;
 			return c;
 		}
 	}
@@ -88,15 +86,18 @@ unsigned char insertKey(unsigned char c) {
 }
 
 unsigned char getKey() {
-	int head = ttys[actualTTY].keyboard->head;
+
+	keyboard_t * keyboard = getKeyboard(current_task);
+
+	int head = keyboard->head;
 
 	if (!isEmptyBuffer()) {
-		ttys[actualTTY].keyboard->buffer[ttys[actualTTY].keyboard->head];
-		if (++(ttys[actualTTY].keyboard->head) == K_BUFFER_SIZE) {
-			ttys[actualTTY].keyboard->head = 0;
+		keyboard->buffer[keyboard->head];
+		if (++(keyboard->head) == K_BUFFER_SIZE) {
+			keyboard->head = 0;
 		}
 
-		return ttys[actualTTY].keyboard->buffer[head];
+		return keyboard->buffer[head];
 	}
 
 	return EMPTY_CHAR;
@@ -104,15 +105,21 @@ unsigned char getKey() {
 }
 
 int bufferIsFull() {
-	if ((ttys[actualTTY].keyboard->tail + 1) % K_BUFFER_SIZE
-			== ttys[actualTTY].keyboard->head) {
+
+	keyboard_t * keyboard = getKeyboard(current_task);
+
+	if ((keyboard->tail + 1) % K_BUFFER_SIZE
+			== keyboard->head) {
 		return TRUE;
 	}
 	return FALSE;
 }
 
 int isEmptyBuffer() {
-	if (ttys[actualTTY].keyboard->tail == ttys[actualTTY].keyboard->head) {
+
+	keyboard_t * keyboard = getKeyboard(current_task);
+
+	if (keyboard->tail == keyboard->head) {
 		return TRUE;
 	}
 	return FALSE;
@@ -120,59 +127,58 @@ int isEmptyBuffer() {
 
 struct key_t * parseKey(unsigned char c) {
 
-	if (ttys[actualTTY].keyboard->escaped_key) {
+	keyboard_t * keyboard = getKeyboard(current_task);
+
+	if (keyboard->escaped_key) {
 		c += 256;
-		ttys[actualTTY].keyboard->escaped_key = 0;
+		keyboard->escaped_key = 0;
 	}
 	switch (c) {
 	case NUMLOCK:
-		ttys[actualTTY].keyboard->num_state
-				= !ttys[actualTTY].keyboard->num_state;
+		keyboard->num_state = !keyboard->num_state;
 		key->keyType = HIDDEN_KEY;
 		updateLeds();
 		break;
 	case SCROLLLOCK:
-		ttys[actualTTY].keyboard->scroll_state
-				= !ttys[actualTTY].keyboard->scroll_state;
+		keyboard->scroll_state = !keyboard->scroll_state;
 		key->keyType = HIDDEN_KEY;
 		updateLeds();
 		break;
 	case LEFT_SHIFT_PRESSED:
 	case RIGHT_SHIFT_PRESSED:
-		ttys[actualTTY].keyboard->shift_state = TRUE;
-		if (ttys[actualTTY].keyboard->ctrl_state == TRUE)
+		keyboard->shift_state = TRUE;
+		if (keyboard->ctrl_state == TRUE)
 			changeLang();
 		key->keyType = HIDDEN_KEY;
 		break;
 	case RIGHT_SHIFT_RELEASED:
 	case LEFT_SHIFT_RELEASED:
-		ttys[actualTTY].keyboard->shift_state = FALSE;
+		keyboard->shift_state = FALSE;
 		key->keyType = HIDDEN_KEY;
 		break;
 	case CAPSLOCK:
-		ttys[actualTTY].keyboard->caps_state
-				= !ttys[actualTTY].keyboard->caps_state;
+		keyboard->caps_state = !keyboard->caps_state;
 		updateLeds();
 		//	      printf("caps_state=%d\n",ttys[actualTTY].keyboard->caps_state);
 		key->keyType = HIDDEN_KEY;
 		break;
 	case ESCAPED_KEY:
-		ttys[actualTTY].keyboard->escaped_key = TRUE;
+		keyboard->escaped_key = TRUE;
 		key->keyType = HIDDEN_KEY;
 		break;
 	case ALT_PRESSED:
-		ttys[actualTTY].keyboard->alt_state = TRUE;
+		keyboard->alt_state = TRUE;
 		break;
 	case ALT_RELEASED:
-		ttys[actualTTY].keyboard->alt_state = FALSE;
+		keyboard->alt_state = FALSE;
 		break;
 	case CONTROL_PRESSED:
-		ttys[actualTTY].keyboard->ctrl_state = TRUE;
-		if (ttys[actualTTY].keyboard->shift_state == TRUE)
+		keyboard->ctrl_state = TRUE;
+		if (keyboard->shift_state == TRUE)
 			changeLang();
 		break;
 	case CONTROL_RELEASED:
-		ttys[actualTTY].keyboard->ctrl_state = FALSE;
+		keyboard->ctrl_state = FALSE;
 		break;
 	case ARROW_UP:
 	case ARROW_DOWN:
@@ -190,8 +196,8 @@ struct key_t * parseKey(unsigned char c) {
 		changeTTY(c - 0x3b);
 		break;
 	case DEAD_KEY:
-		if (ttys[actualTTY].keyboard->lang == SPANISH) {
-			ttys[actualTTY].keyboard->dead_key = TRUE;
+		if (keyboard->lang == SPANISH) {
+			keyboard->dead_key = TRUE;
 			break;
 		}
 	default:
@@ -200,38 +206,33 @@ struct key_t * parseKey(unsigned char c) {
 		} else {
 			if (isPrintable(c)) {
 				key->keyType = ALPHANUM_KEY;
-				if (ttys[actualTTY].keyboard->caps_state) {
-					if (ttys[actualTTY].keyboard->lang == ENGLISH) {
-						key->ascii
-								= (ttys[actualTTY].keyboard->shift_state ? e_capsuppercase
-										: e_capslowercase)[c];
-					} else if (ttys[actualTTY].keyboard->lang == SPANISH) {
-						if (ttys[actualTTY].keyboard->dead_key
-								&& ttys[actualTTY].keyboard->shift_state
+				if (keyboard->caps_state) {
+					if (keyboard->lang == ENGLISH) {
+						key->ascii = (keyboard->shift_state ? e_capsuppercase
+								: e_capslowercase)[c];
+					} else if (keyboard->lang == SPANISH) {
+						if (keyboard->dead_key && keyboard->shift_state
 								&& isVowel(c)) {
 							key->ascii = accVowel(c);
 						} else
 							key->ascii
-									= (ttys[actualTTY].keyboard->shift_state ? s_capsuppercase
+									= (keyboard->shift_state ? s_capsuppercase
 											: s_capslowercase)[c];
 					}
 				} else {
-					if (ttys[actualTTY].keyboard->lang == ENGLISH) {
-						key->ascii
-								= (ttys[actualTTY].keyboard->shift_state ? e_uppercase
-										: e_lowercase)[c];
-					} else if (ttys[actualTTY].keyboard->lang == SPANISH) {
-						if (ttys[actualTTY].keyboard->dead_key
-								&& !ttys[actualTTY].keyboard->shift_state
+					if (keyboard->lang == ENGLISH) {
+						key->ascii = (keyboard->shift_state ? e_uppercase
+								: e_lowercase)[c];
+					} else if (keyboard->lang == SPANISH) {
+						if (keyboard->dead_key && !keyboard->shift_state
 								&& isVowel(c)) {
 							key->ascii = accVowel(c);
 						} else
-							key->ascii
-									= (ttys[actualTTY].keyboard->shift_state ? s_uppercase
-											: s_lowercase)[c];
+							key->ascii = (keyboard->shift_state ? s_uppercase
+									: s_lowercase)[c];
 					}
 				}
-				ttys[actualTTY].keyboard->dead_key = FALSE;
+				keyboard->dead_key = FALSE;
 			} else {
 
 			}
@@ -251,12 +252,16 @@ int isPrintable(unsigned char c) {
 	return 0;
 }
 void changeLang() {
-	if (ttys[actualTTY].keyboard->lang == ENGLISH)
-		ttys[actualTTY].keyboard->lang = SPANISH;
+
+	keyboard_t * keyboard = getKeyboard(current_task);
+	ttyScreen_t * screen = getScreen(current_task);
+
+	if (keyboard->lang == ENGLISH)
+		keyboard->lang = SPANISH;
 	else
-		ttys[actualTTY].keyboard->lang = ENGLISH;
+		keyboard->lang = ENGLISH;
 	print_header();
-	move_cursor(ttys[actualTTY].screen->wpos / 2);
+	move_cursor(screen->wpos / 2);
 }
 
 int isVowel(char c) {
@@ -300,9 +305,11 @@ void viewBuffer() {
 
 void updateLeds() {
 
-	unsigned char leds = ttys[actualTTY].keyboard->scroll_state
-			| (ttys[actualTTY].keyboard->num_state * 2)
-			| (ttys[actualTTY].keyboard->caps_state * 4);
+	keyboard_t * keyboard = getKeyboard(current_task);
+
+	unsigned char leds = keyboard->scroll_state
+			| (keyboard->num_state * 2)
+			| (keyboard->caps_state * 4);
 	_out(0x60, 0xed);
 	while (_in(0x60) != 0xfa)
 		;

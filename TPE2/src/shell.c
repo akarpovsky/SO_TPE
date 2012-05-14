@@ -1,11 +1,9 @@
 #include "../include/shell.h"
-#include "../include/strings.h"
-#include "../include/video.h"
 
 extern struct shellLine_t shellLine;
 extern tty_t ttys[];
 
-extern int actualTTY;
+extern Task_t * current_task;
 
 int printing_command = FALSE;
 extern int printing_header;
@@ -42,14 +40,17 @@ static struct {
 
 void shell(){
 
+	shellLine_t * lineBuffer = getLineBuffer(current_task);
+	ttyScreen_t * screen = getScreen(current_task);
+
 	char c;
-	printf("CasKarOS tty%d:~$ ",actualTTY+1);
+	printf("CasKarOS tty%d:~$ ", current_task->tty_number);
 	while( (c=getc()) != '\n' ){
 		switch(c){
 		case '\b':
-			if( ttys[actualTTY].lineBuffer->pos>0){
+			if( lineBuffer->pos>0){
 
-				ttys[actualTTY].lineBuffer->buffer[--ttys[actualTTY].lineBuffer->pos]=0;
+				lineBuffer->buffer[--lineBuffer->pos]=0;
 				putc('\b');
 			}
 			break;
@@ -58,9 +59,9 @@ void shell(){
 			auto_complete();
 			break;
 		default:
-			if(ttys[actualTTY].lineBuffer->pos < ttys[actualTTY].lineBuffer->size-1){
-				ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos++]=c;
-				ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos]=0;
+			if(lineBuffer->pos < lineBuffer->size-1){
+				lineBuffer->buffer[lineBuffer->pos++]=c;
+				lineBuffer->buffer[lineBuffer->pos]=0;
 			}
 			putc(c);
 			break;
@@ -73,27 +74,33 @@ void shell(){
 
 
 	run_command();
-	ttys[actualTTY].lineBuffer->pos=0;
+	lineBuffer->pos=0;
 	clearCommand();
 	erase_buffer();
 
 }
 
 void erase_buffer(){
+	shellLine_t * lineBuffer = getLineBuffer(current_task);
+
+
 	int i = 0;
 	for (i = 0; i < LINEBUF_LEN; i++)
 	{
-		ttys[actualTTY].lineBuffer->buffer[i]=0;
+		lineBuffer->buffer[i]=0;
 	}
 
 }
 
 void parse_command() {
+
+    shellLine_t * lineBuffer = getLineBuffer(current_task);
+
     int initpos = 0;
 
     /* Remover espacios en blanco */
-    while ( (ttys[actualTTY].lineBuffer->buffer[initpos] == ' ') && (++initpos < LINEBUF_LEN - 1) );
-    sscanf(&ttys[actualTTY].lineBuffer->buffer[initpos], "%s %s", command.name, command.args);
+    while ( (lineBuffer->buffer[initpos] == ' ') && (++initpos < LINEBUF_LEN - 1) );
+    sscanf(&lineBuffer->buffer[initpos], "%s %s", command.name, command.args);
 }
 
 int run_command(){
@@ -114,36 +121,43 @@ int run_command(){
 }
 
 void auto_complete(){
-	int i,j,size,lenght, eq=TRUE;
-	lenght=strlen(command.name);
+
+	ttyScreen_t * screen = getScreen(current_task);
+	shellLine_t * lineBuffer = getLineBuffer(current_task);
+
+	int i, j, size, lenght, eq = TRUE;
+	lenght = strlen(command.name);
 	char * commName;
-	if(streq(command.name, ""))
-		return ;
+	if (streq(command.name, ""))
+		return;
 
 	for (i = 0; i < NUM_COMMANDS; i++) {
-	    commName=commands[i].name;
-	    for(j=0; j<lenght && eq==TRUE;j++){
-		if(command.name[j]!=commName[j])
-		  eq=FALSE;
-		if(j==strlen(commName)-1)
-		  eq=FALSE;
-	    }
-	    if(eq==TRUE){
-		size=strlen(ttys[actualTTY].lineBuffer->buffer);
-		erase_buffer();
-		clearfromto(ttys[actualTTY].screen->wpos-size*2,ttys[actualTTY].screen->wpos);
-		ttys[actualTTY].lineBuffer->pos = 0;
-		lenght=strlen(commName);
-		for(j=0; j<lenght ; j++){
-			ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos++]=commName[j];
-			ttys[actualTTY].lineBuffer->buffer[ttys[actualTTY].lineBuffer->pos]=0;
-			putc(commName[j]);
-
+		commName = commands[i].name;
+		for (j = 0; j < lenght && eq == TRUE; j++) {
+			if (command.name[j] != commName[j])
+				eq = FALSE;
+			if (j == strlen(commName) - 1)
+				eq = FALSE;
 		}
-	    }
-	    eq=!eq;
+		if (eq == TRUE) {
+			size = strlen(lineBuffer->buffer);
+			erase_buffer();
+			clearfromto(screen->wpos - size * 2,
+					screen->wpos);
+			lineBuffer->pos = 0;
+			lenght = strlen(commName);
+			for (j = 0; j < lenght; j++) {
+				lineBuffer->buffer[lineBuffer->pos++]
+						= commName[j];
+				lineBuffer->buffer[lineBuffer->pos]
+						= 0;
+				putc(commName[j]);
+
+			}
+		}
+		eq = !eq;
 	}
-	command.name[0]=0;
+	command.name[0] = 0;
 
 }
 
@@ -167,12 +181,15 @@ divideByZero(){
 
 static void
 clear_screen(){
+
+	ttyScreen_t * screen = getScreen(current_task);
+
 	clearScreen();
 	clearScreenBuffer();
 	print_header();
 	printTicks();
-	ttys[actualTTY].screen->wpos=TTY_SCREEN_SSTART;
-	move_cursor(ttys[actualTTY].screen->wpos/2);
+	screen->wpos=TTY_SCREEN_SSTART;
+	move_cursor(screen->wpos/2);
 
 }
 

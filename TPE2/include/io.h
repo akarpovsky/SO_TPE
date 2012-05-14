@@ -1,7 +1,12 @@
 
 #ifndef _IO_H
 #define _IO_H
-#include "structs.h"
+
+#include "./defs.h"
+#include "./structs.h"
+#include "./strings.h"
+#include "./scheduler.h"
+#include "./video.h"
 
 /********************************** 
 *
@@ -14,6 +19,8 @@ unsigned char _in(unsigned char port);
 void _out(unsigned char port, unsigned char c); 
 void sysread(int fd, void * buffer, size_t count);
 void syswrite(int fd, void * buffer, size_t count);
+void syskernelwrite(int fd, void * buffer, size_t count);
+
 
 int getchar();
 int sscanf(char* str, char* fmt, ...);
@@ -24,6 +31,10 @@ void debugger(char c);
 void puts(char* str);
 void putd(int d);
 void putu(unsigned int u);
+void kputs(char* str);
+void kputd(int d);
+void kputu(unsigned int u);
 int printf(char *fmt, ...);
+int kprintf(char *fmt, ...);
 
 #endif

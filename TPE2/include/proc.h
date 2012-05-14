@@ -98,6 +98,7 @@ struct task {
 	Task_t *		time_prev;
 	Task_t *		time_next;
 	Time_t			ticks;
+	int				tty_number;
 	void *			msg;
 	unsigned 		size;
 	void *			descriptor_table[STREAM_MAX];

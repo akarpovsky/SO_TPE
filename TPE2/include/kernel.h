@@ -7,8 +7,15 @@
 
 #ifndef _KERNEL_H
 #define _KERNEL_H
-#include "defs.h"
-#include "structs.h"
+
+#include "./video.h"
+#include "./shell.h"
+#include "./kasm.h"
+#include "./defs.h"
+#include "./mouse.h"
+#include "./structs.h"
+#include "./scheduler.h"
+
 
 #define OS_PID	0
 

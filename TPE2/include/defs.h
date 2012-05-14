@@ -149,6 +149,7 @@
 
 #define SYSCALL_READ	3
 #define SYSCALL_WRITE	4
+#define SYSCALL_KERNELWRITE	5
 
 /* Error */
 

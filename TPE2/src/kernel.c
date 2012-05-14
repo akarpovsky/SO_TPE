@@ -1,16 +1,10 @@
-#include "../include/video.h"
-#include "../include/shell.h"
 #include "../include/kernel.h"
-#include "../include/kasm.h"
-#include "../include/defs.h"
-#include "../include/mouse.h"
-#include "../include/structs.h"
-#include "../include/scheduler.h"
 
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
 
 extern struct tty_t ttys[];
+extern Task_t * current_task;
 
 char color_p = WHITE_TXT;
 
@@ -34,6 +28,9 @@ void int_80(int sysCallNumber, void ** args){
 			break;
 		case SYSCALL_WRITE:
 			syswrite((int) args[0], args[1], (int)args[2]);
+			break;
+		case SYSCALL_KERNELWRITE:
+			syskernelwrite((int) args[0], args[1], (int)args[2]);
 			break;
 		default:
 			break;
@@ -60,19 +57,19 @@ void int_20(){
 
 		ticks = TTY_SCREEN_TICSTART;
 	}
-//	if(first){
-//		first = false;
-//		return;
-//	}
+
 	select_next();
 }
 
 
 void printTicks(){
-	int wpos = ttys[actualTTY].screen->wpos;
-	ttys[actualTTY].screen->wpos=TTY_SCREEN_TSTART;
+
+	ttyScreen_t * screen = getScreen(current_task);
+
+	int wpos = screen->wpos;
+	screen->wpos=TTY_SCREEN_TSTART;
 	printf("           Ticks: ");
-	ttys[actualTTY].screen->wpos=wpos;
+	screen->wpos=wpos;
 
 }
 
@@ -172,17 +169,21 @@ void timer_phase(int hz)
 }
 
 void print_header(){
-	int wpos = ttys[actualTTY].screen->wpos;
+
+	ttyScreen_t * screen = getScreen(current_task);
+	keyboard_t * keyboard = getKeyboard(current_task);
+
+	int wpos = screen->wpos;
 	char color_aux = color_p;
-	ttys[actualTTY].screen->wpos=TTY_SCREEN_HSTART;
+	screen->wpos=TTY_SCREEN_HSTART;
 	color_p = HEADER_COLOR;
 	printf("\t\t\t\tTP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t Keyboard: ");
-	printfcolor(ERROR_COLOR,"%s",(ttys[actualTTY].keyboard->lang == ENGLISH) ? "EN" : "ES");
+	printfcolor(ERROR_COLOR,"%s",(keyboard->lang == ENGLISH) ? "EN" : "ES");
 	printf(" | TTY: ");
 	printfcolor(ERROR_COLOR,"%d",actualTTY+1);
 	printf("\n");
 	color_p = color_aux;
-	ttys[actualTTY].screen->wpos=wpos;
+	screen->wpos=wpos;
 }
 
 /**********************************************
@@ -245,33 +246,13 @@ kmain()
 
 	//TODO;
 	SetupScheduler();
-//	CreateProcess(0, proc1, 0x200000);
-//	CreateProcess(1, proc2, 0x100500);
-//
+
 	print_header();
 
-//
-	//while(true);
 	printTicks();
-//
-//	shellLoop();
 
 	_Sti();
 
 	_int_20_hand();
 }
-
-//void CreateProcess(int i, PROCESS p, unsigned int stack_start){
-//	process[i].ss = stack_start;
-//	process[i].sp = stack_start - sizeof(STACK_FRAME)-1;
-//	((STACK_FRAME *) process[i].sp)->EIP = p;
-//	((STACK_FRAME *) process[i].sp)->CS = (void *)0x08;
-//	((STACK_FRAME *) process[i].sp)->EBP = 0;
-//	((STACK_FRAME *) process[i].sp)->EFLAGS = 0;
-//	((STACK_FRAME *) process[i].sp)->retaddr = 0;
-//	((STACK_FRAME *) process[i].sp)->argc = 0;
-//	((STACK_FRAME *) process[i].sp)->argv = 0;
-//
-//}
-
 

@@ -1,7 +1,7 @@
 #include "../include/defs.h"
 #include "../include/structs.h"
 
-struct screen_t screen = {
+struct screen_t main_screen = {
     (char *) 0x0B8000,
     SCREEN_ROWS*SCREEN_COLS*2
 };

@@ -2,3 +2,5 @@
 *.iso
 *.o
 *.bochsout.txt
+.DS_Store
+*.DS_Store
