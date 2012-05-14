@@ -4,7 +4,8 @@
 
 #include "defs.h"
 #include "structs.h"
-#include "scheduler.h"
+#include "limits.h"
+#include "proc.h"
 
 /********************************** 
 *

@@ -8,14 +8,15 @@
 #ifndef _KERNEL_H
 #define _KERNEL_H
 
-#include "./video.h"
-#include "./shell.h"
-#include "./kasm.h"
-#include "./defs.h"
-#include "./mouse.h"
-#include "./structs.h"
-#include "./scheduler.h"
-
+#include "video.h"
+#include "shell.h"
+#include "kasm.h"
+#include "defs.h"
+#include "mouse.h"
+#include "structs.h"
+#include "scheduler.h"
+#include "multiboot.h"
+#include "limits.h"
 
 #define OS_PID	0
 
@@ -24,8 +25,6 @@ int (*player)(void);
 void printTicks();
 void changeTTY(int);
 
-// typedef int size_t;
-typedef short int ssize_t;
 typedef enum eINT_80 {WRITE=0, READ} tINT_80;
 typedef enum eUSER {U_KERNEL=0, U_NORMAL} tUSERS;
 
@@ -53,5 +52,9 @@ size_t __write(int fd, const void* buffer, size_t count);
 *
 **/
 size_t __read(int fd, void* buffer, size_t count);
+
+size_t __kwrite(int fd, const void* buffer, size_t count);
+
+int shellLoop(int argc, char ** argv);
 
 #endif

@@ -6,10 +6,9 @@
 #ifndef PROC_H_
 #define PROC_H_
 
-#include "strings.h"
 #include "limits.h"
-#include "shell.h"
-#include "io.h"
+#include "defs.h"
+#include "structs.h"
 
 typedef unsigned long Time_t;
 typedef unsigned Prio_t;
@@ -75,7 +74,7 @@ typedef struct stack_frame {
 	void * EIP;
 	void * CS;
 	void * EFLAGS;
-	void * retaddr;
+	void * fin_retaddr;
 	int argc;
 	char** argv;
 } STACK_FRAME;
@@ -99,23 +98,21 @@ struct task {
 	Task_t *		time_next;
 	Time_t			ticks;
 	int				tty_number;
+	ttyScreen_t *	screen;
+	keyboard_t *	keyboard;
+	shellLine_t	*	linebuffer;
 	void *			msg;
 	unsigned 		size;
 	void *			descriptor_table[STREAM_MAX];
 	registers_t		registers;
 	TaskQueue_t 	send_queue;
-	char			video[SCREEN_SIZE];
 };
 
 typedef int (*PROCESS) (int argc, char **argv);
 
 int null_process(int argc, char **argv);
-int shellLoop(int argc, char ** argv);
 void add_to_queue(TaskQueue_t * q, Task_t * t);
 Task_t *pop(TaskQueue_t * q);
 bool empty(TaskQueue_t * q);
-int proc1(int argc, char **argv);
-int proc2(int argc, char **argv);
-int proc3(int argc, char **argv);
 
 #endif /* PROC_H_ */

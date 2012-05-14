@@ -38,8 +38,25 @@
 #define TZNAME_MAX			   3
 #define SSIZE_MAX		   32767
 #define PROCNAME_MAX		 128
-#define MAX_PROCESSES 		4096
+#define MAX_PROCESSES 		127//4096
 #define MAX_PRIORITIES 		   5
+
+/* Dimensiones de la pantalla */
+#define SCREEN_ROWS	80
+#define SCREEN_COLS	25
+#define SCREEN_POS	0xb8000
+#define SCREEN_SIZE	4000
+#define SCREEN_LAST_ROW	3840
+#define SCREEN_ROW_SIZE	160
+#define SCREEN_TAB_SIZE	8
+
+/* Buffer de teclado */
+
+#define K_BUFFER_SIZE	10
+
+/* Buffer de la linea de comando */
+
+#define S_BUFFER_SIZE	1024
 
 
 #endif /* LIMITS_H_ */

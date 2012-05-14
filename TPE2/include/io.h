@@ -2,11 +2,11 @@
 #ifndef _IO_H
 #define _IO_H
 
-#include "./defs.h"
-#include "./structs.h"
-#include "./strings.h"
-#include "./scheduler.h"
-#include "./video.h"
+#include "defs.h"
+#include "structs.h"
+#include "strings.h"
+#include "proc.h"
+#include "video.h"
 
 /********************************** 
 *
@@ -36,5 +36,6 @@ void kputd(int d);
 void kputu(unsigned int u);
 int printf(char *fmt, ...);
 int kprintf(char *fmt, ...);
+void putx(int x);
 
 #endif

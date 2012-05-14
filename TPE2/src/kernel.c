@@ -3,7 +3,6 @@
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
 
-extern struct tty_t ttys[];
 extern Task_t * current_task;
 
 char color_p = WHITE_TXT;
@@ -16,6 +15,7 @@ int timer_tick_hz = 10;
 int ticks = TTY_SCREEN_TICSTART;
 int actualTTY = TTY_1;
 int sarasa = 0;
+memory_map_t kmmap;
 //TODO:
 
 /* Atencion de Interrupcion por Software */
@@ -186,15 +186,41 @@ void print_header(){
 	screen->wpos=wpos;
 }
 
+int shellLoop(int argc, char ** argv){
+  	while(1)
+        {
+  			_Sti();
+			shell();
+        }
+  	return 0;
+}
+
 /**********************************************
 kmain()
 Punto de entrada de cóo C.
 *************************************************/
 
-kmain()
+kmain(multiboot_info_t * mbi, unsigned int magic)
 {
-
 	_Cli();
+
+	memory_map_t *memmap;
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC){
+		return;
+	}
+
+	int maxlenght = 0;
+	for (memmap = (memory_map_t *) mbi->mmap_addr;
+			(unsigned long) memmap < mbi->mmap_addr + mbi->mmap_length;
+			memmap = (memory_map_t *) ((unsigned long) memmap
+					+ memmap->size + sizeof (memmap->size))){
+		if(memmap->type == 1 && memmap->length_low > maxlenght){
+			maxlenght = memmap->length_low;
+			kmmap = *memmap;
+		}
+	}
+
+
 
 /* Borra la pantalla. */
 	k_clear_screen();
@@ -244,6 +270,7 @@ kmain()
 	mouseInitialize(callbck);
 	initializeTTYScreens();
 
+
 	//TODO;
 	SetupScheduler();
 
@@ -254,5 +281,6 @@ kmain()
 	_Sti();
 
 	_int_20_hand();
+	//_change_context();
 }
 

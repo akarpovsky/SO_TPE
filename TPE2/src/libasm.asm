@@ -1,5 +1,5 @@
 GLOBAL  _read_msw,_lidt
-GLOBAL  _int_20_hand,_int_21_hand, _int_80_hand, _int_74_hand, _SysCall, _debug, _sleep
+GLOBAL  _int_20_hand,_int_21_hand, _int_80_hand, _int_74_hand, _SysCall, _debug, _sleep, _yield
 GLOBAL	EOI
 GLOBAL  _mascaraPIC1,_mascaraPIC2,_Cli,_Sti
 GLOBAL	_excp_00_hand, _excp_01_hand, _excp_02_hand, _excp_03_hand, _excp_04_hand
@@ -11,7 +11,7 @@ GLOBAL	_excp_25_hand, _excp_26_hand, _excp_27_hand, _excp_28_hand, _excp_29_hand
 GLOBAL	_excp_30_hand, _invop
 
 GLOBAL  _debug, _excp_0_hand
-EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler, getSSPointer, getSPPointer, printStack, printEntre
+EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler, getSSPointer, getSPPointer
 
 SECTION .text
 
@@ -410,6 +410,7 @@ _debugBuenaOnda:
 _sleep:
 	push ebp
 	mov ebp, esp
+	cli
 
 	mov	ecx, 999999
 loop:
@@ -417,6 +418,7 @@ loop:
 	dec ecx
 	jnz loop
 
+	sti
 	mov esp, ebp
 	pop ebp
 	ret

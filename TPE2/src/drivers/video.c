@@ -8,7 +8,7 @@ char * video = (char *) SCREEN_POS;
 
 void writeInVideo(char c){
 
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
 
 	int i;
 	int colpos;
@@ -65,7 +65,7 @@ void writeInVideo(char c){
 
 void scroll(){
 
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
 
 	int i = 0;
 	for (i = TTY_SCREEN_RSTART; i < SCREEN_COLS - 1; i++) {
@@ -90,7 +90,7 @@ void scroll(){
 
 void v_changeTTY(){
 
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
 
 	int i;
 	clearScreen();
@@ -100,7 +100,7 @@ void v_changeTTY(){
 		main_screen.address[i] = screen->buffer[i];
 	}
 	if (screen->wpos == TTY_SCREEN_SSTART) {
-		printf("CasKarOS tty%d:~$ ", current_task->tty_number);
+		printf("BrunOS tty%d:~$ ", current_task->tty_number);
 	}
 	move_cursor(screen->wpos / 2);
 }
@@ -114,7 +114,7 @@ void clearScreen(){
 }
 
 void clearScreenBuffer(){
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
 	int i;
 	for (i = 0; i < SCREEN_SIZE; i++) {
 		screen->buffer[i++] = 0;
@@ -124,7 +124,7 @@ void clearScreenBuffer(){
 
 void clearfromto(int from, int to){
 
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
 
 	int i;
 	for (i = from; i < to; i++) {

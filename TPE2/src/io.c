@@ -49,6 +49,13 @@ size_t __write(int fd, void * buffer, size_t count) {
 	return count;
 }
 
+size_t __kwrite(int fd, void * buffer, size_t count) {
+
+	_SysCall(SYSCALL_KERNELWRITE, fd, buffer, count);
+
+	return count;
+}
+
 /* __read
  *
  * Recibe como parametros:
@@ -75,7 +82,7 @@ void sysread(int fd, void * buffer, size_t count) {
 void syswrite(int fd, void * buffer, size_t count) {
 	int i;
 	if (fd == STDOUT) {
-		ttyScreen_t * screen = getScreen(current_task);
+		ttyScreen_t * screen = (ttyScreen_t*) getScreen(current_task);
 
 		_memcpy(buffer, screen->buffer, count);
 		writeInVideo(*((char *) buffer));
@@ -86,7 +93,7 @@ void syswrite(int fd, void * buffer, size_t count) {
 void syskernelwrite(int fd, void * buffer, size_t count) {
 	int i;
 	if (fd == STDOUT) {
-		char * video = 0xb800;
+		char * video = (char *) 0xb800;
 		while (*((char *) buffer) != 0) {
 			*video++ = *((char *) buffer++); // Print char to screen
 			*video++ = 0x20; // Char format
@@ -258,7 +265,44 @@ int kprintf(char *fmt, ...) {
 	//_Sti();
 }
 
-int printf(char *fmt, ...) {
+void putx(int x){
+	if (x < 0){
+		putc('-');
+		x = -x;
+	}
+	int i, h;
+	for(i = sizeof(int) * 2; i > 0; i--){
+		h = (x >> i) & 0xF;
+		if(h < 10){
+			putu(h);
+		}
+		else {
+			switch(h){
+			case 10:
+				putc('a');
+				break;
+			case 11:
+				putc('b');
+				break;
+			case 12:
+				putc('c');
+				break;
+			case 13:
+				putc('d');
+				break;
+			case 14:
+				putc('e');
+				break;
+			case 15:
+				putc('f');
+				break;
+			}
+		}
+	}
+}
+
+int printf(char *fmt, ...)
+{
 	//_Cli();
 	void *param = &fmt + 1;
 	char c;
@@ -267,30 +311,34 @@ int printf(char *fmt, ...) {
 			putc(c);
 		} else {
 			c = *fmt++;
-			switch (c) {
-			case '%':
-				putc('%');
-				break;
+			switch(c){
+				case '%':
+					putc('%');
+					break;
 
-			case 'd':
-				putd(*(int*) param);
-				param += sizeof(int*);
-				break;
+				case 'd':
+					putd(* (int*) param);
+					param += sizeof(int*);
+                    break;
 
-			case 'u':
-				putu(*(unsigned int*) param);
-				param += sizeof(unsigned int*);
-				break;
+				case 'u':
+                    putu(* (unsigned int*) param);
+                    param += sizeof(unsigned int*);
+                    break;
 
-			case 'c':
-				putc((char) (*(int*) param));
-				param += sizeof(int*);
-				break;
+				case 'c':
+					putc((char)(* (int*) param));
+					param += sizeof(int*);
+                    break;
 
-			case 's':
-				puts(*(char**) param);
-				param += sizeof(char**);
-				break;
+                case 's':
+                    puts(* (char**) param);
+                    param += sizeof(char**);
+                    break;
+                case 'x':
+                	putx(* (int *) param);
+                	param += sizeof(int*);
+                	break;
 			}
 		}
 	}
