@@ -281,7 +281,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	_Sti();
 
-	CreateProcess("Shell 1", shellLoop, 0, 0, NULL, 2000000, 0, true);
+	CreateProcess("Shell 1", shellLoop, NULL, 0, 0, NULL, 2000000, 0, true);
 	_int_20_hand();
 	//_change_context();
 }

@@ -44,7 +44,7 @@ void shell(){
 	ttyScreen_t * screen = getScreen(current_task);
 
 	char c;
-	printf("CasKarOS tty%d:~$ ", current_task->tty_number);
+	printf("BrunOS tty%d:~$ ", current_task->tty_number);
 	while( (c=getc()) != '\n' ){
 		switch(c){
 		case '\b':

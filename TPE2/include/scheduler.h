@@ -13,7 +13,7 @@
 
 void select_next(void);
 Task_t * get_current_proces();
-int CreateProcess(char* name, PROCESS process,int tty, int argc, char** argv, int stack_start, int priority, int isFront);
+int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char** argv, int stack_start, int priority, int isFront);
 void CreateStackFrame(Task_t * new_proc, PROCESS p, unsigned int stack_start);
 void SetupScheduler(void);
 short * getSSPointer();

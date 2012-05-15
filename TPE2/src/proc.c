@@ -49,7 +49,8 @@ int null_process(int argc, char **argv){
 	_Sti();
 	do
 	{
-		//putc('n');
+		printf("n");
+		_sleep();
 	}while(true);
 
 	return 0;

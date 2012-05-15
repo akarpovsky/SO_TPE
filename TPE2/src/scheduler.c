@@ -14,6 +14,27 @@ TaskQueue_t empty_tasks;
 Task_t * current_task;
 Task_t null_process_task;
 
+ttyScreen_t screen = {
+	    TTY_SCREEN_SSTART
+	};
+keyboard_t keyboard = {
+	    0,
+	    0,
+	    FALSE,
+	    FALSE,
+	    FALSE,
+	    FALSE,
+	    FALSE,
+	    FALSE,
+	    FALSE,
+	    FALSE,
+	    ENGLISH
+	};
+shellLine_t linebuffer = {
+		0,
+		S_BUFFER_SIZE
+	};
+
 void select_next(){
 
 	if(current_task != NULL){
@@ -61,6 +82,7 @@ int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int arg
 		return 0;
 	}
 
+	new_proc->tty_number = tty;
 	new_proc->parent = parent;
 	if(parent != NULL)
 	{
@@ -70,7 +92,9 @@ int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int arg
 	}
 	else
 	{
-
+		new_proc->screen = &screen;
+		new_proc->keyboard = &keyboard;
+		new_proc->linebuffer = &linebuffer;
 	}
 	CreateStackFrame(new_proc, process, stack_start);
 	new_proc->background = isFront;
@@ -110,9 +134,18 @@ void SetupScheduler(){
 	}
 
 	null_process_task.state = TaskNULL;
-	null_process_task.keyboard = null_process_task.screen = null_process_task.linebuffer = NULL;
+	null_process_task.keyboard = &keyboard;
+	null_process_task.screen = &screen;
+	null_process_task.linebuffer = &linebuffer;
 	strcpy(null_process_task.name, "Null Process");
 	CreateStackFrame(&null_process_task, null_process, 1050000);
+
+	//TODO
+	int j;
+	for (j = 0; j < SCREEN_SIZE; j++) {
+		screen.buffer[j++] = 0;
+		screen.buffer[j] = WHITE_TXT;
+	}
 
 //	CreateProcess("Shell 1", proc1, 0, 0, NULL, 2000000, 2, true);
 //
