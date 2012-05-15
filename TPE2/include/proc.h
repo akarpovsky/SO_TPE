@@ -83,6 +83,7 @@ struct task {
 	char 			name[PROCNAME_MAX];
 	TaskState_t		state;
 	Prio_t			priority;
+	uint				pid;
 	unsigned		atomic_level;
 	char *			stack;
 	unsigned short	ss;

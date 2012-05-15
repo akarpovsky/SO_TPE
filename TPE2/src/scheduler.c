@@ -28,7 +28,7 @@ keyboard_t keyboard = {
 	    FALSE,
 	    FALSE,
 	    FALSE,
-	    ENGLISH
+	    SPANISH
 	};
 shellLine_t linebuffer = {
 		0,
@@ -130,6 +130,7 @@ void SetupScheduler(){
 	for(i=0; i<MAX_PROCESSES; i++){
 		processes[i].atomic_level = false;
 		processes[i].state = TaskEmpty;
+		processes[i].pid = i;
 		add_to_queue(&empty_tasks, &processes[i]);
 	}
 
@@ -200,7 +201,20 @@ shellLine_t * getLineBuffer(Task_t * task)
 	return task->linebuffer;
 }
 
+void suspend_task(Task_t * t)
+{
+	t->state = TaskSuspended;
+}
 
+void unsuspend_task(Task_t *t)
+{
+	t->state = TaskReady;
+}
+
+int getpid(Task_t * t)
+{
+	return t->pid;
+}
 //TODO:
 
 int proc1(int argc, char **argv){
