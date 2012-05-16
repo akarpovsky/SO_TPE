@@ -109,9 +109,18 @@ int run_command(){
 	if(streq(command.name, ""))
 		return 0;
 
+	int len = strlen(command.name);
+
+	bool isBackground = false;
+	if(command.name[isBackground] == '&')
+		isBackground = true;
+
 	for (i = 0; i < NUM_COMMANDS; i++) {
 	    if (streq(command.name, commands[i].name)) {
-	        commands[i].exec();
+	    	if(!isBackground)
+	    		commands[i].exec();
+	    	else
+	    		printf("Is background willy!\n");
 		return 1;
 	    }
 	}

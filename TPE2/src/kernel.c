@@ -270,7 +270,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	mouseInitialize(callbck);
 	initializeTTYScreens();
 
-
 	//TODO;
 	SetupScheduler();
 
@@ -278,11 +277,60 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	printTicks();
 
-	CreateProcess("Shell 1", shellLoop, NULL, 0, 0, NULL, 2000000, 0, true);
+	/* Funci�n init(): Inicializa el SO para poder empezar a ejecutar con normalidad.
+	 * Aloca espacio para los stacks de las shells y crea 4 procesos para las distintas
+	 * terminales.
+	 */
+	init();
 
+	/* Habilitamos interrupciones y el scheduller empieza a jugar!*/
 	_Sti();
 
 	_int_20_hand();
-	//_change_context();
+}
+
+void init(void){
+
+	int i = 0;
+	Task_t * auxShell = NULL;
+
+	int shell_task_priority = 1; // La prioridad del proceso shell ser� = 1
+
+	for (i = 0; i < TTY_NUMBER; i++) {
+
+		void * stack_start_address = getFreePage(); // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
+
+		if(i == 1){
+			// If it is the first TTY, isFront = true
+			auxShell = CreateProcess("Shell", shellLoop, NULL, i+1, 0, NULL, stack_start_address, shell_task_priority, true);
+		}
+		else{
+			auxShell = CreateProcess("Shell", shellLoop, NULL, i+1, 0, NULL, stack_start_address, shell_task_priority, false);
+		}
+
+			/* Cambio el PID de la p�gina del stack que me devolvi� getFreePage() ya que previo a la creaci�n del
+			 * proceso, �ste no ten�a ning�n PID asignado y esa p�gina conten�a un PID inv�lido.
+			 * Luego de este cambio la p�gina ser� accesible por y solo por el proceso que acabamos de crear.
+			 */
+
+			changePagePID(auxShell->pid, stack_start_address);
+
+			/* Asigno una pantalla, un teclado y un linebuffer exclusivo para cada TTY */
+			auxShell->screen = 		&screens[i];
+			auxShell->keyboard =	&keyboards[i];
+			auxShell->linebuffer =	&shellLine[i];
+
+			/* Dejo el buffer de pantalla de la TTY listo para ser usado (limpio y con formato de
+			 * caracter blanco sobre fondo negro */
+
+			int j = 0;
+			for (j = 0; j < SCREEN_SIZE; j++) {
+				auxShell->screen->buffer[j++] = 0;
+				auxShell->screen->buffer[j] = WHITE_TXT;
+			}
+
+
+	}
+
 }
 
