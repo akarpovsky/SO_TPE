@@ -10,6 +10,7 @@
 
 #include "video.h"
 #include "shell.h"
+#include "devices.h"
 #include "kasm.h"
 #include "defs.h"
 #include "mouse.h"
@@ -56,5 +57,7 @@ size_t __read(int fd, void* buffer, size_t count);
 size_t __kwrite(int fd, const void* buffer, size_t count);
 
 int shellLoop(int argc, char ** argv);
+
+void init(void);
 
 #endif

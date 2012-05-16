@@ -90,34 +90,9 @@ struct shellLine_t shellLine[TTY_NUMBER] = {{
 }};
 
 
-struct tty_t ttys[TTY_NUMBER] = {{
-    TTY_1,
-    &screens[0],
-    &keyboards[0],
-    &shellLine[0]
-},{
-    TTY_2,
-    &screens[1],
-    &keyboards[1],
-    &shellLine[1]
-},{
-    TTY_3,
-    &screens[2],
-    &keyboards[2],
-    &shellLine[2]
-},{
-    TTY_4,
-    &screens[3],
-    &keyboards[3],
-    &shellLine[3]
-}};
-
-
-
 struct system_t system = {
     0
 };
 
-void initializeTTYScreens(void);
 
 #endif /* DEVICES_H_ */

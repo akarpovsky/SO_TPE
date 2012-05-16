@@ -14,27 +14,6 @@ TaskQueue_t empty_tasks;
 Task_t * current_task;
 Task_t null_process_task;
 
-ttyScreen_t screen = {
-	    TTY_SCREEN_SSTART
-	};
-keyboard_t keyboard = {
-	    0,
-	    0,
-	    FALSE,
-	    FALSE,
-	    FALSE,
-	    FALSE,
-	    FALSE,
-	    FALSE,
-	    FALSE,
-	    FALSE,
-	    SPANISH
-	};
-shellLine_t linebuffer = {
-		0,
-		S_BUFFER_SIZE
-	};
-
 void select_next(){
 
 	if(current_task != NULL){
@@ -75,28 +54,25 @@ void select_next(){
 
 }
 
-int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char** argv, int stack_start, int priority, int isFront){
+Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char** argv, void * stack_start, int priority, int isFront){
 	Task_t * new_proc = pop(&empty_tasks);
 
 	if(new_proc == NULL){
-		return 0;
+		return NULL;
 	}
 
 	new_proc->tty_number = tty;
 	new_proc->parent = parent;
+
 	if(parent != NULL)
 	{
 		new_proc->screen = parent->screen;
 		new_proc->keyboard = parent->keyboard;
 		new_proc->linebuffer = parent->linebuffer;
-	}
-	else
-	{
-		new_proc->screen = &screen;
-		new_proc->keyboard = &keyboard;
-		new_proc->linebuffer = &linebuffer;
-	}
+	} // Else, screen, keyboard and linebuffer had already been initialized in the init() kernel call.
+
 	CreateStackFrame(new_proc, process, stack_start);
+
 	new_proc->background = isFront;
 	strcpy(new_proc->name, name);
 	new_proc->priority = priority;
@@ -105,9 +81,9 @@ int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int arg
 
 	add_to_queue(&ready_tasks[priority], new_proc);
 
-	return 1;
+	return new_proc;
 }
-void CreateStackFrame( Task_t * new_proc, PROCESS p, unsigned int stack_start){
+void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
 	new_proc->ss = stack_start;
 	new_proc->sp = stack_start - sizeof(STACK_FRAME)-1;
 	((STACK_FRAME *) new_proc->sp )->EIP = p;
@@ -135,29 +111,14 @@ void SetupScheduler(){
 	}
 
 	null_process_task.state = TaskNULL;
-	null_process_task.keyboard = &keyboard;
-	null_process_task.screen = &screen;
-	null_process_task.linebuffer = &linebuffer;
+	null_process_task.keyboard = NULL;
+	null_process_task.screen = NULL;
+	null_process_task.linebuffer = NULL;
 	strcpy(null_process_task.name, "Null Process");
-	CreateStackFrame(&null_process_task, null_process, 1050000);
 
-	//TODO
-	int j;
-	for (j = 0; j < SCREEN_SIZE; j++) {
-		screen.buffer[j++] = 0;
-		screen.buffer[j] = WHITE_TXT;
-	}
-
-//	CreateProcess("Shell 1", proc1, 0, 0, NULL, 2000000, 2, true);
-//
-//	CreateProcess("Shell 2", proc2, 0, 0, NULL, 2500000, 2, true);
-//
-//	CreateProcess("Shell 3", proc3, 0, 0, NULL, 3000000, 2, true);
-
-
-//	CreateProcess("Shell 2", shellLoop, 1, 0, NULL, 2500000, 1, true);
-//	CreateProcess("Shell 3", shellLoop, 2, 0, NULL, 3000000, 2, true);
-//	CreateProcess("Shell 4", shellLoop, 3, 0, NULL, 4500000, 3, true);
+	void * null_stack_address = getFreePage(); // Ask for a free page to alocate the stack for the NULL task
+	CreateStackFrame(&null_process_task, null_process, null_stack_address);
+	changePagePID(null_process_task.pid, null_stack_address);
 
 	current_task = &null_process_task;
 }
@@ -213,8 +174,12 @@ void unsuspend_task(Task_t *t)
 
 int getpid(Task_t * t)
 {
-	return t->pid;
+	if(t != NULL)
+		return t->pid;
+	else
+		return 0;
 }
+
 //TODO:
 
 int proc1(int argc, char **argv){
