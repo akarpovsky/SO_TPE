@@ -189,12 +189,9 @@ void unsuspend_task(Task_t *t)
 	unatomize();
 }
 
-int getpid(Task_t * t)
+int getpid()
 {
-	if(t != NULL)
-		return t->pid;
-	else
-		return 0;
+	return current_task->pid;
 }
 
 void cleaner(int argc, char ** argv)
@@ -214,7 +211,7 @@ int null_process(int argc, char **argv){
 				aux->state = TaskEmpty;
 				aux->priority = MAX_PRIORITIES;
 				aux->atomic_level = false;
-				freepages(aux->ss);
+				free(aux->ss);
 				aux->ss = 0;
 				aux->sp = 0;
 				aux->parent = NULL;

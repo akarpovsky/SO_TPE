@@ -18,6 +18,7 @@
 #include "scheduler.h"
 #include "multiboot.h"
 #include "limits.h"
+#include "memorym.h"
 
 #define OS_PID	0
 

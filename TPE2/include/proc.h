@@ -81,27 +81,27 @@ typedef struct stack_frame {
 
 struct task {
 	char 			name[PROCNAME_MAX];
-	TaskState_t		state;//
-	Prio_t			priority;//
+	TaskState_t		state;
+	Prio_t			priority;
 	uint			pid;
-	unsigned		atomic_level;//
+	unsigned		atomic_level;
 	char *			stack;
-	void *			ss;//
-	void *			sp;//
-	Task_t *		parent;//
+	void *			ss;
+	void *			sp;
+	Task_t *		parent;
 	TaskQueue_t	*	queue;
 	Task_t *		prev;
 	Task_t *		next;
-	bool			foreground;//
+	bool			foreground;
 	bool			success;
 	bool			in_time_q;
 	Task_t *		time_prev;
 	Task_t *		time_next;
-	Time_t			ticks;//
-	int				tty_number;//
-	ttyScreen_t *	screen;//
-	keyboard_t *	keyboard;//
-	shellLine_t	*	linebuffer;//
+	Time_t			ticks;
+	int				tty_number;
+	ttyScreen_t *	screen;
+	keyboard_t *	keyboard;
+	shellLine_t	*	linebuffer;
 	void *			msg;
 	unsigned 		size;
 	void *			descriptor_table[STREAM_MAX];

@@ -1,6 +1,7 @@
 cd ./bin
 rm -rf *
 nasm -g -f elf ../src/libasm.asm -o libasm.o
+nasm -g -f elf ../src/paging.asm -o paging.o
 nasm -g -f elf ../src/kstart.asm -o kstart.o
 nasm -g -f elf ../src/loader.asm -o kstart.o
 gcc -g -m32 -c  ../src/kernel.c -o kernel.o -fno-builtin
@@ -12,8 +13,10 @@ gcc -g -m32 -c  ../src/exceptions.c -o exceptions.o -fno-builtin
 gcc -g -m32 -c  ../src/drivers/keyboard.c -o keyboard.o -fno-builtin
 gcc -g -m32 -c  ../src/drivers/mouse.c -o mouse.o -fno-builtin
 gcc -g -m32 -c  ../src/drivers/video.c -o video.o -fno-builtin
+gcc -g -m32 -c  ../src/auxMem.c -o auxMem.o -fno-builtin
+gcc -g -m32 -c  ../src/memorym.c -o memorym.o -fno-builtin
 gcc -g -m32 -c 	../src/proc.c -o proc.o -fno-builtin
 gcc -g -m32 -c 	../src/scheduler.c -o scheduler.o -fno-builtin
-ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o io.o shell.o keyboard.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o
+ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o auxMem.o memorym.o paging.o io.o shell.o keyboard.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o
 cp ./kernel.bin ../isofiles/boot/
 objcopy --only-keep-debug kernel.bin kernel.sym

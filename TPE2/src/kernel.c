@@ -269,12 +269,13 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	mouseCallback callbck;
 	callbck = &mouseButtonAction;
 	mouseInitialize(callbck);
+
 	initpages();
 
 	//TODO;
 	SetupScheduler();
-
 	print_header();
+
 
 	printTicks();
 
