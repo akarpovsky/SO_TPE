@@ -13,6 +13,7 @@ TaskQueue_t terminated_tasks;
 TaskQueue_t empty_tasks;
 Task_t * current_task;
 Task_t null_process_task;
+Task_t * foreground_task;
 
 ttyScreen_t screen = {
 	    TTY_SCREEN_SSTART
@@ -104,6 +105,11 @@ int CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int arg
 	new_proc->state = TaskReady;
 
 	add_to_queue(&ready_tasks[priority], new_proc);
+
+	if(isFront == true)
+	{
+		foreground_task = new_proc;
+	}
 
 	return 1;
 }
