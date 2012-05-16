@@ -137,25 +137,25 @@ void clearfromto(int from, int to){
 char fixKey(char c){
 	char ch;
 	switch (c) {
-	case 'Ã±':
+	case 'ñ':
 		ch = A_ENIE_MIN;
 		break;
-	case 'Ã‘':
+	case 'Ñ':
 		ch = A_ENIE_MAY;
 		break;
-	case 'Ã¡':
+	case 'á':
 		ch = A_ACC_A;
 		break;
-	case 'Ã©':
+	case 'é':
 		ch = A_ACC_E;
 		break;
-	case 'Ã­':
+	case 'í':
 		ch = A_ACC_I;
 		break;
-	case 'Ã³':
+	case 'ó':
 		ch = A_ACC_O;
 		break;
-	case 'Ãº':
+	case 'ú':
 		ch = A_ACC_U;
 		break;
 	default:

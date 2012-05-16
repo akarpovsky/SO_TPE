@@ -89,6 +89,7 @@ void int_21(unsigned char scancode){
      }
      else if(key->keyType == FUNCTION_KEY){
 
+    	 printf("Function key pressed\n");
      }
 }
 
@@ -268,7 +269,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	mouseCallback callbck;
 	callbck = &mouseButtonAction;
 	mouseInitialize(callbck);
-	initializeTTYScreens();
+	initpages();
 
 	//TODO;
 	SetupScheduler();
@@ -277,7 +278,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	printTicks();
 
-	/* Funci—n init(): Inicializa el SO para poder empezar a ejecutar con normalidad.
+	/* Funciï¿½n init(): Inicializa el SO para poder empezar a ejecutar con normalidad.
 	 * Aloca espacio para los stacks de las shells y crea 4 procesos para las distintas
 	 * terminales.
 	 */
@@ -294,11 +295,11 @@ void init(void){
 	int i = 0;
 	Task_t * auxShell = NULL;
 
-	int shell_task_priority = 1; // La prioridad del proceso shell ser‡ = 1
+	int shell_task_priority = 1; // La prioridad del proceso shell serï¿½ = 1
 
 	for (i = 0; i < TTY_NUMBER; i++) {
 
-		void * stack_start_address = getFreePage(); // Me devuelve una nueva p‡gina vac’a con el "PID de kernel"
+		void * stack_start_address = getFreePage(); // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
 
 		if(i == 1){
 			// If it is the first TTY, isFront = true
@@ -308,9 +309,9 @@ void init(void){
 			auxShell = CreateProcess("Shell", shellLoop, NULL, i+1, 0, NULL, stack_start_address, shell_task_priority, false);
 		}
 
-			/* Cambio el PID de la p‡gina del stack que me devolvi— getFreePage() ya que previo a la creaci—n del
-			 * proceso, Žste no ten’a ningœn PID asignado y esa p‡gina conten’a un PID inv‡lido.
-			 * Luego de este cambio la p‡gina ser‡ accesible por y solo por el proceso que acabamos de crear.
+			/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
+			 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
+			 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
 			 */
 
 			changePagePID(auxShell->pid, stack_start_address);

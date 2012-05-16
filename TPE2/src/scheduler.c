@@ -13,6 +13,7 @@ TaskQueue_t terminated_tasks;
 TaskQueue_t empty_tasks;
 Task_t * current_task;
 Task_t null_process_task;
+Task_t * foreground_task;
 
 void select_next(){
 
@@ -73,13 +74,18 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 
 	CreateStackFrame(new_proc, process, stack_start);
 
-	new_proc->background = isFront;
+	new_proc->foreground = isFront;
 	strcpy(new_proc->name, name);
 	new_proc->priority = priority;
 	new_proc->atomic_level = false;
 	new_proc->state = TaskReady;
 
 	add_to_queue(&ready_tasks[priority], new_proc);
+
+	if(isFront == true)
+	{
+		foreground_task = new_proc;
+	}
 
 	return new_proc;
 }
@@ -90,7 +96,7 @@ void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
 	((STACK_FRAME *) new_proc->sp )->CS = (void *)0x08;
 	((STACK_FRAME *) new_proc->sp )->EBP = 0;
 	((STACK_FRAME *) new_proc->sp )->EFLAGS = 0;
-	((STACK_FRAME *) new_proc->sp )->fin_retaddr = 0;
+	((STACK_FRAME *) new_proc->sp )->fin_retaddr = cleaner;
 	((STACK_FRAME *) new_proc->sp )->argc = 0;
 	((STACK_FRAME *) new_proc->sp )->argv = 0;
 	((STACK_FRAME *) new_proc->sp )->EAX = 0;
@@ -104,6 +110,7 @@ void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
 void SetupScheduler(){
 	int i;
 	for(i=0; i<MAX_PROCESSES; i++){
+		processes[i].priority = MAX_PRIORITIES;
 		processes[i].atomic_level = false;
 		processes[i].state = TaskEmpty;
 		processes[i].pid = i;
@@ -162,14 +169,24 @@ shellLine_t * getLineBuffer(Task_t * task)
 	return task->linebuffer;
 }
 
+//TODO: add to .h
+
 void suspend_task(Task_t * t)
 {
+	atomize();
 	t->state = TaskSuspended;
+	remove_from_q(&ready_tasks[t->priority], t);
+	add_to_queue(&suspended_tasks, t);
+	unatomize();
 }
 
 void unsuspend_task(Task_t *t)
 {
+	atomize();
 	t->state = TaskReady;
+	remove_from_q(&suspended_tasks, t);
+	add_to_queue(&ready_tasks[t->priority], t);
+	unatomize();
 }
 
 int getpid(Task_t * t)
@@ -180,7 +197,39 @@ int getpid(Task_t * t)
 		return 0;
 }
 
-//TODO:
+void cleaner(int argc, char ** argv)
+{
+	current_task->state = TaskTerminated;
+	yield();
+}
+
+int null_process(int argc, char **argv){
+	_Sti();
+	Task_t * aux;
+	do
+	{
+			while(!empty(&terminated_tasks))
+			{
+				aux = pop(&terminated_tasks);
+				aux->state = TaskEmpty;
+				aux->priority = MAX_PRIORITIES;
+				aux->atomic_level = false;
+				freepages(aux->ss);
+				aux->ss = 0;
+				aux->sp = 0;
+				aux->parent = NULL;
+				aux->foreground = false;
+				aux->ticks = 0;
+				aux->tty_number = 0;
+				aux->screen = NULL;
+				aux->keyboard = NULL;
+				aux->linebuffer = NULL;
+			}
+	}while(true);
+
+	return 0;
+}
+//TODO: test processes
 
 int proc1(int argc, char **argv){
 	_Sti();
