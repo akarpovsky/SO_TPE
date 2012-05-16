@@ -35,7 +35,6 @@ static struct {
 		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpcode},
 		{"divideByZero", "Tries to perform a division by zero", divideByZero},
 		{"clearScreen", "Erase all the content of the actual TTY", clear_screen}
-
 	};
 
 void shell(){

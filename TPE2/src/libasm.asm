@@ -50,8 +50,8 @@ _lidt:				; Carga el IDTR
         mov     ebp, esp
         push    ebx
         mov     ebx, [ss: ebp + 6] ; ds:bx = puntero a IDTR
-	rol	ebx,16
-	lidt    [ds: ebx]          ; carga IDTR
+		rol	ebx,16
+		lidt    [ds: ebx]          ; carga IDTR
         pop     ebx
         pop     ebp
         retn
@@ -391,7 +391,7 @@ _debugBuenaOnda:
 	push eax
 		mov eax, 0fdh
 		push eax
-			call _mascaraPIC1
+		call _mascaraPIC1
 		pop eax
 		mov ax,1
 		mov [0x123450], ax
@@ -401,7 +401,7 @@ _debugBuenaOnda:
 		jne otravez
 		mov eax, 0fch
 		push eax
-			call _mascaraPIC1
+		call _mascaraPIC1
 		pop eax
 	pop eax
 
