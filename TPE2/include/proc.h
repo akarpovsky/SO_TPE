@@ -86,8 +86,8 @@ struct task {
 	uint				pid;
 	unsigned		atomic_level;
 	char *			stack;
-	unsigned short	ss;
-	unsigned int	sp;
+	void *			ss;
+	void *			sp;
 	void *			math_data;
 	Task_t *			parent;
 	TaskQueue_t	*	queue;

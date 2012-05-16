@@ -123,11 +123,11 @@ void SetupScheduler(){
 	current_task = &null_process_task;
 }
 
-int * getSPPointer(){
+void * getSPPointer(){
 	return &(current_task->sp);
 }
 
-short * getSSPointer(){
+void * getSSPointer(){
  	return &(current_task->ss);
 }
 
