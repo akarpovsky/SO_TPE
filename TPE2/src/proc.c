@@ -1,5 +1,7 @@
 #include "../include/proc.h"
 
+extern Task_t processes[MAX_PROCESSES];
+
 Task_t *pop(TaskQueue_t * q){
 	if(q == NULL){
 		return NULL;
@@ -45,16 +47,56 @@ void add_to_queue(TaskQueue_t * q, Task_t * t){
 
 }
 
-int null_process(int argc, char **argv){
-	_Sti();
-	do
+//TODO: add to .h
+
+Task_t * remove_from_q(TaskQueue_t * q, Task_t * t)
+{
+	if(q == NULL || t == NULL)
 	{
-		printf("n");
-		_sleep();
-	}while(true);
+		return NULL;
+	}
 
-	return 0;
+	Task_t * t2 = q->head;
+
+	while(t != NULL && t2->pid != t->pid)
+	{
+		t2 = t2->next;
+	}
+
+	if(t == NULL)
+	{
+		return NULL;
+	}
+
+	if(q->size == 1)
+	{
+		q->head = NULL;
+		q->tail = NULL;
+		q->size--;
+		return t;
+	}
+
+	if(q->head == t2)
+	{
+		q->head = t2->next;
+		t2->next->prev = NULL;
+		t2->next = NULL;
+		q->size--;
+		return t;
+	}
+
+	if(q->tail == t2)
+	{
+		q->tail = t2->prev;
+		t2->prev->next = NULL;
+		t2->prev = NULL;
+		q->size--;
+		return t;
+	}
+
+	t2->prev->next = t2->next;
+	t2->next->prev = t2->prev;
+	q->size--;
+	return t;
+
 }
-
-
-

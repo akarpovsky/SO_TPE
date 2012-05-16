@@ -81,28 +81,27 @@ typedef struct stack_frame {
 
 struct task {
 	char 			name[PROCNAME_MAX];
-	TaskState_t		state;
-	Prio_t			priority;
-	uint				pid;
-	unsigned		atomic_level;
+	TaskState_t		state;//
+	Prio_t			priority;//
+	uint			pid;
+	unsigned		atomic_level;//
 	char *			stack;
-	void *			ss;
-	void *			sp;
-	void *			math_data;
-	Task_t *			parent;
+	void *			ss;//
+	void *			sp;//
+	Task_t *		parent;//
 	TaskQueue_t	*	queue;
 	Task_t *		prev;
 	Task_t *		next;
-	bool			background;
+	bool			foreground;//
 	bool			success;
 	bool			in_time_q;
 	Task_t *		time_prev;
 	Task_t *		time_next;
-	Time_t			ticks;
-	int				tty_number;
-	ttyScreen_t *	screen;
-	keyboard_t *	keyboard;
-	shellLine_t	*	linebuffer;
+	Time_t			ticks;//
+	int				tty_number;//
+	ttyScreen_t *	screen;//
+	keyboard_t *	keyboard;//
+	shellLine_t	*	linebuffer;//
 	void *			msg;
 	unsigned 		size;
 	void *			descriptor_table[STREAM_MAX];
@@ -112,9 +111,9 @@ struct task {
 
 typedef int (*PROCESS) (int argc, char **argv);
 
-int null_process(int argc, char **argv);
 void add_to_queue(TaskQueue_t * q, Task_t * t);
 Task_t *pop(TaskQueue_t * q);
 bool empty(TaskQueue_t * q);
+Task_t * remove_from_q(TaskQueue_t * q, Task_t * t);
 
 #endif /* PROC_H_ */

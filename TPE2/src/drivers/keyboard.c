@@ -5,6 +5,7 @@
 struct key_t * key;
 extern struct tty_t ttys[];
 extern Task_t * current_task;
+extern Task_t * foreground_task;
 
 char e_lowercase[256] =
 		{ 0, 0x1b, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
@@ -73,8 +74,12 @@ char s_capsuppercase[256] = { 0, 0xa7, '!', '"', '#', '$', '%', '&', '/', '(',
 		84, 85, '>' };
 
 unsigned char insertKey(unsigned char c) {
-	keyboard_t * keyboard = getKeyboard(current_task);
+	keyboard_t * keyboard = getKeyboard(foreground_task);
 
+	if(foreground_task->state == TaskSuspended)
+	{
+		unsuspend_task(foreground_task);
+	}
 	if (!bufferIsFull()) {
 		keyboard->buffer[keyboard->tail] = c;
 		if (++(keyboard->tail) == K_BUFFER_SIZE) {
@@ -89,6 +94,8 @@ unsigned char getKey() {
 
 	keyboard_t * keyboard = getKeyboard(current_task);
 
+	suspend_task(current_task);
+	yield();
 	int head = keyboard->head;
 
 	if (!isEmptyBuffer()) {
@@ -127,7 +134,7 @@ int isEmptyBuffer() {
 
 struct key_t * parseKey(unsigned char c) {
 
-	keyboard_t * keyboard = getKeyboard(current_task);
+	keyboard_t * keyboard = getKeyboard(foreground_task);
 
 	if (keyboard->escaped_key) {
 		c += 256;

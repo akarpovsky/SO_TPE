@@ -89,6 +89,7 @@ void int_21(unsigned char scancode){
      }
      else if(key->keyType == FUNCTION_KEY){
 
+    	 printf("Function key pressed\n");
      }
 }
 
@@ -268,7 +269,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	mouseCallback callbck;
 	callbck = &mouseButtonAction;
 	mouseInitialize(callbck);
-	initializeTTYScreens();
+	initpages();
 
 	//TODO;
 	SetupScheduler();
@@ -309,7 +310,7 @@ void init(void){
 		}
 
 			/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
-			 * proceso, ï¿½ste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
+			 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
 			 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
 			 */
 

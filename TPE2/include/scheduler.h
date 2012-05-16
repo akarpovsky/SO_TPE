@@ -21,6 +21,12 @@ void * getSPPointer();
 void unatomize();
 void atomize();
 void yield();
+int null_process(int argc, char **argv);
+
+void suspend_task(Task_t * t);
+void unsuspend_task(Task_t *t);
+int getpid(Task_t * t);
+void cleaner(int argc, char ** argv);
 
 ttyScreen_t * getScreen(Task_t * task);
 keyboard_t  * getKeyboard(Task_t * task);

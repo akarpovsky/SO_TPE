@@ -112,7 +112,7 @@ int run_command(){
 	int len = strlen(command.name);
 
 	bool isBackground = false;
-	if(command.name[isBackground] == '&')
+	if(command.name[len] == '&')
 		isBackground = true;
 
 	for (i = 0; i < NUM_COMMANDS; i++) {

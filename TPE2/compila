@@ -14,6 +14,6 @@ gcc -g -m32 -c  ../src/drivers/mouse.c -o mouse.o -fno-builtin
 gcc -g -m32 -c  ../src/drivers/video.c -o video.o -fno-builtin
 gcc -g -m32 -c 	../src/proc.c -o proc.o -fno-builtin
 gcc -g -m32 -c 	../src/scheduler.c -o scheduler.o -fno-builtin
-ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o io.o shell.o devices.o keyboard.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o
+ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o io.o shell.o keyboard.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o
 cp ./kernel.bin ../isofiles/boot/
 objcopy --only-keep-debug kernel.bin kernel.sym
