@@ -93,7 +93,7 @@ _fill_page1:
 	mov		ebx, 0
 
 .fill_table:
-	mov		ecx, ebx
+	mov		ecx, ebx ; ecx = eax = ebx = 0
 	cmp		eax, 530
 	jg		.notpresent
 	or		ecx, 1

@@ -117,6 +117,7 @@ void SetupScheduler(){
 		add_to_queue(&empty_tasks, &processes[i]);
 	}
 
+
 	null_process_task.state = TaskNULL;
 	null_process_task.keyboard = NULL;
 	null_process_task.screen = NULL;

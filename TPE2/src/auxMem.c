@@ -7,7 +7,7 @@
         ".popsection;")
 
 #define MEMORY_START 0x00200000
-int * CR3 = (void *) MEMORY_START;
+void * CR3 = (void *) MEMORY_START;
 DESCR_PAGE * gdt;
 
 static void flushPageCache();
@@ -26,7 +26,8 @@ static void flushPageCache() {
 
 void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
 	item->address = address;
-	absent(item);
+//	absent(item);
+	present(item);
 }
 
 void present(DESCR_PAGE * item) {
@@ -44,21 +45,21 @@ void myhlt() {
 void initpages(void * f, void * finMem) {
 
 	// Direccion de la primera pagina para tablas, heap y stack
-	int * inicio = CR3;
+	void * inicio = (void *) CR3; //2000000h
 
 	// Direccion de la ultima pagina escribible para tablas, heap y stack
-	int * fin = (void *) (MAX_PAGE_SIZE * ((int) f / MAX_PAGE_SIZE));
+	void * fin = (void *) (MAX_PAGE_SIZE * ((int) f / MAX_PAGE_SIZE));
 
-	int * inicioUser;
-	int * descriptor;
+	void * inicioUser;
+	void * descriptor;
 
 	int cant_pages_mem, cant_pages, i, cant_dir;
 
 	// Cantidad de paginas disponibles para tablas,heap y stack
-	cant_pages_mem = (fin - inicio) / MAX_PAGE_SIZE;
+	cant_pages_mem = (fin - inicio) / MAX_PAGE_SIZE; //
 
 	// Cantidad de paginas para TODA la memoria
-	cant_pages = ((int) finMem) / MAX_PAGE_SIZE;
+	cant_pages = ((int) finMem) / MAX_PAGE_SIZE; //4098
 
 	// Cantidad de DIR ENTRY en PAGE DIRECTORY
 	cant_dir = CEILING(cant_pages / 1024);
@@ -82,22 +83,26 @@ void initpages(void * f, void * finMem) {
 	descriptor = 0x00000000;
 	gdt = (void *)inicio + MAX_PAGE_SIZE;
 
-	for (i = 0; i < cant_pages; i++) {
-		descriptor = descriptor + i * MAX_PAGE_SIZE;
-		setup_DESCR_PAGE(&gdt[i], descriptor);
+	int j = 0;
+	for (j = 0; j < cant_pages; j++) {
+		descriptor = j * MAX_PAGE_SIZE;
+//		kprintf("i = %d, desc = %d\n", j, (int)descriptor );
+
+		setup_DESCR_PAGE(&gdt[j], descriptor);
 
 		// Ahora tengo que poner en presente el primer mega
 		//	o sea las 256 primeras pags y todo lo demas dejar en ausente
 		// el scheduler va a setear el bit de las pags del proceso actual en presente
 		if (i < 512 + cant_dir + 1) {
-			present(&gdt[i]);
+			present(&gdt[j]);
 		}
 	}
 
+
 	_lcr3(inicio);
-	*inicio = (int) gdt;
-	(*inicio) = (*inicio) | 0x00000001;
-	_fill_page1();
+	*((int *)inicio) = (int) gdt;
+	*((int *)inicio) = *((int *)inicio) | 0x00000001; // Enable protected mode
+	//_fill_page1();
 
 	/* Activate pagination */
 	dword cr0;
@@ -105,10 +110,9 @@ void initpages(void * f, void * finMem) {
 	_lcr0(cr0 | 0x80000000);
 
 
-
-		// La primera pagina despues de las tablas y los directorios
-		inicioUser = CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
-		createHeadersList(inicioUser,fin);
+	// La primera pagina despues de las tablas y los directorios
+	inicioUser = (void *)CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
+	createHeadersList((void *)inicioUser,(void *)fin);
 
 }
 

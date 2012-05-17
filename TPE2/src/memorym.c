@@ -6,11 +6,9 @@ List pages;
 void createHeadersList(void * inicio, void * fin)
 {
 	// CANTIDAD DE PAGINAS DISPONIBLES
-	int cantPages = (fin - inicio) / MAX_PAGE_SIZE;
-
+	int cantPages = ((int)fin - (int)inicio) / MAX_PAGE_SIZE;
 	// CANTIDAD DE PAGINAS QUE VOY A NECESITAR PARA LOS HEADERS
 	int cantHeadPages = (((cantPages * sizeof(element)) + sizeof(llist)) / MAX_PAGE_SIZE) + 1 ;
-
 	((List)inicio)->NumEl = 0;
 	((List)inicio)->pFirst = NULL;
 	((List)inicio)->pLast = NULL;
@@ -19,9 +17,10 @@ void createHeadersList(void * inicio, void * fin)
 	((List)inicio)->first_page = inicio + MAX_PAGE_SIZE * cantHeadPages;
 	((List)inicio)->max_pages = cantPages - cantHeadPages;
 
-	addHeader((List)inicio);
+	int a = addHeader((List)inicio);
 
-	pages = (List)inicio;
+	pages = ((List)inicio);
+
 }
 
 int addHeader(List list){
