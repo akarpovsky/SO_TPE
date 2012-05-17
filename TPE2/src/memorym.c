@@ -2,6 +2,7 @@
 
 List pages;
 
+
 void createHeadersList(void * inicio, void * fin)
 {
 	// CANTIDAD DE PAGINAS DISPONIBLES
@@ -301,7 +302,7 @@ int getPageIndex (void* p){
 int getPageIndexEFICIENTE(void * p){
 
 	if( p > pages->first_page && p < (void *)(((int)pages->first_page) + (pages->NumEl * MAX_PAGE_SIZE))){
-		void * pointer = pages->first_page - p;
+		void * pointer = (void *) (pages->first_page - p);
 		return (int)pointer / MAX_PAGE_SIZE;
 
 	}

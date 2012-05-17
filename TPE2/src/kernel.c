@@ -222,11 +222,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	}
 
 
-
 /* Borra la pantalla. */
 	k_clear_screen();
-
-
 
 /* Ubico los PICs donde sea necesario */
 
@@ -234,7 +231,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	int i;
 	int num;
-
 
 /* CARGA DE IDT CON LAS RUTINA DE ATENCION DE EXCEPCIONES  */
 
@@ -270,7 +266,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	callbck = &mouseButtonAction;
 	mouseInitialize(callbck);
 
-	initpages();
+	initpages(kmmap.base_addr_low+kmmap.length_low,kmmap.base_addr_low+kmmap.length_low );
 
 	//TODO;
 	SetupScheduler();

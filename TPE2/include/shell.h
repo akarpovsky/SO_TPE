@@ -7,6 +7,7 @@
 #include "strings.h"
 #include "scheduler.h"
 #include "limits.h"
+#include "memorym.h"
 
 void shell();
 void parse_command();
@@ -15,18 +16,16 @@ int run_command();
 
 /* Avilable commands */
 
-static void divideByZero();
-static void echo();
-static void help();
-static void invalidOpcode();
-static void clear_screen();
-static void shortcuts();
-static void mouse();
-
-static void top();
-static void pkill();
-static void imprimeUnos();
-
+int divideByZero(int argc, char **argv);
+int echo(int argc, char **argv);
+int help(int argc, char **argv);
+int invalidOpCode(int argc, char **argv);
+int clear_screen(int argc, char **argv);
+int shortcuts(int argc, char **argv);
+int mouse(int argc, char **argv);
+int top(int argc, char **argv);
+int pkill(int argc, char **argv);
+int imprimeUnos(int argc, char **argv);
 
 
 

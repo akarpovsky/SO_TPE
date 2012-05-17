@@ -10,6 +10,7 @@
 #include "proc.h"
 #include "structs.h"
 #include "io.h"
+#include "memorym.h"
 
 void select_next(void);
 Task_t * get_current_proces();

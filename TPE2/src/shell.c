@@ -1,5 +1,9 @@
 #include "../include/shell.h"
 
+
+extern Task_t * foreground_task;
+extern Task_t * current_task;
+
 extern struct shellLine_t shellLine;
 extern tty_t ttys[];
 
@@ -23,7 +27,7 @@ static struct {
 static struct {
     char* name;
     char* description;
-    commandFnct exec;
+    PROCESS task_function;
 } commands[NUM_COMMANDS] =  {
 		{"help", "Display system commands", help},
 		{"echo", "Prints string", echo},
@@ -32,7 +36,7 @@ static struct {
 		{"top", "Display ongoing look at processor activity in real time.", top},
 		{"kill PIDn", "Kills the proces with PID = PIDn .", pkill},
 		{"imprimeUnos", "Process that prints 1s forever", imprimeUnos},
-		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpcode},
+		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpCode},
 		{"divideByZero", "Tries to perform a division by zero", divideByZero},
 		{"clearScreen", "Erase all the content of the actual TTY", clear_screen}
 	};
@@ -81,8 +85,6 @@ void shell(){
 
 void erase_buffer(){
 	shellLine_t * lineBuffer = getLineBuffer(current_task);
-
-
 	int i = 0;
 	for (i = 0; i < LINEBUF_LEN; i++)
 	{
@@ -102,6 +104,29 @@ void parse_command() {
     sscanf(&lineBuffer->buffer[initpos], "%s %s", command.name, command.args);
 }
 
+void StartNewTask(char * name, PROCESS new_task_function){
+
+	_Sti();
+	Task_t * auxTask = NULL;
+
+	int new_task_priority = current_task->priority; // La prioridad del proceso shell serï¿½ = 1
+
+	void * stack_start_address = getFreePage(); // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
+
+	auxTask = CreateProcess(name, new_task_function, current_task, current_task->tty_number, 0, NULL,
+				stack_start_address, new_task_priority, foreground_task->pid==current_task->pid);
+
+	/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
+	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
+	 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
+	 */
+	changePagePID(auxTask->pid, stack_start_address);
+
+	_Sti();
+
+
+}
+
 int run_command(){
 
 	int i;
@@ -117,7 +142,7 @@ int run_command(){
 	for (i = 0; i < NUM_COMMANDS; i++) {
 	    if (streq(command.name, commands[i].name)) {
 	    	if(!isBackground)
-	    		commands[i].exec();
+	    		StartNewTask(commands[i].name, commands[i].task_function);
 	    	else
 	    		printf("Is background willy!\n");
 		return 1;
@@ -178,8 +203,7 @@ void clearCommand(){
 	}
 }
 
-static void
-divideByZero(){
+int divideByZero(int argc, char **argv){
 	clearCommand();
 	erase_buffer();
 	int x = 1;
@@ -187,8 +211,7 @@ divideByZero(){
 	int z = x / --y;
 }
 
-static void
-clear_screen(){
+int clear_screen(int argc, char **argv){
 
 	ttyScreen_t * screen = getScreen(current_task);
 
@@ -201,21 +224,17 @@ clear_screen(){
 
 }
 
-static void
-invalidOpcode(){
+int invalidOpCode(int argc, char **argv){
 	_invop();
 }
 
-static
-void echo()
-{
+int echo(int argc, char **argv){
 	char * text = command.args;
 	printfcolor(COMMAND_COLOR,text);
 	printf("\n");
 }
 
-static
-void mouse() {
+int mouse(int argc, char **argv){
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Mouse usage: \n\n");
 
@@ -231,8 +250,7 @@ void mouse() {
 
 }
 
-static
-void shortcuts() {
+int shortcuts(int argc, char **argv){
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Keyboard shortcuts: \n\n");
 
@@ -265,8 +283,7 @@ void shortcuts() {
 
 
 
-static
-void help() {
+int help(int argc, char **argv){
     int i;
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Available commands: \n\n");
@@ -291,17 +308,14 @@ void help() {
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
 }
 
-static
-void top(){
+int top(int argc, char **argv){
 
 }
 
-static
-void pkill(int pid){
+int pkill(int argc, char **argv){
 
 }
 
-static
-void imprimeUnos(){
+int imprimeUnos(int argc, char **argv){
 
 }
