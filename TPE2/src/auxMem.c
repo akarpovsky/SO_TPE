@@ -6,14 +6,11 @@
         ".quad 0b;"                       \
         ".popsection;")
 
-#define MEM_START 0x00200000
-#define PAGE_SIZE 4096
-
-int * CR3 = (void *) MEM_START;
-int ** page_table = (void *) MEM_START + PAGE_SIZE;
+#define MEMORY_START 0x00200000
+int * CR3 = (void *) MEMORY_START;
+DESCR_PAGE * gdt;
 
 static void flushPageCache();
-void myhlt();
 
 /*
  * Name: flushPageCache
@@ -53,7 +50,6 @@ void initpages(void * f, void * finMem) {
 	int * fin = (void *) (MAX_PAGE_SIZE * ((int) f / MAX_PAGE_SIZE));
 
 	int * inicioUser;
-	DESCR_PAGE * gdt = inicio;
 	int * descriptor;
 
 	int cant_pages_mem, cant_pages, i, cant_dir;
@@ -68,25 +64,23 @@ void initpages(void * f, void * finMem) {
 	cant_dir = CEILING(cant_pages / 1024);
 
 	// inicializo los descriptores del directorio
-	// y pongo en presente a todos
+	 //y pongo en presente a todos
 	for (i = 0; i < cant_dir; i++) {
 		// La direccion que va a tener el descriptor es
 		// la direccion de la primera tabla de paginas
 		// o sea su direccion + la cantidad de descriptores por
-		//el tamaÃ±o de una pagina
+		// el tamaño de una pagina
 		descriptor = inicio + MAX_PAGE_SIZE + i * MAX_PAGE_SIZE;
 
 		setup_DESCR_PAGE(&gdt[i], descriptor);
 		present(&gdt[i]);
 
-		// apunto gdt al descriptor siguiente
-		gdt += sizeof(DESCR_PAGE);
 	}
 
 	//gdt apunta a la primera tabla
 	// asi que ahora bindeo 1 a 1 las direcciones de toda la memoria
 	descriptor = 0x00000000;
-	gdt = inicio + MAX_PAGE_SIZE;
+	gdt = (void *)inicio + MAX_PAGE_SIZE;
 
 	for (i = 0; i < cant_pages; i++) {
 		descriptor = descriptor + i * MAX_PAGE_SIZE;
@@ -101,35 +95,20 @@ void initpages(void * f, void * finMem) {
 	}
 
 	_lcr3(inicio);
-	*inicio = (int) page_table;
+	*inicio = (int) gdt;
 	(*inicio) = (*inicio) | 0x00000001;
 	_fill_page1();
 
-	/* Activate pagination */dword cr0;
+	/* Activate pagination */
+	dword cr0;
 	_scr0(&cr0);
 	_lcr0(cr0 | 0x80000000);
 
-	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 
-	//
-	//
-	//	// setear CR3 y CR0
-	////	flushPageCache();
-	//	_set_cr();
-	//	/* Activate pagination */
-	//	dword cr0;
-	//	_scr0(&cr0);
-	//	_lcr0(cr0 | 0x80000000);
-	//	_debug();
-	//
-	//
-	//	// inicializar la lista de headers
-	//	// que describen la memoria para heap
-	//
-	//	// La primera pagina despues de las tablas y los directorios
-	//	inicioUser = CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
-	//	createHeadersList(inicioUser,fin);
+		// La primera pagina despues de las tablas y los directorios
+		inicioUser = CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
+		createHeadersList(inicioUser,fin);
 
 }
 

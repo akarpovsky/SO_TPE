@@ -267,6 +267,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	mouseInitialize(callbck);
 
 	initpages(kmmap.base_addr_low+kmmap.length_low,kmmap.base_addr_low+kmmap.length_low );
+	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
 	SetupScheduler();
