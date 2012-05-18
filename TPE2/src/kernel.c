@@ -268,12 +268,17 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	initpages(kmmap.base_addr_low+kmmap.length_low,kmmap.base_addr_low+kmmap.length_low );
 
-	
+	void * a = getFreePage();
+	void * b = getFreePage();
 
+	kprintf("%d\n", (int) a );
+	kprintf("%d\n", (int) b );
+	kprintf("%d\n", b-a);
+	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
 	SetupScheduler();
- _debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
+
 	print_header();
 
 	printTicks();

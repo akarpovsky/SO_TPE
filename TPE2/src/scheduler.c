@@ -123,8 +123,8 @@ void SetupScheduler(){
 	null_process_task.screen = NULL;
 	null_process_task.linebuffer = NULL;
 	strcpy(null_process_task.name, "Null Process");
-
 	void * null_stack_address = getFreePage(); // Ask for a free page to alocate the stack for the NULL task
+
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
 	changePagePID(null_process_task.pid, null_stack_address);
 

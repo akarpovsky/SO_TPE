@@ -94,7 +94,7 @@ void * malloc(int size){
 	mem_header * actual;
 	int bloques = getBlocks(size);
 
-	if(size > 0 && size < MAX_PAGE_SIZE){
+	if(size > 0 && size <= MAX_PAGE_SIZE){
 
 		/* Itero sobre el pages para ver si cuento con un segmento de memorio del tamaño solicitado */	
 		for (i = 0; i < pages->NumEl && flag == NOT_FOUND; i++){
