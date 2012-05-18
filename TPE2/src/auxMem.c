@@ -10,24 +10,24 @@
 void * CR3 = (void *) MEMORY_START;
 DESCR_PAGE * gdt;
 
-static void flushPageCache();
+// static void flushPageCache();
 
-/*
- * Name: flushPageCache
- * Receives: void
- * Returns: void
- * Description: Flushes the pagination cache of the processor.
- */
-static void flushPageCache() {
-	dword cr3;
-	_scr3(&cr3);
-	_lcr3(cr3);
-}
+// /*
+//  * Name: flushPageCache
+//  * Receives: void
+//  * Returns: void
+//  * Description: Flushes the pagination cache of the processor.
+//  */
+// static void flushPageCache() {
+// 	dword cr3;
+// 	_scr3(&cr3);
+// 	_lcr3(cr3);
+// }
 
 void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
 	item->address = address;
-//	absent(item);
-	present(item);
+	absent(item);
+//	present(item);
 }
 
 void present(DESCR_PAGE * item) {
@@ -83,20 +83,23 @@ void initpages(void * f, void * finMem) {
 	descriptor = 0x00000000;
 	gdt = (void *)inicio + MAX_PAGE_SIZE;
 
-	int j = 0;
-	for (j = 0; j < cant_pages; j++) {
-		descriptor = (void*) (j * MAX_PAGE_SIZE);
+	
+	for (i = 0; i < cant_pages; i++) {
+		descriptor = (void*) (i * MAX_PAGE_SIZE);
 //		kprintf("i = %d, desc = %d\n", j, (int)descriptor );
 
-		setup_DESCR_PAGE(&gdt[j], descriptor);
+		setup_DESCR_PAGE(&gdt[i], descriptor);
 
 		// Ahora tengo que poner en presente el primer mega
 		//	o sea las 256 primeras pags y todo lo demas dejar en ausente
 		// el scheduler va a setear el bit de las pags del proceso actual en presente
 		if (i < 512 + cant_dir + 1) {
-			present(&gdt[j]);
+			present(&gdt[i]);
 		}
 	}
+
+	//_set_cr();
+//	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 
 	_lcr3(inicio);

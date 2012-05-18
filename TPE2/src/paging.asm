@@ -59,7 +59,7 @@ _set_cr:
      mov     eax, cr0
      mov     [ds: ebx], eax
 
-	 pop	 eax
+         pop     eax
      pop     ebx
      pop     ebp
 
@@ -71,56 +71,56 @@ _set_cr:
 
  _scr3:
 
-	push	ebp
-	mov		ebp, esp
-	push	ebx
-	push	eax
+        push    ebp
+        mov             ebp, esp
+        push    ebx
+        push    eax
 
-	mov		ebx, [ss: ebp + 8]
-	mov		eax, cr3
-	mov		[ds: ebx], eax
+        mov             ebx, [ss: ebp + 8]
+        mov             eax, cr3
+        mov             [ds: ebx], eax
 
-	pop		eax
-	pop		ebx
-	pop		ebp
+        pop             eax
+        pop             ebx
+        pop             ebp
 
-	retn
+        retn
 
 ; Mapeo 1:1 de la primer pagina
 _fill_page1:
 
-	mov		eax, 0
-	mov		ebx, 0
+        mov             eax, 0
+        mov             ebx, 0
 
 .fill_table:
-	mov		ecx, ebx ; ecx = eax = ebx = 0
-	cmp		eax, 530
-	jg		.notpresent
-	or		ecx, 1
+        mov             ecx, ebx ; ecx = eax = ebx = 0
+        cmp             eax, 530
+        jg              .notpresent
+        or              ecx, 1
 .notpresent:
-	mov		[201000h+eax*4], ecx
-	add		ebx, 4096
-	inc		eax
-	cmp		eax, 1024
-	je		.end
-	jmp		.fill_table
+        mov             [201000h+eax*4], ecx
+        add             ebx, 4096
+        inc             eax
+        cmp             eax, 1024
+        je              .end
+        jmp             .fill_table
 .end:
-	ret
+        ret
 
 _midebug:
 
         push    bp
         mov     bp, sp
-		mov		eax, cr0
-		pop     bp
+                mov             eax, cr0
+                pop     bp
         retn
 _debug:
         push    bp
         mov     bp, sp
-        push	ax
-vuelve:	mov     ax, 1
-        cmp	ax, 0
-		jne	vuelve
-		pop	ax
-		pop     bp
+        push    ax
+vuelve: mov     ax, 1
+        cmp     ax, 0
+                jne     vuelve
+                pop     ax
+                pop     bp
         retn

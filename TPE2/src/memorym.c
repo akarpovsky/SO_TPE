@@ -13,22 +13,21 @@ void createHeadersList(void * inicio, void * fin)
 
 	//inicio va a ser el la direccion de la primera pagina que tengo que prender
 	void * dir = inicio;
-	int pag;
+	int pag = 0;
+
 	
 	// Ahora tengo que prender las paginas que voy a necesitar para los headers
 	for( i = 0; i < cantHeadPages; i++){
 
-		dir += (i * MAX_PAGE_SIZE);
+		dir = (void*)(i * MAX_PAGE_SIZE);
 
 		// Calculo que pagina es en memoria y la prendo
 		pag = ((int)dir) / MAX_PAGE_SIZE;
 
 		presentPageNumber(pag);
-		
-		kprintf("vickyyyy\n");
-		_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
-
 	}
+
+
 
 	
 
@@ -43,6 +42,8 @@ void createHeadersList(void * inicio, void * fin)
 	int a = addHeader((List)inicio);
 
 	pages = ((List)inicio);
+
+
 
 }
 
