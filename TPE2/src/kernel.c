@@ -266,7 +266,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	callbck = &mouseButtonAction;
 	mouseInitialize(callbck);
 
-	initpages(kmmap.base_addr_low+kmmap.length_low,kmmap.base_addr_low+kmmap.length_low );
+	initpages(kmmap.base_addr_low+kmmap.length_low, kmmap.base_addr_low+kmmap.length_low );
 
 	void * a = getFreePage();
 	void * b = getFreePage();

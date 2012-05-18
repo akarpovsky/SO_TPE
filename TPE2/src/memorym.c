@@ -28,9 +28,6 @@ void createHeadersList(void * inicio, void * fin)
 	}
 
 
-
-	
-
 	((List)inicio)->NumEl = 0;
 	((List)inicio)->pFirst = NULL;
 	((List)inicio)->pLast = NULL;
@@ -41,9 +38,8 @@ void createHeadersList(void * inicio, void * fin)
 
 	int a = addHeader((List)inicio);
 
+	int b = addHeader((List)inicio);
 	pages = ((List)inicio);
-
-
 
 }
 
@@ -59,14 +55,12 @@ int addHeader(List list){
 		list->pLast = list->pFirst;
 
 	}else{
-
 		list->pLast = list->pLast + sizeof(element);
 	}
 
 	(list->NumEl)++;
 
 	initHeader(&(list->pLast->headerEl));
-
 	return OK;
 
 }
@@ -77,6 +71,7 @@ void initHeader(mem_header * h){
 		for (i=0; i<MAX_HEADER_SIZE;i++)
 			h->header[i]=0;
 		h->blocks_cont = MAX_HEADER_SIZE;
+
 	}
 	h->pid = FREE_PAGE;
 	
@@ -98,7 +93,6 @@ void * malloc(int size){
 
 		/* Itero sobre el pages para ver si cuento con un segmento de memorio del tamaño solicitado */	
 		for (i = 0; i < pages->NumEl && flag == NOT_FOUND; i++){
-
 			if(GET_HEADER(i).blocks_cont >= bloques &&
 				(GET_HEADER(i).pid == FREE_PAGE || GET_HEADER(i).pid == getpid())){
 
@@ -155,6 +149,7 @@ void * malloc(int size){
 				}
 				//CALCULAR BLOQUES DISPONIBLES
 				actual->blocks_cont=cantMaxBlocks(actual->header);
+
 			} 
 		}
 
@@ -193,6 +188,8 @@ int cantMaxBlocks(char* header){
 	
 	for(i = 0; header[i] != 0; i++){
 		aux = aux - abs(header[i]);		
+//		kprintf("%d-%d-%d\n",i, header[i], aux);
+
 		if( header[i] > 0 && ret < header[i]){
 			ret = header[i];
 		}
@@ -201,7 +198,6 @@ int cantMaxBlocks(char* header){
 	if(ret < aux){
 		ret = aux;
 	}	
-	
 	return ret;
 }
 
