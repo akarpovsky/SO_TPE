@@ -85,7 +85,7 @@ void initpages(void * f, void * finMem) {
 
 	int j = 0;
 	for (j = 0; j < cant_pages; j++) {
-		descriptor = j * MAX_PAGE_SIZE;
+		descriptor = (void*) (j * MAX_PAGE_SIZE);
 //		kprintf("i = %d, desc = %d\n", j, (int)descriptor );
 
 		setup_DESCR_PAGE(&gdt[j], descriptor);
@@ -128,3 +128,28 @@ void * getRealPointer(void * pointer) {
 
 }
 
+// Recibe el numero de la pagina (contando a toda la memoria)
+void presentPageNumber(int numberOfPage){
+
+	void * desc;
+
+	int i = numberOfPage / 1024;
+	int j = numberOfPage % 1024;
+	desc = (void *) (CR3 + MAX_PAGE_SIZE * (i + 1) + sizeof(DESCR_PAGE) * j);
+
+	present(desc);
+
+}
+
+// Recibe el numero de la pagina (contando a toda la memoria)
+void absentPageNumber(int numberOfPage){
+
+	void * desc;
+
+	int i = numberOfPage / 1024;
+	int j = numberOfPage % 1024;
+	desc = (void *) (CR3 + MAX_PAGE_SIZE * (i + 1) + sizeof(DESCR_PAGE) * j);
+
+	absent(desc);
+
+}
