@@ -38,7 +38,7 @@ void createHeadersList(void * inicio, void * fin)
 
 	int a = addHeader((List)inicio);
 
-	int b = addHeader((List)inicio);
+//	int b = addHeader((List)inicio);
 	pages = ((List)inicio);
 
 }
@@ -157,12 +157,12 @@ void * malloc(int size){
 		if(flag == NOT_FOUND && pages->NumEl < pages->max_pages){
 
 			addHeader(pages);
-			actual = &(GET_HEADER((pages->NumEl)-1));
+			actual = &(GET_HEADER(i));
 			actual->header[0]= bloques*-1;
 			actual->pid = getpid();
 			actual->blocks_cont=cantMaxBlocks(actual->header);
 			
-			ans = GET_PAGE((pages->NumEl)-1);
+			ans = GET_PAGE(i);
 
 		}
 
