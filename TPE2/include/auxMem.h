@@ -13,6 +13,7 @@ void present(DESCR_PAGE * item);
 void absent(DESCR_PAGE * item);
 void initpages(void * f, void * finMem);
 void * getCR3();
+
 void * getRealPointer(void * pointer);
 
 

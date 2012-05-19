@@ -251,9 +251,9 @@ void * calloc(int size){
 
 	if(p != NULL){
 		for (i = 0; i < bloques * PADDING; i++){
-			kprintf("LLEGUEEEEEEE\n" );
+			//kprintf("LLEGUEEEEEEE\n" );
 			p[i] = 0;
-			kprintf("LLEGUEEEEEEE\n" );
+			//kprintf("LLEGUEEEEEEE\n" );
 		//	kprintf(" i: %d ", p[i]);
 		}
 	}

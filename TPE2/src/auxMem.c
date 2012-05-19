@@ -10,24 +10,12 @@
 void * CR3 = (void *) MEMORY_START;
 DESCR_PAGE * gdt;
 
-// static void flushPageCache();
 
-// /*
-//  * Name: flushPageCache
-//  * Receives: void
-//  * Returns: void
-//  * Description: Flushes the pagination cache of the processor.
-//  */
-// static void flushPageCache() {
-// 	dword cr3;
-// 	_scr3(&cr3);
-// 	_lcr3(cr3);
-// }
 
 void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
 	item->address = address;
-	absent(item);
-	//present(item);
+	//absent(item);
+	present(item);
 }
 
 void present(DESCR_PAGE * item) {
@@ -98,23 +86,12 @@ void initpages(void * f, void * finMem) {
 		}
 	}
 
-	//_set_cr();
-//	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
-
-
-	_lcr3(inicio);
-	*((int *)inicio) = (int) gdt;
-	*((int *)inicio) = *((int *)inicio) | 0x00000001; // Enable protected mode
-	//_fill_page1();
-
-	/* Activate pagination */
-	dword cr0;
-	_scr0(&cr0);
-	_lcr0(cr0 | 0x80000000);
+	_set_cr();
 
 
 	// La primera pagina despues de las tablas y los directorios
 	inicioUser = (void *)CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
+	kprintf("INICIOUSER: %d", inicioUser);
 	createHeadersList((void *)inicioUser,(void *)fin);
 
 }
@@ -156,3 +133,5 @@ void absentPageNumber(int numberOfPage){
 	absent(desc);
 
 }
+
+

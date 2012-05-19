@@ -273,7 +273,7 @@ void putx(int x){
 	num = x % 16;
 	c = num > 9 ? letters[num - 10] : (num + '0');
 
-	puth(x / 16);
+	putx(x / 16);
 	putc(c);
 }
 

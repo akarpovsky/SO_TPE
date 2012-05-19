@@ -275,20 +275,25 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	// kprintf("b: %d\n", (int) b );
 	// kprintf("c: %d\n", (int) c);
 
-	void * a = malloc(MAX_PAGE_SIZE);
-	void * b = malloc(MAX_PAGE_SIZE);
-	void * c = malloc(MAX_PAGE_SIZE);
-	kprintf("a: %d\n", (int) a );
-	kprintf("b: %d\n", (int) b );
-	kprintf("c: %d\n", (int) c );
+	void * a = calloc(MAX_PAGE_SIZE);
+	void * b = calloc(MAX_PAGE_SIZE);
+	void * c = calloc(MAX_PAGE_SIZE);
+	// kprintf("a: %d\n", (int) a );
+	// kprintf("b: %d\n", (int) b );
+	// kprintf("c: %d\n", (int) c );
+
 
 	
-	free(a);
-	a = malloc(MAX_PAGE_SIZE);
+
+//	kprintf("HOLA");
+
+	
+	// free(a);
+	// a = malloc(MAX_PAGE_SIZE);
 	//free(c);
-	kprintf("a: %d\n", (int) a );
-	kprintf("b: %d\n", (int) b );
-	kprintf("c: %d\n", (int) c );
+	// kprintf("a: %d\n", (int) a );
+	// kprintf("b: %d\n", (int) b );
+	// kprintf("c: %d\n", (int) c );
 
 	// kprintf("FREE B\n");
 	// free(b);
