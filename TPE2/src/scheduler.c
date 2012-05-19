@@ -128,8 +128,8 @@ void SetupScheduler(){
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
 	changePagePID(null_process_task.pid, null_stack_address);
 
-	_debug();
 	current_task = &null_process_task;
+
 }
 
 void * getSPPointer(){
