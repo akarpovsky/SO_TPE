@@ -254,7 +254,7 @@ void * calloc(int size){
 			//kprintf("LLEGUEEEEEEE\n" );
 			p[i] = 0;
 			//kprintf("LLEGUEEEEEEE\n" );
-		//	kprintf(" i: %d ", p[i]);
+			//	kprintf(" i: %d ", p[i]);
 		}
 	}
 	return p;
