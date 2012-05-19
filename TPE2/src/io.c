@@ -264,39 +264,17 @@ int kprintf(char *fmt, ...) {
 }
 
 void putx(int x){
-	if (x < 0){
-		putc('-');
-		x = -x;
+	char *letters ="ABCDEF";
+	char c;
+	int num;
+	if (x <= 0) {
+	return;
 	}
-	int i, h;
-	for(i = sizeof(int) * 2; i > 0; i--){
-		h = (x >> i) & 0xF;
-		if(h < 10){
-			putu(h);
-		}
-		else {
-			switch(h){
-			case 10:
-				putc('a');
-				break;
-			case 11:
-				putc('b');
-				break;
-			case 12:
-				putc('c');
-				break;
-			case 13:
-				putc('d');
-				break;
-			case 14:
-				putc('e');
-				break;
-			case 15:
-				putc('f');
-				break;
-			}
-		}
-	}
+	num = x % 16;
+	c = num > 9 ? letters[num - 10] : (num + '0');
+
+	puth(x / 16);
+	putc(c);
 }
 
 int printf(char *fmt, ...)
