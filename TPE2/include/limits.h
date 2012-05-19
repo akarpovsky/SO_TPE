@@ -28,6 +28,7 @@
 #define ARG_MAX			   16384
 #define CHILD_MAX	   _NO_LIMIT
 #define OPEN_MAX		  	 127
+#define PAGES_MAX			 127
 #define LINK_MAX		  	 127
 #define MAX_CANON		  	 255
 #define MAX_INPUT		  	 255

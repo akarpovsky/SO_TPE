@@ -302,7 +302,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	// void * d = getFreePage();	
 	// kprintf("d: %d\n", (int) d);
 
-	printHeader();
+	//printHeader();
 
 
 	
@@ -314,11 +314,10 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	
 	
 
-	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
+	//_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
 	SetupScheduler();
-
 	print_header();
 
 	printTicks();

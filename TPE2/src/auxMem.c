@@ -91,7 +91,6 @@ void initpages(void * f, void * finMem) {
 
 	// La primera pagina despues de las tablas y los directorios
 	inicioUser = (void *)CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
-	kprintf("INICIOUSER: %d", inicioUser);
 	createHeadersList((void *)inicioUser,(void *)fin);
 
 }
