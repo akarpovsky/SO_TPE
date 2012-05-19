@@ -361,32 +361,32 @@ void free(void* p){
 
 			actual->blocks_cont=cantMaxBlocks(actual->header);
 
-			// if(actual->blocks_cont == MAX_HEADER_SIZE){
-			// 	actual->pid = FREE_PAGE;
+			if(actual->blocks_cont == MAX_HEADER_SIZE){
+				actual->pid = FREE_PAGE;
 			
-			// 	// elimino la pagina de la task	
-			// 	pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
+				// elimino la pagina de la task	
+				pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
 
-			// 	absentPageNumber(pag);
+				absentPageNumber(pag);
 
-			// 	for(t = 0; t < PAGES_MAX && proc->pages[t]!= pag; t++){
-			// 		;
-			// 	}
+				for(t = 0; t < PAGES_MAX && proc->pages[t]!= pag; t++){
+					;
+				}
 
-			// 	if(proc->pages[t] == pag){
+				if(proc->pages[t] == pag){
 
-			// 		// por si es el ultimo elemento del vector
-			// 		proc->pages[t] = -1;
+					// por si es el ultimo elemento del vector
+					proc->pages[t] = -1;
 
-			// 		for( ; t < PAGES_MAX - 1 && proc->pages[t+1] != -1; t++){
+					for( ; t < PAGES_MAX - 1 && proc->pages[t+1] != -1; t++){
 
-			// 			proc->pages[t] = proc->pages[t+1];
-			// 		}
-			// 		if(t + 1 < PAGES_MAX){
-			// 			proc->pages[t + 1] = -1; 
-			// 		}
-			// 	}
-			// }
+						proc->pages[t] = proc->pages[t+1];
+					}
+					if(t + 1 < PAGES_MAX){
+						proc->pages[t + 1] = -1; 
+					}
+				}
+			}
 			
 		}
 	}
