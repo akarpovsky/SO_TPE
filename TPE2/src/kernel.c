@@ -277,14 +277,30 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	// kprintf("b: %d\n", (int) b );
 	// kprintf("c: %d\n", (int) c);
 
-	void * a = calloc(MAX_PAGE_SIZE);
-	void * b = calloc(MAX_PAGE_SIZE);
-	void * c = calloc(MAX_PAGE_SIZE);
-	// kprintf("a: %d\n", (int) a );
-	// kprintf("b: %d\n", (int) b );
-	// kprintf("c: %d\n", (int) c );
+	void * a = malloc(100);
+	void * b = malloc(200);
+	void * c = malloc(300);
+	void * d = malloc(400);
+	void * e = malloc(500);
+	 // kprintf("a: %d\n", (int) a );
+	 // kprintf("b: %d\n", (int) b );
+	 // kprintf("c: %d\n", (int) c );
+	 // kprintf("d: %d\n", (int) d );
+	 // kprintf("e: %d\n", (int) e );
 
+	 printHeader();
 
+	 free(a);
+	 free(c);
+	kprintf("FREE a y c");
+	 //printHeader();
+	
+	// free(b);
+
+	  
+	  b = realloc(b,500);
+  // 	kprintf("B= realloc");
+	 // kprintf("b: %d\n", (int) b );
 	
 
 //	kprintf("HOLA");
@@ -304,7 +320,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	// void * d = getFreePage();	
 	// kprintf("d: %d\n", (int) d);
 
-	//printHeader();
+	printHeader();
 
 
 	
@@ -316,7 +332,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	
 	
 
-	//_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
+	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
 	SetupScheduler();
