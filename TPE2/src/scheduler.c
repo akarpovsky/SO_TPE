@@ -129,6 +129,7 @@ void SetupScheduler(){
 	changePagePID(null_process_task.pid, null_stack_address);
 
 	current_task = &null_process_task;
+
 }
 
 void * getSPPointer(){

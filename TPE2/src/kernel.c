@@ -174,10 +174,12 @@ void print_header(){
 	ttyScreen_t * screen = getScreen(current_task);
 	keyboard_t * keyboard = getKeyboard(current_task);
 
+
 	int wpos = screen->wpos;
 	char color_aux = color_p;
 	screen->wpos=TTY_SCREEN_HSTART;
 	color_p = HEADER_COLOR;
+	_debug();
 	printf("\t\t\t\tTP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t Keyboard: ");
 	printfcolor(ERROR_COLOR,"%s",(keyboard->lang == ENGLISH) ? "EN" : "ES");
 	printf(" | TTY: ");
@@ -302,7 +304,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	// void * d = getFreePage();	
 	// kprintf("d: %d\n", (int) d);
 
-	printHeader();
+	//printHeader();
 
 
 	
@@ -314,12 +316,12 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	
 	
 
-	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
+	//_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
 	SetupScheduler();
-
 	print_header();
+
 
 	printTicks();
 

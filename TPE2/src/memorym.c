@@ -377,22 +377,3 @@ void * getFreePage(){
 	// TODO identificar procesoo de stack y devolver malloc de pagina contigua
 	return malloc(MAX_PAGE_SIZE);
 }
-
-
-void printHeader(){
-
-	int i;
-	for(i = 0; i < MAX_HEADER_SIZE; i++){
-
-		kprintf("%d: ",	pages->pFirst->headerEl.header[i]);
-
-	}
-
-}
-
-
-
-
-
-
-

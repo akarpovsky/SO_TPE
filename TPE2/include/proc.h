@@ -85,6 +85,7 @@ struct task {
 	Prio_t			priority;
 	uint			pid;
 	unsigned		atomic_level;
+	int				pages[PAGES_MAX];
 	char *			stack;
 	void *			ss;
 	void *			sp;
