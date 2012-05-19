@@ -16,7 +16,7 @@
 #define OK 1
 #define FREE_PAGE -1 // pid que no pertenece a ningun proceso
 #define GET_HEADER(i) \
-            ((Element)((pages->pFirst) + i*sizeof(element)))->headerEl
+           (((Element)((pages->pFirst) + i*sizeof(element)))->headerEl)
 #define GET_PAGE(i) \
             ((pages->first_page) + (i * MAX_PAGE_SIZE))
 
@@ -72,5 +72,6 @@ int getPageIndex (void* p);
 int getPageIndexEFICIENTE(void * p);
 void changePagePID(int pid, void * pointer);
 void * getFreePage();
+void printHeader();
 
 #endif /*_MEMORYM_H_*/

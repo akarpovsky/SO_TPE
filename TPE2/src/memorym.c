@@ -11,8 +11,11 @@ void createHeadersList(void * inicio, void * fin)
 	int cantHeadPages = (((cantPages * sizeof(element)) + sizeof(llist)) / MAX_PAGE_SIZE) + 1 ;
 	int i;
 
+
+	// PRENDO PAGINAS DEL HEADER
 	//inicio va a ser el la direccion de la primera pagina que tengo que prender
 	void * dir = inicio;
+
 	int pag = 0;
 
 	
@@ -27,6 +30,8 @@ void createHeadersList(void * inicio, void * fin)
 		presentPageNumber(pag);
 	}
 
+	// AQUI TERMINA EL PRENDIDO DE PAGINAS (PARA PAGINACION)
+	
 
 	((List)inicio)->NumEl = 0;
 	((List)inicio)->pFirst = NULL;
@@ -37,9 +42,11 @@ void createHeadersList(void * inicio, void * fin)
 	((List)inicio)->max_pages = cantPages - cantHeadPages;
 
 	int a = addHeader((List)inicio);
+	//addHeader((List)inicio);
 
-//	int b = addHeader((List)inicio);
 	pages = ((List)inicio);
+
+
 
 }
 
@@ -55,12 +62,14 @@ int addHeader(List list){
 		list->pLast = list->pFirst;
 
 	}else{
+
 		list->pLast = list->pLast + sizeof(element);
 	}
 
-	(list->NumEl)++;
+	list->NumEl = (list->NumEl) + 1;
 
 	initHeader(&(list->pLast->headerEl));
+	
 	return OK;
 
 }
@@ -89,15 +98,19 @@ void * malloc(int size){
 	mem_header * actual;
 	int bloques = getBlocks(size);
 
+
+
 	if(size > 0 && size <= MAX_PAGE_SIZE){
 
 		/* Itero sobre el pages para ver si cuento con un segmento de memorio del tamaño solicitado */	
-		for (i = 0; i < pages->NumEl && flag == NOT_FOUND; i++){
+		for (i = 0; i < pages->NumEl && flag == NOT_FOUND; i++){	
+
 			if(GET_HEADER(i).blocks_cont >= bloques &&
 				(GET_HEADER(i).pid == FREE_PAGE || GET_HEADER(i).pid == getpid())){
-
+				
 				actual = &(GET_HEADER(i)); /* Header */
-				for(j = 0, k = -1; (j < MAX_HEADER_SIZE) && (actual->header[j] =! bloques)
+
+				for(j = 0, k = -1; (j < MAX_HEADER_SIZE) && (actual->header[j] != bloques)
 					&& (actual->header[j] != 0); j++){
 					/* Busca el menor bloque en el que yo entre */
 					if( actual->header[j] >= bloques){
@@ -149,18 +162,24 @@ void * malloc(int size){
 				}
 				//CALCULAR BLOQUES DISPONIBLES
 				actual->blocks_cont=cantMaxBlocks(actual->header);
-
+			
+				
 			} 
+			
 		}
 
 
 		if(flag == NOT_FOUND && pages->NumEl < pages->max_pages){
-
+			
 			addHeader(pages);
 			actual = &(GET_HEADER(i));
+
+			
 			actual->header[0]= bloques*-1;
 			actual->pid = getpid();
+		
 			actual->blocks_cont=cantMaxBlocks(actual->header);
+			
 			
 			ans = GET_PAGE(i);
 
@@ -188,8 +207,6 @@ int cantMaxBlocks(char* header){
 	
 	for(i = 0; header[i] != 0; i++){
 		aux = aux - abs(header[i]);		
-//		kprintf("%d-%d-%d\n",i, header[i], aux);
-
 		if( header[i] > 0 && ret < header[i]){
 			ret = header[i];
 		}
@@ -198,6 +215,7 @@ int cantMaxBlocks(char* header){
 	if(ret < aux){
 		ret = aux;
 	}	
+	
 	return ret;
 }
 
@@ -230,9 +248,13 @@ void * calloc(int size){
 	char * p = (char *) malloc(size);
 	int bloques = getBlocks(size);
 
+
 	if(p != NULL){
 		for (i = 0; i < bloques * PADDING; i++){
+			kprintf("LLEGUEEEEEEE\n" );
 			p[i] = 0;
+			kprintf("LLEGUEEEEEEE\n" );
+		//	kprintf(" i: %d ", p[i]);
 		}
 	}
 	return p;
@@ -257,49 +279,60 @@ void free(void* p){
 	
 		if( aux % PADDING == 0){
 			aux /= PADDING;
-			for(j = 0, k = 0; j < MAX_HEADER_SIZE && aux > 0; j++){
+			if(actual->header[0] == -MAX_HEADER_SIZE){
+
+				actual->header[0] = 0;
+				actual->blocks_cont = MAX_HEADER_SIZE;
+
+			}else{
+
+				for(j = 0, k = 0; j < MAX_HEADER_SIZE && aux > 0; j++){
 			
-				aux = aux - abs(actual->header[j]);
+					aux = aux - abs(actual->header[j]);
 			
-				if(aux >=0){
-					k++;
+					if(aux >=0){
+						k++;
+					}
 				}
-			}
-			if(aux == 0 && actual->header[k] < 0){
+				if(aux == 0 && actual->header[k] < 0){
 		
-				actual->header[k] = actual->header[k] * -1;
-				//aca busco si mi antecesor es un espacio libre
-				if (k>0 && actual->header[k-1]>0){
-					k--;
-				}
-				dif=k;
-				while(k< MAX_HEADER_SIZE && actual->header[k]!=0  && dif<MAX_HEADER_SIZE){
-				
-					if(actual->header[k]>0 && (dif+1<MAX_HEADER_SIZE) && actual->header[dif+1]>0){
+					actual->header[k] = actual->header[k] * -1;
+					//aca busco si mi antecesor es un espacio libre
+					if (k>0 && actual->header[k-1]>0){
+						k--;
+					}
+					dif=k;
+					while(k< MAX_HEADER_SIZE && actual->header[k]!=0  && dif<MAX_HEADER_SIZE){
+					
+						if(actual->header[k]>0 && (dif+1<MAX_HEADER_SIZE) && actual->header[dif+1]>0){
+							dif++;
+							actual->header[k]+=actual->header[dif];
+							if (dif+1<MAX_HEADER_SIZE && actual->header[dif+1]>0){
+									actual->header[k]+=actual->header[dif++];
+							}				
+						}
+						k++;
 						dif++;
-						actual->header[k]+=actual->header[dif];
-						if (dif+1<MAX_HEADER_SIZE && actual->header[dif+1]>0){
-								actual->header[k]+=actual->header[dif++];
-						}				
-					}
-					k++;
-					dif++;
-					if (dif<MAX_HEADER_SIZE){
-						actual->header[k]= actual->header[dif];
-					}
-					if (dif-k>1){
-						actual->header[k]= actual->header[dif-1];
-					}
-				}		
-			}
-			for (j=MAX_HEADER_SIZE-1; j>=0 && actual->header[j]>0; j--){
+						if (dif<MAX_HEADER_SIZE){
+							actual->header[k]= actual->header[dif];
+						}
+						if (dif-k>1){
+							actual->header[k]= actual->header[dif-1];
+						}
+					}		
+				}
+				for (j=MAX_HEADER_SIZE-1; j>=0 && actual->header[j]>0; j--){
 					actual->header[j]=0;
+				}
 			}
+
 			actual->blocks_cont=cantMaxBlocks(actual->header);
+
 			if(actual->blocks_cont == MAX_HEADER_SIZE){
 				actual->pid = FREE_PAGE;
 				//TODO ELIMINAR LA PAGINA DE LA LISTA DE PAGINAS DEL PROCESO
 			}
+			
 		}
 	}
 	
@@ -341,11 +374,21 @@ void changePagePID(int pid, void * pointer){
 
 void * getFreePage(){
 
+	// TODO identificar procesoo de stack y devolver malloc de pagina contigua
 	return malloc(MAX_PAGE_SIZE);
 }
 
 
+void printHeader(){
 
+	int i;
+	for(i = 0; i < MAX_HEADER_SIZE; i++){
+
+		kprintf("%d: ",	pages->pFirst->headerEl.header[i]);
+
+	}
+
+}
 
 
 

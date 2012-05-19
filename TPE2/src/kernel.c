@@ -268,12 +268,47 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	initpages(kmmap.base_addr_low+kmmap.length_low, kmmap.base_addr_low+kmmap.length_low );
 
-	void * a = getFreePage();
-	void * b = getFreePage();
+	// void * a = getFreePage();
+	// void * b = getFreePage();
+	// void * c = getFreePage();
+	// kprintf("a: %d\n", (int) a );
+	// kprintf("b: %d\n", (int) b );
+	// kprintf("c: %d\n", (int) c);
 
-	kprintf("%d\n", (int) a );
-	kprintf("%d\n", (int) b );
-	kprintf("%d\n", b-a);
+	void * a = malloc(MAX_PAGE_SIZE);
+	void * b = malloc(MAX_PAGE_SIZE);
+	void * c = malloc(MAX_PAGE_SIZE);
+	kprintf("a: %d\n", (int) a );
+	kprintf("b: %d\n", (int) b );
+	kprintf("c: %d\n", (int) c );
+
+	
+	free(a);
+	a = malloc(MAX_PAGE_SIZE);
+	//free(c);
+	kprintf("a: %d\n", (int) a );
+	kprintf("b: %d\n", (int) b );
+	kprintf("c: %d\n", (int) c );
+
+	// kprintf("FREE B\n");
+	// free(b);
+
+
+	// void * d = getFreePage();	
+	// kprintf("d: %d\n", (int) d);
+
+	printHeader();
+
+
+	
+	//kprintf("FREE B\n");
+	//free(b);
+	// void * d = getFreePage();
+	// kprintf("d: %d\n", (int) d);
+
+	
+	
+
 	_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;

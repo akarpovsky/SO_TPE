@@ -27,6 +27,7 @@ DESCR_PAGE * gdt;
 void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
 	item->address = address;
 	absent(item);
+	//present(item);
 }
 
 void present(DESCR_PAGE * item) {
