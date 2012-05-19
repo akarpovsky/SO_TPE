@@ -43,22 +43,23 @@ void int_80(int sysCallNumber, void ** args){
 
 void int_20(){
 
-	char * video = (char *) 0xb8000;
-	video[ticks++]=ticks_tile;
-	video[ticks++]=ticks_color;
-
-	if(ticks == TTY_SCREEN_TICEND){
-		if(ticks_color == TICKS_COLOR){
-			ticks_color = 0x0E;
-		}
-		else{
-			ticks_color = TICKS_COLOR;
-		}
-
-		ticks = TTY_SCREEN_TICSTART;
-	}
+//	char * video = (char *) 0xb8000;
+//	video[ticks++]=ticks_tile;
+//	video[ticks++]=ticks_color;
+//
+//	if(ticks == TTY_SCREEN_TICEND){
+//		if(ticks_color == TICKS_COLOR){
+//			ticks_color = 0x0E;
+//		}
+//		else{
+//			ticks_color = TICKS_COLOR;
+//		}
+//
+//		ticks = TTY_SCREEN_TICSTART;
+//	}
 
 	select_next();
+
 }
 
 
@@ -277,9 +278,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	// kprintf("b: %d\n", (int) b );
 	// kprintf("c: %d\n", (int) c);
 
-	void * a = calloc(MAX_PAGE_SIZE);
-	void * b = calloc(MAX_PAGE_SIZE);
-	void * c = calloc(MAX_PAGE_SIZE);
 	// kprintf("a: %d\n", (int) a );
 	// kprintf("b: %d\n", (int) b );
 	// kprintf("c: %d\n", (int) c );
@@ -319,11 +317,13 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	//_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
+
 	SetupScheduler();
-	print_header();
+
+	//print_header();
 
 
-	printTicks();
+	//printTicks();
 
 	/* Funciï¿½n init(): Inicializa el SO para poder empezar a ejecutar con normalidad.
 	 * Aloca espacio para los stacks de las shells y crea 4 procesos para las distintas
@@ -333,7 +333,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	/* Habilitamos interrupciones y el scheduller empieza a jugar!*/
 	_Sti();
-
 	_int_20_hand();
 }
 

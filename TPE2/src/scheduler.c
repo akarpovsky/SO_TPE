@@ -108,13 +108,17 @@ void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
 }
 
 void SetupScheduler(){
-	int i;
+	int i, j;
 	for(i=0; i<MAX_PROCESSES; i++){
 		processes[i].priority = MAX_PRIORITIES;
 		processes[i].atomic_level = false;
 		processes[i].state = TaskEmpty;
 		processes[i].pid = i;
 		add_to_queue(&empty_tasks, &processes[i]);
+		for(j=0; j<PAGES_MAX; i++)
+		{
+			processes[i].pages[j]=-1;
+		}
 	}
 
 
@@ -127,7 +131,6 @@ void SetupScheduler(){
 
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
 	changePagePID(null_process_task.pid, null_stack_address);
-
 	current_task = &null_process_task;
 
 }

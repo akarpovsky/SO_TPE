@@ -378,6 +378,7 @@ switch:
 ; Debug para el BOCHS, detiene la ejecució; Para continuar colocar en el BOCHSDBG: set $eax=0
 
 _debug:
+		cli
         push    bp
         mov     bp, sp
         push	ax
