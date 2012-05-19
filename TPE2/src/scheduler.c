@@ -17,6 +17,7 @@ Task_t * foreground_task;
 
 void select_next(){
 
+
 	if(current_task != NULL){
 		if(current_task->atomic_level){
 			return;
@@ -46,7 +47,6 @@ void select_next(){
 	}
 	int i;
 	for(i = 0; i < MAX_PRIORITIES && empty(&(ready_tasks[i])); i++);
-	//putc('1');
 	if(i == MAX_PRIORITIES){
 		current_task = &null_process_task;
 	} else	{
@@ -113,9 +113,9 @@ void SetupScheduler(){
 		processes[i].priority = MAX_PRIORITIES;
 		processes[i].atomic_level = false;
 		processes[i].state = TaskEmpty;
-		processes[i].pid = i;
+		processes[i].pid = i+1;
 		add_to_queue(&empty_tasks, &processes[i]);
-		for(j=0; j<PAGES_MAX; i++)
+		for(j=0; j<PAGES_MAX; j++)
 		{
 			processes[i].pages[j]=-1;
 		}
@@ -126,13 +126,20 @@ void SetupScheduler(){
 	null_process_task.keyboard = NULL;
 	null_process_task.screen = NULL;
 	null_process_task.linebuffer = NULL;
+	null_process_task.pid = 0;
 	strcpy(null_process_task.name, "Null Process");
-	void * null_stack_address = getFreePage(); // Ask for a free page to alocate the stack for the NULL task
+	void * null_stack_address = getFreePage() + MAX_PAGE_SIZE-1; // Ask for a free page to alocate the stack for the NULL task
 
+
+	kprintf("%x", null_stack_address);
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
 	changePagePID(null_process_task.pid, null_stack_address);
-	current_task = &null_process_task;
 
+}
+
+Task_t * get_foreground_task()
+{
+	return foreground_task;
 }
 
 void * getSPPointer(){
@@ -143,7 +150,7 @@ void * getSSPointer(){
  	return &(current_task->ss);
 }
 
-Task_t * get_current_proces(){
+Task_t * get_current_task(){
 	return current_task;
 }
 
@@ -165,16 +172,16 @@ ttyScreen_t * getScreen(Task_t * task)
 {
 	return task->screen;
 }
+
 keyboard_t  * getKeyboard(Task_t * task)
 {
 	return task->keyboard;
 }
+
 shellLine_t * getLineBuffer(Task_t * task)
 {
 	return task->linebuffer;
 }
-
-//TODO: add to .h
 
 void suspend_task(Task_t * t)
 {
@@ -227,6 +234,7 @@ int null_process(int argc, char **argv){
 				aux->keyboard = NULL;
 				aux->linebuffer = NULL;
 			}
+
 	}while(true);
 
 	return 0;
@@ -247,7 +255,6 @@ int proc1(int argc, char **argv){
 }
 
 int proc2(int argc, char **argv){
-	//asm volatile ("hlt");
 	_Sti();
 
 	int i = 0;

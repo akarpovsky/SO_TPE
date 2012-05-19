@@ -58,15 +58,16 @@ Task_t * remove_from_q(TaskQueue_t * q, Task_t * t)
 
 	Task_t * t2 = q->head;
 
-	while(t != NULL && t2->pid != t->pid)
+	while(t2 != NULL && t2->pid != t->pid)
 	{
 		t2 = t2->next;
 	}
 
-	if(t == NULL)
+	if(t2 == NULL)
 	{
 		return NULL;
 	}
+
 
 	if(q->size == 1)
 	{

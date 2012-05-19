@@ -16,8 +16,8 @@ int ticks = TTY_SCREEN_TICSTART;
 int actualTTY = TTY_1;
 int sarasa = 0;
 memory_map_t kmmap;
-//TODO:
 
+//XXX: SystemCall
 /* Atencion de Interrupcion por Software */
 void int_80(int sysCallNumber, void ** args){
 
@@ -38,25 +38,24 @@ void int_80(int sysCallNumber, void ** args){
 	}
 }
 
-
+//XXX: TimerTick
 /* Atencion de Interrupcion de Timer Tick */
-
 void int_20(){
 
-//	char * video = (char *) 0xb8000;
-//	video[ticks++]=ticks_tile;
-//	video[ticks++]=ticks_color;
-//
-//	if(ticks == TTY_SCREEN_TICEND){
-//		if(ticks_color == TICKS_COLOR){
-//			ticks_color = 0x0E;
-//		}
-//		else{
-//			ticks_color = TICKS_COLOR;
-//		}
-//
-//		ticks = TTY_SCREEN_TICSTART;
-//	}
+	char * video = (char *) 0xb8000;
+	video[ticks++]=ticks_tile;
+	video[ticks++]=ticks_color;
+
+	if(ticks == TTY_SCREEN_TICEND){
+		if(ticks_color == TICKS_COLOR){
+			ticks_color = 0x0E;
+		}
+		else{
+			ticks_color = TICKS_COLOR;
+		}
+
+		ticks = TTY_SCREEN_TICSTART;
+	}
 
 	select_next();
 
@@ -65,7 +64,7 @@ void int_20(){
 
 void printTicks(){
 
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = getScreen(get_foreground_task());
 
 	int wpos = screen->wpos;
 	screen->wpos=TTY_SCREEN_TSTART;
@@ -82,18 +81,20 @@ void changeTTY(int tty){
     }
 }
 
+//XXX: Teclado
 /* Atencion de Interrupcion de Teclado */
 void int_21(unsigned char scancode){
     struct key_t * key = (struct key_t *) parseKey(scancode);
     if(key->keyType == ALPHANUM_KEY){
-		insertKey(key->ascii);
-     }
-     else if(key->keyType == FUNCTION_KEY){
+    	insertKey(key->ascii);
+    }
+    else if(key->keyType == FUNCTION_KEY){
 
-    	 printf("Function key pressed\n");
-     }
+    	printf("Function key pressed\n");
+    }
 }
 
+//XXX: Mouse
 /* Atencion de Interrupcion de Mouse */
 void int_74(unsigned char new_byte){
 
@@ -172,8 +173,8 @@ void timer_phase(int hz)
 
 void print_header(){
 
-	ttyScreen_t * screen = getScreen(current_task);
-	keyboard_t * keyboard = getKeyboard(current_task);
+	ttyScreen_t * screen = getScreen(get_foreground_task());
+	keyboard_t * keyboard = getKeyboard(get_foreground_task());
 
 
 	int wpos = screen->wpos;
@@ -271,54 +272,11 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	initpages(kmmap.base_addr_low+kmmap.length_low, kmmap.base_addr_low+kmmap.length_low );
 
-	// void * a = getFreePage();
-	// void * b = getFreePage();
-	// void * c = getFreePage();
-	// kprintf("a: %d\n", (int) a );
-	// kprintf("b: %d\n", (int) b );
-	// kprintf("c: %d\n", (int) c);
-
-	// kprintf("a: %d\n", (int) a );
-	// kprintf("b: %d\n", (int) b );
-	// kprintf("c: %d\n", (int) c );
-
-
-	
-
-//	kprintf("HOLA");
-
-	
-	// free(a);
-	// a = malloc(MAX_PAGE_SIZE);
-	//free(c);
-	// kprintf("a: %d\n", (int) a );
-	// kprintf("b: %d\n", (int) b );
-	// kprintf("c: %d\n", (int) c );
-
-	// kprintf("FREE B\n");
-	// free(b);
-
-
-	// void * d = getFreePage();	
-	// kprintf("d: %d\n", (int) d);
-
-	//printHeader();
-
-
-	
-	//kprintf("FREE B\n");
-	//free(b);
-	// void * d = getFreePage();
-	// kprintf("d: %d\n", (int) d);
-
-	
-	
-
-	//_debug(); // ESTA LINEA HACE QUE SE CUELGUE LA EJECUCIÓN !!!!
 
 	//TODO;
 
 	SetupScheduler();
+	_debug();
 
 	//print_header();
 
@@ -342,39 +300,37 @@ void init(void){
 	Task_t * auxShell = NULL;
 
 	int shell_task_priority = 1; // La prioridad del proceso shell serï¿½ = 1
+//	void * stack_start_address = 0x250000;
 
 	for (i = 0; i < TTY_NUMBER; i++) {
 
-		void * stack_start_address = getFreePage(); // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
+		void * stack_start_address = getFreePage() + MAX_PAGE_SIZE -1; // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
 
-		if(i == 1){
-			// If it is the first TTY, isFront = true
-			auxShell = CreateProcess("Shell", shellLoop, NULL, i+1, 0, NULL, stack_start_address, shell_task_priority, true);
+
+		// If it is the first TTY, isFront = true
+		auxShell = CreateProcess("Shell", shellLoop, NULL, i+1, 0, NULL, stack_start_address, shell_task_priority, (i==0?true:false));
+
+		/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
+		 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
+		 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
+		 */
+
+		changePagePID(auxShell->pid, stack_start_address);
+
+		/* Asigno una pantalla, un teclado y un linebuffer exclusivo para cada TTY */
+		auxShell->screen = 		&screens[i];
+		auxShell->keyboard =	&keyboards[i];
+		auxShell->linebuffer =	&shellLine[i];
+
+		/* Dejo el buffer de pantalla de la TTY listo para ser usado (limpio y con formato de
+		 * caracter blanco sobre fondo negro */
+
+		int j = 0;
+		for (j = 0; j < SCREEN_SIZE; j++) {
+			auxShell->screen->buffer[j++] = 0;
+			auxShell->screen->buffer[j] = WHITE_TXT;
 		}
-		else{
-			auxShell = CreateProcess("Shell", shellLoop, NULL, i+1, 0, NULL, stack_start_address, shell_task_priority, false);
-		}
-
-			/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
-			 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
-			 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
-			 */
-
-			changePagePID(auxShell->pid, stack_start_address);
-
-			/* Asigno una pantalla, un teclado y un linebuffer exclusivo para cada TTY */
-			auxShell->screen = 		&screens[i];
-			auxShell->keyboard =	&keyboards[i];
-			auxShell->linebuffer =	&shellLine[i];
-
-			/* Dejo el buffer de pantalla de la TTY listo para ser usado (limpio y con formato de
-			 * caracter blanco sobre fondo negro */
-
-			int j = 0;
-			for (j = 0; j < SCREEN_SIZE; j++) {
-				auxShell->screen->buffer[j++] = 0;
-				auxShell->screen->buffer[j] = WHITE_TXT;
-			}
+//		stack_start_address += 0x50000;
 
 
 	}

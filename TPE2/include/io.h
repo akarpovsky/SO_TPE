@@ -34,6 +34,7 @@ void putu(unsigned int u);
 void kputs(char* str);
 void kputd(int d);
 void kputu(unsigned int u);
+void kputx(int x);
 int printf(char *fmt, ...);
 int kprintf(char *fmt, ...);
 void putx(int x);

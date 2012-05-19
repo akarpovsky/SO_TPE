@@ -111,7 +111,7 @@ void StartNewTask(char * name, PROCESS new_task_function){
 
 	int new_task_priority = current_task->priority; // La prioridad del proceso shell ser� = 1
 
-	void * stack_start_address = getFreePage(); // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
+	void * stack_start_address = getFreePage() + MAX_PAGE_SIZE-1; // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
 
 	auxTask = CreateProcess(name, new_task_function, current_task, current_task->tty_number, 0, NULL,
 				stack_start_address, new_task_priority, foreground_task->pid==current_task->pid);

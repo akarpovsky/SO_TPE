@@ -257,10 +257,28 @@ int kprintf(char *fmt, ...) {
 				kputs(*(char**) param);
 				param += sizeof(char**);
 				break;
+            case 'x':
+            	kputx(* (int *) param);
+            	param += sizeof(int*);
+            	break;
 			}
 		}
 	}
 	//_Sti();
+}
+
+void kputx(int x){
+	char *letters ="ABCDEF";
+	char c;
+	int num;
+	if (x <= 0) {
+	return;
+	}
+	num = x % 16;
+	c = num > 9 ? letters[num - 10] : (num + '0');
+
+	kputx(x / 16);
+	kputc(c);
 }
 
 void putx(int x){

@@ -97,7 +97,6 @@ unsigned char getKey() {
 	suspend_task(current_task);
 	yield();
 	int head = keyboard->head;
-
 	if (!isEmptyBuffer()) {
 		keyboard->buffer[keyboard->head];
 		if (++(keyboard->head) == K_BUFFER_SIZE) {
