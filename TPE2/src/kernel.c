@@ -3,8 +3,6 @@
 DESCR_INT idt[0xFF];			/* IDT */
 IDTR idtr;				/* IDTR */
 
-extern Task_t * current_task;
-
 char color_p = WHITE_TXT;
 
 /* IRQ_0 (Ticks)*/
@@ -271,7 +269,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	mouseInitialize(callbck);
 
 	initpages(kmmap.base_addr_low+kmmap.length_low, kmmap.base_addr_low+kmmap.length_low );
-
 
 	//TODO;
 

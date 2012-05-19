@@ -1,4 +1,6 @@
 #include "../include/memorym.h"
+#include "../include/scheduler.h"
+#include "../include/limits.h"
 
 List pages;
 
@@ -92,12 +94,15 @@ void * malloc(int size){
 	int i=0;
 	int j=0;
 	int k=0; /* Indice de la menor posicion posible */
+	int t=0;
 	int aux;
 	int aux2;
+	int pag;
+	int HAVE_PAGE = 0;
 	int flag = NOT_FOUND;
 	mem_header * actual;
 	int bloques = getBlocks(size);
-
+	Task_t * proc = get_current_proces();
 
 
 	if(size > 0 && size <= MAX_PAGE_SIZE){
@@ -153,16 +158,26 @@ void * malloc(int size){
 				// Marco a la pagina con el pid del proceso
 				actual->pid = getpid();
 
-				// TODO
-				// AGREGAR LA PAGINA I A LA LISTA DE PAGINAS DEL PROCESO SI NO EXISTE
+
+				pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
+				presentPageNumber(pag);
+				
+				for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
+					if(proc->pages[t] == pag){
+						HAVE_PAGE = 1;
+					}
+				}
+
+				if(!HAVE_PAGE && t < PAGES_MAX){
+					proc->pages[t] = pag;
+				}
 
 				//corregirlo contando cuantos bloques recorrio
 				for(k=0, ans=pages->first_page + (i * MAX_PAGE_SIZE); k<j ; k++){
 					ans += abs(actual->header[k])*PADDING;
 				}
-				//CALCULAR BLOQUES DISPONIBLES
+				//CALCULAR y setear BLOQUES DISPONIBLES
 				actual->blocks_cont=cantMaxBlocks(actual->header);
-			
 				
 			} 
 			
@@ -180,8 +195,19 @@ void * malloc(int size){
 		
 			actual->blocks_cont=cantMaxBlocks(actual->header);
 			
-			
 			ans = GET_PAGE(i);
+
+			pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
+				
+			for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
+				if(proc->pages[t] == pag){
+					HAVE_PAGE = 1;
+				}
+			}
+
+			if(!HAVE_PAGE && t < PAGES_MAX){
+				proc->pages[t] = pag;
+			}
 
 		}
 
@@ -254,7 +280,7 @@ void * calloc(int size){
 			//kprintf("LLEGUEEEEEEE\n" );
 			p[i] = 0;
 			//kprintf("LLEGUEEEEEEE\n" );
-		//	kprintf(" i: %d ", p[i]);
+			//	kprintf(" i: %d ", p[i]);
 		}
 	}
 	return p;
@@ -268,16 +294,22 @@ void free(void* p){
 	int dif;
 	int aux;
 	mem_header* actual;
+	Task_t * proc = get_current_proces();
+	int pag;
+	int t;
+	int HAVE_PAGE = 0;
 
 	/* Calculo a que pagina debo moverme*/
 	i = getPageIndex(p);
 	if(i != -1){
 
 		actual = &(GET_HEADER(i));
-
+//aux hace referencia a la posicion en la pagina
 		aux = p - (void*)(GET_PAGE(i));
 	
+		//verifica que la posicion sea multiplo de 32
 		if( aux % PADDING == 0){
+			
 			aux /= PADDING;
 			if(actual->header[0] == -MAX_HEADER_SIZE){
 
@@ -285,7 +317,7 @@ void free(void* p){
 				actual->blocks_cont = MAX_HEADER_SIZE;
 
 			}else{
-
+				//k es el nu,ero de header que me descibe
 				for(j = 0, k = 0; j < MAX_HEADER_SIZE && aux > 0; j++){
 			
 					aux = aux - abs(actual->header[j]);
@@ -295,7 +327,6 @@ void free(void* p){
 					}
 				}
 				if(aux == 0 && actual->header[k] < 0){
-		
 					actual->header[k] = actual->header[k] * -1;
 					//aca busco si mi antecesor es un espacio libre
 					if (k>0 && actual->header[k-1]>0){
@@ -307,8 +338,10 @@ void free(void* p){
 						if(actual->header[k]>0 && (dif+1<MAX_HEADER_SIZE) && actual->header[dif+1]>0){
 							dif++;
 							actual->header[k]+=actual->header[dif];
+							//kprintf("HEADER[%d} %d",k,actual->header[k]);
 							if (dif+1<MAX_HEADER_SIZE && actual->header[dif+1]>0){
-									actual->header[k]+=actual->header[dif++];
+									actual->header[k]+=actual->header[++dif];
+							//		kprintf("HEADER[%d} %d",k,actual->header[k]);
 							}				
 						}
 						k++;
@@ -317,7 +350,7 @@ void free(void* p){
 							actual->header[k]= actual->header[dif];
 						}
 						if (dif-k>1){
-							actual->header[k]= actual->header[dif-1];
+							actual->header[k+1]= actual->header[dif+1];
 						}
 					}		
 				}
@@ -330,7 +363,29 @@ void free(void* p){
 
 			if(actual->blocks_cont == MAX_HEADER_SIZE){
 				actual->pid = FREE_PAGE;
-				//TODO ELIMINAR LA PAGINA DE LA LISTA DE PAGINAS DEL PROCESO
+			
+				// elimino la pagina de la task	
+				pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
+
+				absentPageNumber(pag);
+
+				for(t = 0; t < PAGES_MAX && proc->pages[t]!= pag; t++){
+					;
+				}
+
+				if(proc->pages[t] == pag){
+
+					// por si es el ultimo elemento del vector
+					proc->pages[t] = -1;
+
+					for( ; t < PAGES_MAX - 1 && proc->pages[t+1] != -1; t++){
+
+						proc->pages[t] = proc->pages[t+1];
+					}
+					if(t + 1 < PAGES_MAX){
+						proc->pages[t + 1] = -1; 
+					}
+				}
 			}
 			
 		}
@@ -377,3 +432,113 @@ void * getFreePage(){
 	// TODO identificar procesoo de stack y devolver malloc de pagina contigua
 	return malloc(MAX_PAGE_SIZE);
 }
+
+void printHeader(){
+
+	int i;
+	for(i = 0; i < MAX_HEADER_SIZE; i++){
+
+		kprintf("%d: ",	pages->pFirst->headerEl.header[i]);
+
+	}
+
+}
+
+void * realloc(void *p, int new_size){
+	int index;
+	void* aux;
+	int actual_size;
+	//pruebo si se hay espacio disponible en la misma pagina u otra para mover todo el paquete
+	if((aux=malloc(new_size))!=NULL)
+	{
+	
+	//pages_struct
+		//copio todos los valores antes de liberar la memoria
+		actual_size = PADDING*-1*GET_HEADER(getPageIndex (p)).header[getHeaderIndex(p)];
+		mymemcpy(p, actual_size, aux);
+		
+		free(p);
+		p=aux;
+	}
+	else{
+		//me fijo si me puedo expander (aca se trabaja sobre header)
+		
+		if((index=getHeaderIndex(p))!=-1){
+			//me fijo si tengo ANTECESOR, si esta libre y entre el y yo sumamos espacio suficiente
+			
+			
+			if(index>0 && GET_HEADER(getPageIndex (p)).header[index-1]>0 && 
+				(GET_HEADER(getPageIndex (p)).header[index-1] + (GET_HEADER(getPageIndex (p)).header[index]*-1))*PADDING>=new_size){
+				//en caso de que se cumplan las condiciones pedidas copio y luego hago el malloc y free
+				//el vector origen va a ser p y el vector destino va a ser p- (lo que ocupa mi antecesor)
+				
+				mymemcpy(p, PADDING*-1*GET_HEADER(getPageIndex (p)).header[index],p-(GET_HEADER(getPageIndex (p)).header[index-1]*PADDING));
+				free(p);
+				p=malloc(new_size);
+			}
+			//me fijo si tengo SUCESOR, si esta libre y si el y yo sumados sumamos espacio suficiente
+			else if(index<MAX_HEADER_SIZE-1 && GET_HEADER(getPageIndex (p)).header[index+1]>0 && 
+					(GET_HEADER(getPageIndex (p)).header[index+1] + 
+					(GET_HEADER(getPageIndex (p)).header[index]*-1))*PADDING>=new_size){
+					//en caso de que se cumplan las condiciones pedidas hago el malloc y free y deberia autoexpandirse solo
+					//debido a que primero trata de ubicarlo siempre en un segmetno ya existente por lo que si ingrresa por aca
+					//significa que no hay espacios mayores
+					free(p);
+					p=malloc(new_size);
+					
+			}
+			//me fijo si tengo sucesor y antecesor y juntos logramos ocupar el espacio pedido.
+			else if(index<MAX_HEADER_SIZE-1 && index>0 && GET_HEADER(getPageIndex (p)).header[index+1]>0 && 
+					GET_HEADER(getPageIndex (p)).header[index-1]>0 && 
+					(GET_HEADER(getPageIndex (p)).header[index-1] + GET_HEADER(getPageIndex (p)).header[index+1] + (GET_HEADER(getPageIndex (p)).header[index]*-1))*PADDING>=new_size){
+					//en caso de que se cumplan las condiciones pedidas copio y luego hago el malloc y free
+					//el vector origen va a ser p y el vector destino va a ser p- (lo que ocupa mi antecesor)
+					mymemcpy(p, PADDING*-1*GET_HEADER(getPageIndex (p)).header[index],p-(GET_HEADER(getPageIndex (p)).header[index-1]*PADDING));
+					free(p);
+					p=malloc(new_size);
+					}
+			else{
+				p = NULL;
+			}
+		}
+		else{ //si no hay indice de header retorna null y no migra nada
+			p = NULL;
+		}
+	}
+	
+	
+	return p;
+	
+}
+
+int getHeaderIndex (void* p){
+	int page_index, index = -1, bloques, aux;
+	
+	//obtengo el indice de pagina y calculo los bloques que se desplazo p
+	if((page_index=getPageIndex(p))!=-1){
+		bloques = ((int)((char*)p - (char*)((pages->first_page)+ (page_index*MAX_PAGE_SIZE))))/PADDING;
+		aux= bloques;
+		//itero buscando el indice sobre el header
+		for (index = 0; index<MAX_HEADER_SIZE && aux>0;index++){
+				aux -= abs(GET_HEADER(page_index).header[index]); 
+		
+		}
+		index=(aux==0? index:-1);
+	}
+	return index;
+}
+
+void mymemcpy(void* origen, int size, void* destino){
+	int i;
+	char* o;
+	char* d;
+	
+	o = (char*)origen;
+	d = (char*)destino;
+	for(i=0; i<(size/sizeof(char));i++){
+		//printf("%d-",i);
+		d[i]=o[i];
+	}
+
+}
+

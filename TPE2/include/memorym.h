@@ -73,5 +73,8 @@ int getPageIndexEFICIENTE(void * p);
 void changePagePID(int pid, void * pointer);
 void * getFreePage();
 void printHeader();
+void * realloc(void *p, int new_size);
+int getHeaderIndex (void* p);
+void mymemcpy(void* origen, int size, void* destino);
 
 #endif /*_MEMORYM_H_*/
