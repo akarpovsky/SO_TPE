@@ -83,6 +83,7 @@ void changeTTY(int tty){
 /* Atencion de Interrupcion de Teclado */
 void int_21(unsigned char scancode){
     struct key_t * key = (struct key_t *) parseKey(scancode);
+
     if(key->keyType == ALPHANUM_KEY){
     	insertKey(key->ascii);
     }
@@ -205,6 +206,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 {
 	_Cli();
 
+
+
 	memory_map_t *memmap;
 	if(magic != MULTIBOOT_BOOTLOADER_MAGIC){
 		return;
@@ -220,7 +223,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 			kmmap = *memmap;
 		}
 	}
-
 
 /* Borra la pantalla. */
 	k_clear_screen();
@@ -253,7 +255,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 /* Frecuencia inicial del Timer Tick */
 
 	timer_phase(timer_tick_hz);
-
 
 
 /* Puntero a funcion a ser llamada por las acciones

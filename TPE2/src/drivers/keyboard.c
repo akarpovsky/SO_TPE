@@ -6,6 +6,7 @@ struct key_t * key;
 extern struct tty_t ttys[];
 extern Task_t * current_task;
 extern Task_t * foreground_task;
+int i=0;
 
 char e_lowercase[256] =
 		{ 0, 0x1b, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
@@ -76,10 +77,10 @@ char s_capsuppercase[256] = { 0, 0xa7, '!', '"', '#', '$', '%', '&', '/', '(',
 unsigned char insertKey(unsigned char c) {
 	keyboard_t * keyboard = getKeyboard(foreground_task);
 
-	if(foreground_task->state == TaskSuspended)
-	{
-		unsuspend_task(foreground_task);
-	}
+//	if(foreground_task->state == TaskSuspended)
+//	{
+//		unsuspend_task(foreground_task);
+//	}
 	if (!bufferIsFull()) {
 		keyboard->buffer[keyboard->tail] = c;
 		if (++(keyboard->tail) == K_BUFFER_SIZE) {
@@ -94,10 +95,8 @@ unsigned char getKey() {
 
 	keyboard_t * keyboard = getKeyboard(current_task);
 
-	kprintf("c");
-	suspend_task(current_task);
-	yield();
-	kprintf("c");
+//	suspend_task(current_task);
+//	yield();
 	int head = keyboard->head;
 	if (!isEmptyBuffer()) {
 		keyboard->buffer[keyboard->head];
@@ -212,6 +211,7 @@ struct key_t * parseKey(unsigned char c) {
 		if (c & 0x80) {
 			key->keyType = HIDDEN_KEY;
 		} else {
+
 			if (isPrintable(c)) {
 				key->keyType = ALPHANUM_KEY;
 				if (keyboard->caps_state) {
@@ -249,6 +249,7 @@ struct key_t * parseKey(unsigned char c) {
 		break;
 
 	}
+
 	return key;
 }
 

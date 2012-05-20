@@ -1,4 +1,5 @@
 #include "../include/kc.h"
+#include "../include/limits.h"
 
 /***************************************************************
 *k_clear_screen

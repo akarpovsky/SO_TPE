@@ -415,7 +415,7 @@ _sleep:
 	mov ebp, esp
 	cli
 
-	mov	ecx, 999999
+	mov	ecx, 9999
 loop:
 	nop
 	dec ecx

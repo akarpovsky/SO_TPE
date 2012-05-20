@@ -4,6 +4,8 @@
  */
 #include "../include/scheduler.h"
 
+extern struct ttyScreen_t screens[TTY_NUMBER];
+
 Task_t processes[MAX_PROCESSES];
 TaskQueue_t ready_tasks[MAX_PRIORITIES];
 TaskQueue_t suspended_tasks;
@@ -14,6 +16,10 @@ TaskQueue_t empty_tasks;
 Task_t * current_task;
 Task_t null_process_task;
 Task_t * foreground_task;
+
+Task_t * tproc1;
+Task_t * tproc2;
+Task_t * tproc3;
 
 void select_next(){
 
@@ -132,7 +138,14 @@ void SetupScheduler(){
 
 
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
-	changePagePID(null_process_task.pid, null_stack_address);
+
+//	tproc1 = CreateProcess("proc1", proc1, NULL, 1, 0, NULL,(void*) 0x201000, 0, true);
+//	tproc1->screen = &screens[0];
+//	tproc2 = CreateProcess("proc1", proc2, NULL, 1, 0, NULL,(void*) 0x202000, 0, false);
+//	tproc2->screen = &screens[0];
+//	tproc3 = CreateProcess("proc1", proc3, NULL, 1, 0, NULL,(void*) 0x203000, 0, false);
+//	tproc3->screen = &screens[0];
+	//changePagePID(null_process_task.pid, null_stack_address);
 
 }
 
@@ -184,22 +197,31 @@ shellLine_t * getLineBuffer(Task_t * task)
 
 void suspend_task(Task_t * t)
 {
-	kprintf("c");
 	atomize();
-	kprintf("%d",t->state);
-	t->state = TaskSuspended;
-	remove_from_q(&ready_tasks[t->priority], t);
-	add_to_queue(&suspended_tasks, t);
-	kprintf("%d",t->state);
+	if(t->state != TaskSuspended)
+	{
+		t->state = TaskSuspended;
+		if(NULL == remove_from_q(&ready_tasks[t->priority], t))
+		{
+			kprintf("trolo");
+		}
+		add_to_queue(&suspended_tasks, t);
+	}
 	unatomize();
 }
 
 void unsuspend_task(Task_t *t)
 {
 	atomize();
-	t->state = TaskReady;
-	remove_from_q(&suspended_tasks, t);
-	add_to_queue(&ready_tasks[t->priority], t);
+	if(t->state == TaskSuspended)
+	{
+		t->state = TaskReady;
+		if( NULL == remove_from_q(&suspended_tasks, t))
+		{
+			kprintf("puto");
+		}
+		add_to_queue(&ready_tasks[t->priority], t);
+	}
 	unatomize();
 }
 
@@ -245,13 +267,15 @@ int null_process(int argc, char **argv){
 
 int proc1(int argc, char **argv){
 	_Sti();
-	int i = 0;
+	int i = 0, j=1;
 	while(1){
+		_sleep();
 		printf("x");
-		i++;
-		if(!(i%10)){
-			yield();
-		}
+			j++;
+			if(j%10)
+			{
+				suspend_task(tproc2);
+			}
 	}
 	return 0;
 }
@@ -261,11 +285,8 @@ int proc2(int argc, char **argv){
 
 	int i = 0;
 		while(1){
+			_sleep();
 			printf("y");
-			i++;
-			if(!(i%10)){
-				yield();
-			}
 		}
 	return 0;
 }
@@ -274,7 +295,9 @@ int proc3(int argc, char **argv){
 	//asm volatile ("hlt");
 	_Sti();
 		while(1){
+			_sleep();
 			printf("z");
+				unsuspend_task(tproc2);
 		}
 	return 0;
 }
