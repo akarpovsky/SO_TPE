@@ -21,6 +21,10 @@ Task_t * tproc1;
 Task_t * tproc2;
 Task_t * tproc3;
 
+bool printp1 = true;
+bool printp2 = true;
+bool printp3 = true;
+
 void select_next(){
 
 
@@ -145,7 +149,7 @@ void SetupScheduler(){
 //	tproc2->screen = &screens[0];
 //	tproc3 = CreateProcess("proc1", proc3, NULL, 1, 0, NULL,(void*) 0x203000, 0, false);
 //	tproc3->screen = &screens[0];
-	//changePagePID(null_process_task.pid, null_stack_address);
+	changePagePID(null_process_task.pid, null_stack_address);
 
 }
 
@@ -201,10 +205,7 @@ void suspend_task(Task_t * t)
 	if(t->state != TaskSuspended)
 	{
 		t->state = TaskSuspended;
-		if(NULL == remove_from_q(&ready_tasks[t->priority], t))
-		{
-			kprintf("trolo");
-		}
+		remove_from_q(&ready_tasks[t->priority], t);
 		add_to_queue(&suspended_tasks, t);
 	}
 	unatomize();
@@ -216,10 +217,7 @@ void unsuspend_task(Task_t *t)
 	if(t->state == TaskSuspended)
 	{
 		t->state = TaskReady;
-		if( NULL == remove_from_q(&suspended_tasks, t))
-		{
-			kprintf("puto");
-		}
+		remove_from_q(&suspended_tasks, t);
 		add_to_queue(&ready_tasks[t->priority], t);
 	}
 	unatomize();
@@ -269,13 +267,22 @@ int proc1(int argc, char **argv){
 	_Sti();
 	int i = 0, j=1;
 	while(1){
-		_sleep();
-		printf("x");
-			j++;
-			if(j%10)
+		if(printp1){
+			printf("Corriendo 1\n");
+			_sleep();
+			if(tproc2->state != TaskSuspended)
 			{
 				suspend_task(tproc2);
 			}
+			else
+			{
+				unsuspend_task(tproc2);
+
+			}
+			printp1 = false;
+			printp2 = true;
+			printp3 = true;
+		}
 	}
 	return 0;
 }
@@ -285,8 +292,13 @@ int proc2(int argc, char **argv){
 
 	int i = 0;
 		while(1){
-			_sleep();
-			printf("y");
+			if(printp2){
+				printf("\n\n\n\tCorriendo 2\n\n\n\n");
+				_sleep();
+				printp2 = false;
+				printp3 = true;
+				printp1 = true;
+			}
 		}
 	return 0;
 }
@@ -295,9 +307,12 @@ int proc3(int argc, char **argv){
 	//asm volatile ("hlt");
 	_Sti();
 		while(1){
-			_sleep();
-			printf("z");
-				unsuspend_task(tproc2);
-		}
+			if(printp3){
+				printf("Corriendo 3\n");
+				_sleep();
+				printp3 = false;
+				printp2 = true;
+				printp1 = true;
+			}		}
 	return 0;
 }

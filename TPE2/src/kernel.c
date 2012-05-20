@@ -204,7 +204,6 @@ Punto de entrada de cóo C.
 
 kmain(multiboot_info_t * mbi, unsigned int magic)
 {
-	_Cli();
 
 
 
@@ -247,26 +246,10 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	_lidt (&idtr);
 
-/* Habilito interrupciones necesarias */
-
-	_mascaraPIC1(0xF8);
-	_mascaraPIC2(0xEF);
-
-/* Frecuencia inicial del Timer Tick */
-
-	timer_phase(timer_tick_hz);
-
-
-/* Puntero a funcion a ser llamada por las acciones
-	del mouse */
-
-	mouseCallback callbck;
-	callbck = &mouseButtonAction;
-	mouseInitialize(callbck);
-
 	initpages(kmmap.base_addr_low+kmmap.length_low, kmmap.base_addr_low+kmmap.length_low );
 
 	//TODO;
+	_Cli();
 
 	SetupScheduler();
 
@@ -280,9 +263,26 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 //
 //
 //	printTicks();
+	/* Habilito interrupciones necesarias */
+
+		_mascaraPIC1(0xF8);
+		_mascaraPIC2(0xEF);
+
+	/* Frecuencia inicial del Timer Tick */
+
+		timer_phase(timer_tick_hz);
+
+
+	/* Puntero a funcion a ser llamada por las acciones
+		del mouse */
+
+		mouseCallback callbck;
+		callbck = &mouseButtonAction;
+		mouseInitialize(callbck);
 	/* Habilitamos interrupciones y el scheduler empieza a jugar!*/
 	_Sti();
 	_int_20_hand();
+	while(1);
 }
 
 void init(void){

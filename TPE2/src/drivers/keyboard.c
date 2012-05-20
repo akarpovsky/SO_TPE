@@ -77,10 +77,10 @@ char s_capsuppercase[256] = { 0, 0xa7, '!', '"', '#', '$', '%', '&', '/', '(',
 unsigned char insertKey(unsigned char c) {
 	keyboard_t * keyboard = getKeyboard(foreground_task);
 
-//	if(foreground_task->state == TaskSuspended)
-//	{
-//		unsuspend_task(foreground_task);
-//	}
+	if(foreground_task->state == TaskSuspended)
+	{
+		unsuspend_task(foreground_task);
+	}
 	if (!bufferIsFull()) {
 		keyboard->buffer[keyboard->tail] = c;
 		if (++(keyboard->tail) == K_BUFFER_SIZE) {
@@ -95,8 +95,8 @@ unsigned char getKey() {
 
 	keyboard_t * keyboard = getKeyboard(current_task);
 
-//	suspend_task(current_task);
-//	yield();
+	suspend_task(current_task);
+	yield();
 	int head = keyboard->head;
 	if (!isEmptyBuffer()) {
 		keyboard->buffer[keyboard->head];
@@ -212,6 +212,7 @@ struct key_t * parseKey(unsigned char c) {
 			key->keyType = HIDDEN_KEY;
 		} else {
 
+			kprintf("%c, %d", c, (int)c);
 			if (isPrintable(c)) {
 				key->keyType = ALPHANUM_KEY;
 				if (keyboard->caps_state) {
