@@ -174,7 +174,6 @@ void print_header(){
 	ttyScreen_t * screen = getScreen(get_foreground_task());
 	keyboard_t * keyboard = getKeyboard(get_foreground_task());
 
-
 	int wpos = screen->wpos;
 	char color_aux = color_p;
 	screen->wpos=TTY_SCREEN_HSTART;
@@ -230,9 +229,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 
 	setup_pics(0x20, 0x28);
 
-	int i;
-	int num;
-
 /* CARGA DE IDT CON LAS RUTINA DE ATENCION DE EXCEPCIONES  */
 
 	setup_IDT_exceptions();
@@ -279,10 +275,10 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	 * terminales.
 	 */
 	init();
-	print_header();
-
-
-	printTicks();
+//	print_header();
+//
+//
+//	printTicks();
 	/* Habilitamos interrupciones y el scheduler empieza a jugar!*/
 	_Sti();
 	_int_20_hand();
@@ -294,7 +290,7 @@ void init(void){
 	Task_t * auxShell = NULL;
 
 	int shell_task_priority = 1; // La prioridad del proceso shell ser� = 1
-//	void * stack_start_address = 0x250000;
+//	void * stack_start_address = 0x140BFFF + 0x1000;
 
 	for (i = 0; i < TTY_NUMBER; i++) {
 
@@ -324,7 +320,7 @@ void init(void){
 			auxShell->screen->buffer[j++] = 0;
 			auxShell->screen->buffer[j] = WHITE_TXT;
 		}
-//		stack_start_address += 0x50000;
+//		stack_start_address += 0x1000;
 
 
 	}

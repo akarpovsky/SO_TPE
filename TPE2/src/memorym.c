@@ -49,7 +49,6 @@ void createHeadersList(void * inicio, void * fin)
 	pages = ((List)inicio);
 
 
-
 }
 
 int addHeader(List list){

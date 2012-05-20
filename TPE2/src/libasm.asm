@@ -291,6 +291,7 @@ _int_21_hand:                                ; Handler de INT 21 ( Teclado )
 _int_74_hand:                                ; Handler de INT 74 ( Mouse )
 
 
+	cli
 	pushad
 	in al, 60h
 	push eax
@@ -300,6 +301,7 @@ _int_74_hand:                                ; Handler de INT 74 ( Mouse )
 	out 20h, al
 	pop eax
 	popa
+	sti
 	iret
 
 

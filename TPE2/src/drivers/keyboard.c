@@ -94,8 +94,10 @@ unsigned char getKey() {
 
 	keyboard_t * keyboard = getKeyboard(current_task);
 
+	kprintf("c");
 	suspend_task(current_task);
 	yield();
+	kprintf("c");
 	int head = keyboard->head;
 	if (!isEmptyBuffer()) {
 		keyboard->buffer[keyboard->head];

@@ -19,7 +19,7 @@ void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
 }
 
 void present(DESCR_PAGE * item) {
-	item -> address = (void*) (((int) item -> address) | 0x00000003);
+	item -> address = (void*) (((int) (item -> address)) | 0x00000003);
 }
 
 void absent(DESCR_PAGE * item) {

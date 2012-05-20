@@ -184,10 +184,13 @@ shellLine_t * getLineBuffer(Task_t * task)
 
 void suspend_task(Task_t * t)
 {
+	kprintf("c");
 	atomize();
+	kprintf("%d",t->state);
 	t->state = TaskSuspended;
 	remove_from_q(&ready_tasks[t->priority], t);
 	add_to_queue(&suspended_tasks, t);
+	kprintf("%d",t->state);
 	unatomize();
 }
 
