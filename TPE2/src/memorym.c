@@ -197,7 +197,7 @@ void * malloc(int size){
 			ans = GET_PAGE(i);
 
 			pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
-				
+			presentPageNumber(pag);
 			for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
 				if(proc->pages[t] == pag){
 					HAVE_PAGE = 1;

@@ -82,6 +82,7 @@ unsigned char insertKey(unsigned char c) {
 		unsuspend_task(foreground_task);
 	}
 	if (!bufferIsFull()) {
+		kprintf("\n%c\n", c);
 		keyboard->buffer[keyboard->tail] = c;
 		if (++(keyboard->tail) == K_BUFFER_SIZE) {
 			keyboard->tail = 0;
@@ -113,8 +114,8 @@ unsigned char getKey() {
 
 int bufferIsFull() {
 
-	keyboard_t * keyboard = getKeyboard(current_task);
-
+	keyboard_t * keyboard = getKeyboard(foreground_task);
+	kprintf(" --%d--. ", &keyboard->buffer);
 	if ((keyboard->tail + 1) % K_BUFFER_SIZE
 			== keyboard->head) {
 		return TRUE;
@@ -124,7 +125,7 @@ int bufferIsFull() {
 
 int isEmptyBuffer() {
 
-	keyboard_t * keyboard = getKeyboard(current_task);
+	keyboard_t * keyboard = getKeyboard(foreground_task);
 
 	if (keyboard->tail == keyboard->head) {
 		return TRUE;
@@ -133,6 +134,9 @@ int isEmptyBuffer() {
 }
 
 struct key_t * parseKey(unsigned char c) {
+
+	if(current_task == NULL || foreground_task == NULL)
+		return;
 
 	keyboard_t * keyboard = getKeyboard(foreground_task);
 
@@ -166,7 +170,6 @@ struct key_t * parseKey(unsigned char c) {
 	case CAPSLOCK:
 		keyboard->caps_state = !keyboard->caps_state;
 		updateLeds();
-		//	      printf("caps_state=%d\n",ttys[actualTTY].keyboard->caps_state);
 		key->keyType = HIDDEN_KEY;
 		break;
 	case ESCAPED_KEY:
@@ -212,8 +215,6 @@ struct key_t * parseKey(unsigned char c) {
 			key->keyType = HIDDEN_KEY;
 		} else {
 
-			kprintf("%c, %d", c, (int)c);
-			if (isPrintable(c)) {
 				key->keyType = ALPHANUM_KEY;
 				if (keyboard->caps_state) {
 					if (keyboard->lang == ENGLISH) {
@@ -242,10 +243,6 @@ struct key_t * parseKey(unsigned char c) {
 					}
 				}
 				keyboard->dead_key = FALSE;
-			} else {
-
-			}
-			// do something with new_char
 		}
 		break;
 
@@ -303,14 +300,7 @@ char accVowel(char c) {
 }
 
 void viewBuffer() {
-	//    ttys[actualTTY].screen->address[ttys[actualTTY].screen->wpos+=2]= getc();
 	putc(getc());
-	//     int i = 0;
-	//     ttys[actualTTY].screen->address[ttys[actualTTY].screen->wpos+=2]= '[';
-	//     for(i = 0 ; i < K_BUFFER_SIZE; i++){
-	//         ttys[actualTTY].screen->address[ttys[actualTTY].screen->wpos+=2]= ttys[actualTTY].keyboard->buffer[i];
-	//     }
-	//        ttys[actualTTY].screen->address[ttys[actualTTY].screen->wpos+=2]= ']';
 }
 
 void updateLeds() {

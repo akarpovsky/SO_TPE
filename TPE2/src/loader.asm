@@ -12,6 +12,7 @@ CHECKSUM    equ -(MAGIC + FLAGS)        ; checksum required
 
 section .text
 align 4
+
 MultiBootHeader:
 	dd MAGIC
 	dd FLAGS
@@ -28,8 +29,8 @@ MultiBootHeader:
 	call  kmain		; call kernel proper
 	hlt			; halt machine should kernel return
 
-eokl	dd STACKSIZE + stack
+eokl	equ STACKSIZE + stack
 	section .bss
 	align 32
 	stack:
-	resb STACKSIZE		; reserve 16k stack on a quadword boundary
+	resb STACKSIZE		; reserve 16k stack on a quadword boundaryg
