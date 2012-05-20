@@ -93,8 +93,9 @@ void syswrite(int fd, void * buffer, size_t count) {
 
 void syskernelwrite(int fd, void * buffer, size_t count) {
 
-			*(video+offset++) = *((char *) buffer++); // Print char to screen
-			*(video+offset++) = 0x20; // Char format
+			kwriteInVideo(*((char *) buffer));
+//			*(video+offset++) = *((char *) buffer++); // Print char to screen
+//			*(video+offset++) = WHITE_TXT; // Char format
 
 
 }
@@ -371,6 +372,48 @@ int printfcolor(char color, char *fmt, ...) {
 
 			case 's':
 				puts(*(char**) param);
+				param += sizeof(char**);
+				break;
+			}
+		}
+	}
+	color_p = color_aux;
+	//_Sti();
+}
+
+int kprintfcolor(char color, char *fmt, ...) {
+	//_Cli();
+	char color_aux = color_p;
+	color_p = color;
+	void *param = &fmt + 1;
+	char c;
+	while ((c = *fmt++) != 0) {
+		if (c != '%') {
+			kputc(c);
+		} else {
+			c = *fmt++;
+			switch (c) {
+			case '%':
+				kputc('%');
+				break;
+
+			case 'd':
+				kputd(*(int*) param);
+				param += sizeof(int*);
+				break;
+
+			case 'u':
+				kputu(*(unsigned int*) param);
+				param += sizeof(unsigned int*);
+				break;
+
+			case 'c':
+				kputc((char) (*(int*) param));
+				param += sizeof(int*);
+				break;
+
+			case 's':
+				kputs(*(char**) param);
 				param += sizeof(char**);
 				break;
 			}

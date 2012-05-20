@@ -20,6 +20,7 @@ void _out(unsigned char port, unsigned char c);
 void sysread(int fd, void * buffer, size_t count);
 void syswrite(int fd, void * buffer, size_t count);
 void syskernelwrite(int fd, void * buffer, size_t count);
+int kprintfcolor(char color, char *fmt, ...);
 
 
 int getchar();

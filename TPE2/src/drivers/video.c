@@ -4,6 +4,57 @@ extern struct screen_t main_screen;
 extern struct tty_t ttys[];
 extern char color_p ;
 char * video = (char *) SCREEN_POS;
+extern size_t offset;
+
+void kwriteInVideo(char c){
+
+//	ttyScreen_t * screen = (ttyScreen_t *) getScreen(current_task);
+
+	int i;
+	int colpos;
+//	c = fixKey(c);
+	switch (c) {
+	case '\t':
+//		if (screen->wpos % SCREEN_TAB_SIZE == 0)
+			for (i = 0; i < 4; i++) {
+				main_screen.address[offset += 2] = 0;
+			}
+//		while (screen->wpos % SCREEN_TAB_SIZE > 0) {
+//			main_screen.address[screen->wpos += 2] = 0;
+//			screen->buffer[screen->wpos] = 0;
+//		}
+		break;
+	case '\n':
+//		if (screen->wpos >= SCREEN_LAST_ROW) {
+//			scroll();
+//		} else {
+			colpos = offset % SCREEN_ROW_SIZE;
+			for (i = colpos; i < SCREEN_ROW_SIZE; i++) {
+				if (i % 2 == 0) {
+					main_screen.address[offset += 2] = 0;
+//					screen->buffer[screen->wpos] = 0;
+				}
+			}
+//		}
+		break;
+	case '\b':
+		if (offset != 0) {
+			if (main_screen.address[offset++] == 0) {
+				while (main_screen.address[offset -= 2] == 0)
+					;
+				offset += 2;
+			}
+			main_screen.address[offset -= 2] = 0;
+		}
+		break;
+	default:
+		main_screen.address[offset++] = c;
+		main_screen.address[offset++] = color_p;
+		break;
+	}
+//	move_cursor(screen->wpos / 2);
+}
+
 
 void writeInVideo(char c){
 
