@@ -131,7 +131,6 @@ void SetupScheduler(){
 	void * null_stack_address = getFreePage() + MAX_PAGE_SIZE-1; // Ask for a free page to alocate the stack for the NULL task
 
 
-	kprintf("%x", null_stack_address);
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
 	changePagePID(null_process_task.pid, null_stack_address);
 

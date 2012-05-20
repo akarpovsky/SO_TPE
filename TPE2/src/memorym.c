@@ -102,7 +102,7 @@ void * malloc(int size){
 	int flag = NOT_FOUND;
 	mem_header * actual;
 	int bloques = getBlocks(size);
-	Task_t * proc = get_current_proces();
+	Task_t * proc = get_current_task();
 
 
 	if(size > 0 && size <= MAX_PAGE_SIZE){
@@ -294,7 +294,7 @@ void free(void* p){
 	int dif;
 	int aux;
 	mem_header* actual;
-	Task_t * proc = get_current_proces();
+	Task_t * proc = get_current_task();
 	int pag;
 	int t;
 	int HAVE_PAGE = 0;

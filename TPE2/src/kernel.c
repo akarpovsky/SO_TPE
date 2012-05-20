@@ -179,7 +179,6 @@ void print_header(){
 	char color_aux = color_p;
 	screen->wpos=TTY_SCREEN_HSTART;
 	color_p = HEADER_COLOR;
-	_debug();
 	printf("\t\t\t\tTP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t Keyboard: ");
 	printfcolor(ERROR_COLOR,"%s",(keyboard->lang == ENGLISH) ? "EN" : "ES");
 	printf(" | TTY: ");
@@ -273,20 +272,18 @@ kmain(multiboot_info_t * mbi, unsigned int magic)
 	//TODO;
 
 	SetupScheduler();
-	_debug();
 
-	//print_header();
-
-
-	//printTicks();
 
 	/* Funci�n init(): Inicializa el SO para poder empezar a ejecutar con normalidad.
 	 * Aloca espacio para los stacks de las shells y crea 4 procesos para las distintas
 	 * terminales.
 	 */
 	init();
+	print_header();
 
-	/* Habilitamos interrupciones y el scheduller empieza a jugar!*/
+
+	printTicks();
+	/* Habilitamos interrupciones y el scheduler empieza a jugar!*/
 	_Sti();
 	_int_20_hand();
 }
