@@ -7,6 +7,7 @@
 extern struct ttyScreen_t screens[TTY_NUMBER];
 
 Task_t processes[MAX_PROCESSES];
+Task_t * foreground_tasks[TTY_NUMBER];
 TaskQueue_t ready_tasks[MAX_PRIORITIES];
 TaskQueue_t suspended_tasks;
 TaskQueue_t delayed_tasks;
@@ -15,7 +16,7 @@ TaskQueue_t terminated_tasks;
 TaskQueue_t empty_tasks;
 Task_t * current_task;
 Task_t null_process_task;
-Task_t * foreground_task;
+Task_t ** foreground_tty;
 
 Task_t * tproc1;
 Task_t * tproc2;
@@ -92,11 +93,15 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 
 	add_to_queue(&ready_tasks[priority], new_proc);
 
-	if(isFront == true)
-	{
-		foreground_task = new_proc;
-	}
 
+	int i;
+	for(i = 0; i<TTY_NUMBER; i++)
+	{
+		if(foreground_tasks[i]->tty_number == tty || i == tty)
+		{
+			foreground_tasks[i] = new_proc;
+		}
+	}
 	return new_proc;
 }
 void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
@@ -153,9 +158,28 @@ void SetupScheduler(){
 
 }
 
-Task_t * get_foreground_task()
+Task_t * get_foreground_tty()
 {
-	return foreground_task;
+	return *foreground_tty;
+}
+
+void set_foreground_tty(int tty)
+{
+	foreground_tty = &foreground_tasks[tty];
+}
+
+Task_t * get_foreground_task(int tty)
+{
+	int i;
+	for(i=0; i<TTY_NUMBER; i++)
+	{
+		if(foreground_tasks[i]->tty_number == tty)
+		{
+			return foreground_tasks[i];
+		}
+	}
+
+	return NULL;
 }
 
 void * getSPPointer(){

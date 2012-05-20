@@ -1,7 +1,6 @@
 #include "../include/io.h"
 
 extern struct tty_t ttys[];
-extern Task_t * current_task;
 extern screen_t main_screen;
 extern char color_p;
 extern char * video;
@@ -84,7 +83,7 @@ void sysread(int fd, void * buffer, size_t count) {
 void syswrite(int fd, void * buffer, size_t count) {
 	int i;
 	if (fd == STDOUT) {
-		ttyScreen_t * screen = (ttyScreen_t*) getScreen(current_task);
+		ttyScreen_t * screen = (ttyScreen_t*) getScreen(get_current_task());
 
 		_memcpy(buffer, screen->buffer, count);
 		writeInVideo(*((char *) buffer));

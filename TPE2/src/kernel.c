@@ -60,7 +60,7 @@ void int_20() {
 
 void printTicks() {
 
-	ttyScreen_t * screen = getScreen(get_foreground_task());
+	ttyScreen_t * screen = getScreen(get_foreground_tty());
 
 	int wpos = screen->wpos;
 	screen->wpos = TTY_SCREEN_TSTART;
@@ -166,8 +166,8 @@ void timer_phase(int hz) {
 
 void print_header() {
 
-	ttyScreen_t * screen = getScreen(get_foreground_task());
-	keyboard_t * keyboard = getKeyboard(get_foreground_task());
+	ttyScreen_t * screen = getScreen(get_foreground_tty());
+	keyboard_t * keyboard = getKeyboard(get_foreground_tty());
 
 	int wpos = screen->wpos;
 	char color_aux = color_p;
@@ -250,10 +250,10 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	 * terminales.
 	 */
 	init();
-	//	print_header();
+//		print_header();
 	//
 	//
-	//	printTicks();
+//		printTicks();
 
 	/* Habilito interrupciones necesarias */
 
@@ -293,8 +293,7 @@ void init(void) {
 
 		// If it is the first TTY, isFront = true
 		auxShell = CreateProcess("Shell", shellLoop, NULL, i + 1, 0, NULL,
-				stack_start_address, shell_task_priority,
-				(i == 0 ? true : false));
+				stack_start_address, shell_task_priority, true);
 
 		/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
 		 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.

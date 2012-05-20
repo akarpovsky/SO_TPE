@@ -4,8 +4,6 @@
 
 struct key_t * key;
 extern struct tty_t ttys[];
-extern Task_t * current_task;
-extern Task_t * foreground_task;
 int i=0;
 
 char e_lowercase[256] =
@@ -75,14 +73,14 @@ char s_capsuppercase[256] = { 0, 0xa7, '!', '"', '#', '$', '%', '&', '/', '(',
 		84, 85, '>' };
 
 unsigned char insertKey(unsigned char c) {
-	keyboard_t * keyboard = getKeyboard(foreground_task);
+	Task_t * fg_tty = get_foreground_tty();
+	keyboard_t * keyboard = getKeyboard(fg_tty);
 
-	if(foreground_task->state == TaskSuspended)
+	if(fg_tty->state == TaskSuspended)
 	{
-		unsuspend_task(foreground_task);
+		unsuspend_task(fg_tty);
 	}
 	if (!bufferIsFull()) {
-		kprintf("\n%c\n", c);
 		keyboard->buffer[keyboard->tail] = c;
 		if (++(keyboard->tail) == K_BUFFER_SIZE) {
 			keyboard->tail = 0;
@@ -94,9 +92,10 @@ unsigned char insertKey(unsigned char c) {
 
 unsigned char getKey() {
 
-	keyboard_t * keyboard = getKeyboard(current_task);
+	Task_t * c_t = get_current_task();
+	keyboard_t * keyboard = getKeyboard(c_t);
 
-	suspend_task(current_task);
+	suspend_task(c_t);
 	yield();
 	int head = keyboard->head;
 	if (!isEmptyBuffer()) {
@@ -114,8 +113,8 @@ unsigned char getKey() {
 
 int bufferIsFull() {
 
-	keyboard_t * keyboard = getKeyboard(foreground_task);
-	kprintf(" --%d--. ", &keyboard->buffer);
+
+	keyboard_t * keyboard = getKeyboard(get_foreground_tty());
 	if ((keyboard->tail + 1) % K_BUFFER_SIZE
 			== keyboard->head) {
 		return TRUE;
@@ -125,7 +124,7 @@ int bufferIsFull() {
 
 int isEmptyBuffer() {
 
-	keyboard_t * keyboard = getKeyboard(foreground_task);
+	keyboard_t * keyboard = getKeyboard(get_foreground_tty());
 
 	if (keyboard->tail == keyboard->head) {
 		return TRUE;
@@ -135,10 +134,13 @@ int isEmptyBuffer() {
 
 struct key_t * parseKey(unsigned char c) {
 
-	if(current_task == NULL || foreground_task == NULL)
-		return;
+	Task_t * c_t = get_current_task();
+	Task_t * fg_t = get_foreground_tty();
 
-	keyboard_t * keyboard = getKeyboard(foreground_task);
+	if(c_t == NULL || fg_t == NULL)
+		return NULL;
+
+	keyboard_t * keyboard = getKeyboard(fg_t);
 
 	if (keyboard->escaped_key) {
 		c += 256;
@@ -208,8 +210,8 @@ struct key_t * parseKey(unsigned char c) {
 	case DEAD_KEY:
 		if (keyboard->lang == SPANISH) {
 			keyboard->dead_key = TRUE;
-			break;
 		}
+		break;
 	default:
 		if (c & 0x80) {
 			key->keyType = HIDDEN_KEY;
@@ -260,8 +262,9 @@ int isPrintable(unsigned char c) {
 }
 void changeLang() {
 
-	keyboard_t * keyboard = getKeyboard(current_task);
-	ttyScreen_t * screen = getScreen(current_task);
+	Task_t * c_t = get_current_task();
+	keyboard_t * keyboard = getKeyboard(c_t);
+	ttyScreen_t * screen = getScreen(c_t);
 
 	if (keyboard->lang == ENGLISH)
 		keyboard->lang = SPANISH;
@@ -305,7 +308,8 @@ void viewBuffer() {
 
 void updateLeds() {
 
-	keyboard_t * keyboard = getKeyboard(current_task);
+	Task_t * c_t = get_current_task();
+	keyboard_t * keyboard = getKeyboard(c_t);
 
 	unsigned char leds = keyboard->scroll_state
 			| (keyboard->num_state * 2)

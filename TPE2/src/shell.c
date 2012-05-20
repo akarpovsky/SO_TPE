@@ -1,13 +1,8 @@
 #include "../include/shell.h"
 
 
-extern Task_t * foreground_task;
-extern Task_t * current_task;
-
 extern struct shellLine_t shellLine;
 extern tty_t ttys[];
-
-extern Task_t * current_task;
 
 int printing_command = FALSE;
 extern int printing_header;
@@ -43,11 +38,13 @@ static struct {
 
 void shell(){
 
-	shellLine_t * lineBuffer = getLineBuffer(current_task);
-	ttyScreen_t * screen = getScreen(current_task);
+	Task_t * c_t = get_current_task();
+
+	shellLine_t * lineBuffer = getLineBuffer(c_t);
+	ttyScreen_t * screen = getScreen(c_t);
 
 	char c;
-	printf("BrunOS tty%d:~$ ", current_task->tty_number);
+	printf("BrunOS tty%d:~$ ", c_t->tty_number);
 	while( (c=getc()) != '\n' ){
 		switch(c){
 		case '\b':
@@ -84,7 +81,7 @@ void shell(){
 }
 
 void erase_buffer(){
-	shellLine_t * lineBuffer = getLineBuffer(current_task);
+	shellLine_t * lineBuffer = getLineBuffer(get_current_task());
 	int i = 0;
 	for (i = 0; i < LINEBUF_LEN; i++)
 	{
@@ -95,7 +92,7 @@ void erase_buffer(){
 
 void parse_command() {
 
-    shellLine_t * lineBuffer = getLineBuffer(current_task);
+    shellLine_t * lineBuffer = getLineBuffer(get_current_task());
 
     int initpos = 0;
 
@@ -108,13 +105,15 @@ void StartNewTask(char * name, PROCESS new_task_function){
 
 	_Sti();
 	Task_t * auxTask = NULL;
+	Task_t * c_t = get_current_task();
+	Task_t * fg_t = get_foreground_tty();
 
-	int new_task_priority = current_task->priority; // La prioridad del proceso shell serï¿½ = 1
+	int new_task_priority = c_t->priority; // La prioridad del proceso shell serï¿½ = 1
 
 	void * stack_start_address = getFreePage() + MAX_PAGE_SIZE-1; // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
 
-	auxTask = CreateProcess(name, new_task_function, current_task, current_task->tty_number, 0, NULL,
-				stack_start_address, new_task_priority, foreground_task->pid==current_task->pid);
+	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 0, NULL,
+				stack_start_address, new_task_priority, fg_t->pid==c_t->pid);
 
 	/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
 	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
@@ -155,8 +154,9 @@ int run_command(){
 
 void auto_complete(){
 
-	ttyScreen_t * screen = getScreen(current_task);
-	shellLine_t * lineBuffer = getLineBuffer(current_task);
+	Task_t * c_t = get_current_task();
+	ttyScreen_t * screen = getScreen(c_t);
+	shellLine_t * lineBuffer = getLineBuffer(c_t);
 
 	int i, j, size, lenght, eq = TRUE;
 	lenght = strlen(command.name);
@@ -213,7 +213,7 @@ int divideByZero(int argc, char **argv){
 
 int clear_screen(int argc, char **argv){
 
-	ttyScreen_t * screen = getScreen(current_task);
+	ttyScreen_t * screen = getScreen(get_current_task());
 
 	clearScreen();
 	clearScreenBuffer();
