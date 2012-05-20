@@ -60,12 +60,7 @@ void int_20() {
 
 void printTicks() {
 
-	ttyScreen_t * screen = getScreen(get_foreground_task());
-
-	int wpos = screen->wpos;
-	screen->wpos = TTY_SCREEN_TSTART;
-	printf("           Ticks: ");
-	screen->wpos = wpos;
+	kprintf("           Ticks: ");
 
 }
 
@@ -166,21 +161,20 @@ void timer_phase(int hz) {
 
 void print_header() {
 
-	ttyScreen_t * screen = getScreen(get_foreground_task());
-	keyboard_t * keyboard = getKeyboard(get_foreground_task());
-
-	int wpos = screen->wpos;
+//	ttyScreen_t * screen = getScreen(get_foreground_task());
+//	keyboard_t * keyboard = getKeyboard(get_foreground_task());
+//
+//	int wpos = screen->wpos;
 	char color_aux = color_p;
-	screen->wpos = TTY_SCREEN_HSTART;
+//	screen->wpos = TTY_SCREEN_HSTART;
 	color_p = HEADER_COLOR;
-	printf(
-			"\t\t\t\tTP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t Keyboard: ");
-	printfcolor(ERROR_COLOR, "%s", (keyboard->lang == ENGLISH) ? "EN" : "ES");
-	printf(" | TTY: ");
-	printfcolor(ERROR_COLOR, "%d", actualTTY + 1);
-	printf("\n");
+	kprintf("\t\t\t  TP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t      ");
+	kprintfcolor(ERROR_COLOR, "BrunOS");
+//	printf(" | BrunOS: ");
+//	printfcolor(ERROR_COLOR, "%d", actualTTY + 1);
+//	printf("\n");
 	color_p = color_aux;
-	screen->wpos = wpos;
+//	screen->wpos = wpos;
 }
 
 int shellLoop(int argc, char ** argv) {

@@ -20,6 +20,7 @@ void clearScreen();
 void clearScreenBuffer();
 void clearfromto(int from, int to);
 char fixKey(char c);
+void kwriteInVideo(char c);
 void move_cursor(int position);
  
 #endif
