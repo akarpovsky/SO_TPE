@@ -542,3 +542,8 @@ void mymemcpy(void* origen, int size, void* destino){
 
 }
 
+void pageCopy (void * origPag, void * destPag){
+
+	mymemcpy(origPag, MAX_PAGE_SIZE, destPag);
+}
+
