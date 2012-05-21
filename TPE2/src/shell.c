@@ -1,7 +1,7 @@
 #include "../include/shell.h"
 
 
-#define NUM_COMMANDS 10
+#define NUM_COMMANDS 11
 #define LINEBUF_LEN 10
 
 extern size_t my_offset;
@@ -36,7 +36,8 @@ static struct {
 		{"imprimeUnos", "Process that prints 1s forever", imprimeUnos},
 		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpCode},
 		{"divideByZero", "Tries to perform a division by zero", divideByZero},
-		{"clearScreen", "Erase all the content of the actual TTY", clear_screen}
+		{"clearScreen", "Erase all the content of the actual TTY", clear_screen},
+		{"imprimeDos", "Process that prints 2s forever", imprimeDos}
 	};
 
 void shell(void){
@@ -300,16 +301,16 @@ int top(int argc, char *argv){
 	Task_t* processes = get_processes();
 	int i;
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
-	printfcolor(COMMAND_COLOR, "PID\t\t\tName\t\t\tStatus\n\n");
+	printfcolor(COMMAND_COLOR, "PID\t\t\tName\t\t\tStatus\t\tPriority\n\n");
 	for(i = 0; i<MAX_PROCESSES; i++)
 	{
 		if(processes[i].state != TaskEmpty)
 		{
 			printfcolor(((processes[i].state == TaskReady)?COMMAND_COLOR:
 					(processes[i].state == TaskTerminated)?ERROR_COLOR:MARINE_COLOR),
-					"%d\t\t\t%s\t\t\t%s\n", processes[i].pid, processes[i].name,
+					"%d\t\t\t%s\t\t\t%s\t\t%d\n", processes[i].pid, processes[i].name,
 					((processes[i].state == TaskReady)?"Ready":
-							(processes[i].state == TaskTerminated)?"Terminated":"Suspended"));
+							(processes[i].state == TaskTerminated)?"Terminated":"Suspended"), processes[i].priority);
 		}
 	}
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
@@ -337,6 +338,16 @@ int imprimeUnos(int argc, char *argv){
 	while(1)
 	{
 		printf("1");
+	}
+	return EXIT_SUCCESS;
+}
+
+int imprimeDos(int argc, char *argv){
+
+	_Sti();
+	while(1)
+	{
+		printf("2");
 	}
 	return EXIT_SUCCESS;
 }

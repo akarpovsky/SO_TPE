@@ -73,7 +73,7 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 	Task_t * c_t = get_current_task();
 	Task_t * fg_t = get_foreground_tty();
 
-	int new_task_priority = c_t->priority; // La prioridad del proceso shell ser� = 1
+	int new_task_priority = (streq(name, "imprimeDos"))? 3: 2 ; // La prioridad del proceso shell ser� = 1
 
 
 	void * stack_start_address = getFreePage(); // Me devuelve una nueva p�gina vac�a con el "PID de kernel"

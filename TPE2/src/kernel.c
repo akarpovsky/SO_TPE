@@ -1,5 +1,5 @@
 #include "../include/kernel.h"
-
+extern size_t offset;
 DESCR_INT idt[0xFF]; /* IDT */
 IDTR idtr; /* IDTR */
 
@@ -162,7 +162,7 @@ void timer_phase(int hz) {
 }
 
 void print_header() {
-
+	offset = 0;
 	char color_aux = color_p;
 	color_p = HEADER_COLOR;
 	kprintf("\t\t\t  TP Sistemas Operativos - 1do Cuatrimestre 2012 \n\t\t\t\tKarpovsky - Mesa Alcorta - Martinez Correa\n\t\t\t\t\t\t\t      ");

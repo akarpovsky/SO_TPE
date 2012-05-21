@@ -30,6 +30,7 @@ int mouse(int argc, char *argv);
 int top(int argc, char *argv);
 int pkill(int argc, char *argv);
 int imprimeUnos(int argc, char *argv);
+int imprimeDos(int argc, char *argv);
 
 void auto_complete(command_t * command);
 void clearCommand(command_t * command);
