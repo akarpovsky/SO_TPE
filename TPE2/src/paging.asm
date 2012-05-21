@@ -1,9 +1,10 @@
+EXTERN _debug
 GLOBAL _set_cr
 
         _set_cr:
         push   ebp
         mov    ebp, esp
-        mov    eax, 00200h
+        mov    eax, 200000h
         mov    cr3, eax     ; setea CR3 con la direccion de el directorio de paginas
         
         mov    ebx, cr0      ;guardo el valor del CR0

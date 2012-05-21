@@ -1,7 +1,9 @@
 #ifndef _MEMORYM_H_
 #define _MEMORYM_H_
 
-
+#include "scheduler.h"
+#include "limits.h"
+#include "io.h"
 #ifndef _NULL_
 #define _NULL_
 #define NULL (void*) 0

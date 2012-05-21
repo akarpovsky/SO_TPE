@@ -1,4 +1,4 @@
-timeout 6
+timeout 1
 default 0
 
 title BrunOS rc

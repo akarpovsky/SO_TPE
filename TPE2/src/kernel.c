@@ -75,6 +75,7 @@ void changeTTY(int tty) {
 //XXX: Teclado
 /* Atencion de Interrupcion de Teclado */
 void int_21(unsigned char scancode) {
+
 	struct key_t * key = (struct key_t *) parseKey(scancode);
 
 //	kprintf("::%d::", key->keyType);
@@ -224,8 +225,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	_lidt(&idtr);
 
 
-//	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
-//			(void*)(kmmap.base_addr_low + kmmap.length_low));
+	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
+			(void*)(kmmap.base_addr_low + kmmap.length_low));
 
 	//TODO;
 
@@ -273,7 +274,7 @@ void init(void) {
 
 	for (i = 0; i < TTY_NUMBER; i++) {
 
-		void * stack_start_address = getFreePage(); // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
+		void * stack_start_address = getFreePage()+4096-1; // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
 
 		//TODO:
 		if(stack_start_address == NULL)

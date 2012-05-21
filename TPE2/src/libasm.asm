@@ -386,10 +386,10 @@ _debug:
         push	ax
 vuelve:	mov     ax, 1
         cmp	ax, 0
-	jne	vuelve
-	sti
-	pop	ax
-	pop     bp
+		jne	vuelve
+		sti
+		pop	ax
+		pop     bp
         retn
 _debugBuenaOnda:
 	push eax
@@ -427,36 +427,3 @@ loop:
 	pop ebp
 	ret
 
-
-	;;TODO: blah blah
-
-_epag:
-	mov eax, cr0
-	or eax, 80000000h
-	mov cr0, eax
-	ret
-
-	_lcr3:
-;mov eax, [esp+4]
-mov eax, 00200000h
-mov cr3, eax
-ret
-
-; Mapeo 1:1 de la primer pagina
-_fill_page1:
-
-mov eax, 0
-mov ebx, 0
-.fill_table:
-mov ecx, ebx
-cmp eax, 530
-jg .notpresent
-or ecx, 1
-.notpresent: mov [201000h+eax*4], ecx
-add ebx, 4096
-inc eax
-cmp eax, 1024
-je .end
-jmp .fill_table
-.end:
-ret

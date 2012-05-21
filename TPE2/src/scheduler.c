@@ -29,6 +29,7 @@ bool printp3 = true;
 
 void select_next(){
 
+
 	if(current_task != NULL){
 		if(current_task->atomic_level){
 			return;
@@ -76,8 +77,7 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 	int new_task_priority = (streq(name, "imprimeDos"))? 3: 2 ; // La prioridad del proceso shell ser� = 1
 
 
-	void * stack_start_address = getFreePage(); // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
-
+	void * stack_start_address = getFreePage()+4096-1; // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
 	//TODO:
 	if(stack_start_address == NULL){
 		while(1){
@@ -192,8 +192,7 @@ void SetupScheduler(){
 	null_process_task.linebuffer = NULL;
 	null_process_task.pid = 0;
 	strcpy(null_process_task.name, "Null Process");
-	void * null_stack_address = getFreePage(); // Ask for a free page to alocate the stack for the NULL task
-
+	void * null_stack_address = getFreePage()+4096-1; // Ask for a free page to alocate the stack for the NULL task
 	//TODO:
 	if(null_stack_address == NULL)
 	{

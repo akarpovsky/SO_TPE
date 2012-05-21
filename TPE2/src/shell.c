@@ -1,9 +1,6 @@
 #include "../include/shell.h"
 
 
-#define NUM_COMMANDS 11
-#define LINEBUF_LEN 10
-
 extern size_t my_offset;
 
 typedef struct command_t {
@@ -37,7 +34,8 @@ static struct {
 		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpCode},
 		{"divideByZero", "Tries to perform a division by zero", divideByZero},
 		{"clearScreen", "Erase all the content of the actual TTY", clear_screen},
-		{"imprimeDos", "Process that prints 2s forever", imprimeDos}
+		{"imprimeDos", "Process that prints 2s forever", imprimeDos},
+		{"pageFaulteame", "Page Fault!", pagefault}
 	};
 
 void shell(void){
@@ -47,7 +45,7 @@ void shell(void){
 	ttyScreen_t * screen = getScreen(c_t);
 	shellLine_t * lineBuffer = getLineBuffer(c_t);
 	char c;
-	command_t  *a = (command_t *) my_malloc(sizeof(command_t));
+	command_t  * a = (command_t *) malloc(sizeof(command_t));
 
 	printf("BrunOS tty%d:~$ ", c_t->tty_number);
 
@@ -81,7 +79,7 @@ void shell(void){
 	run_command(a);
 	lineBuffer->pos=0;
 //	clearCommand(a);
-//	erase_buffer();
+	erase_buffer();
 //	free(a);
 
 }
@@ -351,3 +349,17 @@ int imprimeDos(int argc, char *argv){
 	}
 	return EXIT_SUCCESS;
 }
+
+int pagefault(int argc, char * argv){
+	return pagefault(argc, argv);
+}
+
+//int mallocs(int argc, char * argv){
+//	int a = 0;
+//	while(1){
+//		malloc(100);
+//		a+=100;
+//		printf("a:%d--", a);
+//	}
+//	return a;
+//}

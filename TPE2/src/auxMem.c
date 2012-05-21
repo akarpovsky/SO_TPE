@@ -6,9 +6,9 @@
         ".quad 0b;"                       \
         ".popsection;")
 
-#define MEMORY_START 0x00200000
-void * CR3 = (void *) MEMORY_START;
-DESCR_PAGE * gdt;
+#define MEMORY_START (void *)0x200000
+void * CR3 = MEMORY_START;
+DESCR_PAGE * gdt = MEMORY_START;
 
 
 void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
@@ -85,12 +85,10 @@ void initpages(void * f, void * finMem) {
 		}
 	}
 
-	_set_cr();
-
-
 	// La primera pagina despues de las tablas y los directorios
 	inicioUser = (void *)CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
 	createHeadersList((void *)inicioUser,(void *)fin);
+	_set_cr();
 
 }
 

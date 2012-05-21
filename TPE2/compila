@@ -18,6 +18,6 @@ gcc -g -m32 -c  ../src/memorym.c -o memorym.o -fno-builtin  -fno-stack-protector
 gcc -g -m32 -c 	../src/proc.c -o proc.o -fno-builtin  -fno-stack-protector
 gcc -g -m32 -c 	../src/scheduler.c -o scheduler.o -fno-builtin  -fno-stack-protector
 gcc -g -m32 -c  ../src/memo.c -o memo.o -fno-builtin -fno-stack-protector
-ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o io.o shell.o keyboard.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o memo.o
+ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o libc.o libasm.o io.o shell.o keyboard.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o auxMem.o paging.o memorym.o
 cp ./kernel.bin ../isofiles/boot/
 objcopy --only-keep-debug kernel.bin kernel.sym

@@ -1,6 +1,4 @@
 #include "../include/memorym.h"
-#include "../include/scheduler.h"
-#include "../include/limits.h"
 
 List pages;
 
@@ -70,9 +68,6 @@ int addHeader(List list){
 	list->NumEl = (list->NumEl) + 1;
 
 	initHeader(&(list->pLast->headerEl));
-//	if (list->NumEl == 12111211) {
-//		_debug();
-//	}
 
 	return OK;
 

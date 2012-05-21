@@ -10,8 +10,8 @@
 #include "proc.h"
 #include "structs.h"
 #include "io.h"
-//#include "memorym.h"
-#include "memo.h"
+#include "memorym.h"
+//#include "memo.h"
 
 void select_next(void);
 Task_t * get_current_task();
