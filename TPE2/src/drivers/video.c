@@ -12,17 +12,17 @@ void kwriteInVideo(char c){
 	int colpos;
 	switch (c) {
 	case '\t':
-			for (i = 0; i < 4; i++) {
-				main_screen.address[offset += 2] = 0;
-			}
+		for (i = 0; i < 4; i++) {
+			main_screen.address[offset += 2] = 0;
+		}
 		break;
 	case '\n':
-			colpos = offset % SCREEN_ROW_SIZE;
-			for (i = colpos; i < SCREEN_ROW_SIZE; i++) {
-				if (i % 2 == 0) {
-					main_screen.address[offset += 2] = 0;
-				}
+		colpos = offset % SCREEN_ROW_SIZE;
+		for (i = colpos; i < SCREEN_ROW_SIZE; i++) {
+			if (i % 2 == 0) {
+				main_screen.address[offset += 2] = 0;
 			}
+		}
 		break;
 	case '\b':
 		if (offset != 0) {
@@ -44,6 +44,7 @@ void kwriteInVideo(char c){
 
 void writeInVideo(char c){
 
+	atomize();
 	ttyScreen_t * screen = (ttyScreen_t *) getScreen(get_current_task());
 
 	int i;
@@ -53,11 +54,17 @@ void writeInVideo(char c){
 	case '\t':
 		if (screen->wpos % SCREEN_TAB_SIZE == 0)
 			for (i = 0; i < 4; i++) {
-				main_screen.address[screen->wpos += 2] = 0;
+				if(get_current_task() == get_foreground_tty())
+				{
+					main_screen.address[screen->wpos += 2] = 0;
+				}
 				screen->buffer[screen->wpos] = 0;
 			}
 		while (screen->wpos % SCREEN_TAB_SIZE > 0) {
-			main_screen.address[screen->wpos += 2] = 0;
+			if(get_current_task() == get_foreground_tty())
+			{
+				main_screen.address[screen->wpos += 2] = 0;
+			}
 			screen->buffer[screen->wpos] = 0;
 		}
 		break;
@@ -68,7 +75,10 @@ void writeInVideo(char c){
 			colpos = screen->wpos % SCREEN_ROW_SIZE;
 			for (i = colpos; i < SCREEN_ROW_SIZE; i++) {
 				if (i % 2 == 0) {
-					main_screen.address[screen->wpos += 2] = 0;
+					if(get_current_task() == get_foreground_tty())
+					{
+						main_screen.address[screen->wpos += 2] = 0;
+					}
 					screen->buffer[screen->wpos] = 0;
 				}
 			}
@@ -76,27 +86,45 @@ void writeInVideo(char c){
 		break;
 	case '\b':
 		if (screen->wpos != 0) {
-			if (main_screen.address[screen->wpos] == 0) {
-				while (main_screen.address[screen->wpos -= 2] == 0)
-					;
-				screen->wpos += 2;
+			int auxpos = screen->wpos;
+			if (screen->buffer[screen->wpos] == 0) {
+				if(get_current_task() == get_foreground_tty())
+				{
+					while (main_screen.address[auxpos -= 2] == 0);
+//					auxpos+=2;
+				}
+				while (screen->buffer[screen->wpos -= 2] == 0);
+//				screen->wpos += 2;
 			}
-			main_screen.address[screen->wpos -= 2] = 0;
+			if(get_current_task() == get_foreground_tty())
+			{
+//				auxpos+=2;
+				main_screen.address[auxpos] = 0;
+
+			}
+//			screen->wpos+=2;
 			screen->buffer[screen->wpos] = 0;
 		}
 		break;
 	default:
-		main_screen.address[screen->wpos] = c;
+		if(get_current_task() == get_foreground_tty())
+		{
+			main_screen.address[screen->wpos] = c;
+		}
 		screen->buffer[screen->wpos++] = c;
-		main_screen.address[screen->wpos] = color_p;
+		if(get_current_task() == get_foreground_tty())
+		{
+			main_screen.address[screen->wpos] = color_p;
+		}
 		screen->buffer[screen->wpos++]
-				= color_p;
+		               = color_p;
 		if (screen->wpos >= SCREEN_SIZE) {
 			scroll();
 		}
 		break;
 	}
 	move_cursor(screen->wpos / 2);
+	unatomize();
 }
 
 
@@ -107,23 +135,32 @@ void scroll(){
 
 	int i = 0;
 	for (i = TTY_SCREEN_RSTART * SCREEN_ROW_SIZE; i < SCREEN_LAST_ROW; i++) {
-		main_screen.address[i] =
-				main_screen.address[i + SCREEN_ROW_SIZE];
+		if(get_current_task() == get_foreground_tty()){
+			main_screen.address[i] =
+					main_screen.address[i + SCREEN_ROW_SIZE];
+		}
 		screen->buffer[i] =
 				screen->buffer[i + SCREEN_ROW_SIZE];
 
-//		_memcpy(&main_screen.address[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
-//				&main_screen.address[i * SCREEN_ROW_SIZE],
-//				SCREEN_ROW_SIZE);
-//		_memcpy(&screen->buffer[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
-//				&screen->buffer[i * SCREEN_ROW_SIZE],
-//				SCREEN_ROW_SIZE);
+		//		_memcpy(&main_screen.address[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
+		//				&main_screen.address[i * SCREEN_ROW_SIZE],
+		//				SCREEN_ROW_SIZE);
+		//		_memcpy(&screen->buffer[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
+		//				&screen->buffer[i * SCREEN_ROW_SIZE],
+		//				SCREEN_ROW_SIZE);
 	}
 	screen->wpos = SCREEN_LAST_ROW;
 	while (screen->wpos < SCREEN_SIZE) {
-		main_screen.address[screen->wpos] = 0;
+		if(get_current_task() == get_foreground_tty())
+		{
+			main_screen.address[screen->wpos] = 0;
+
+		}
 		screen->buffer[screen->wpos++] = 0;
-		main_screen.address[screen->wpos] = WHITE_TXT;
+		if(get_current_task() == get_foreground_tty())
+		{
+			main_screen.address[screen->wpos] = WHITE_TXT;
+		}
 		screen->buffer[screen->wpos++] = WHITE_TXT;
 	}
 	screen->wpos = SCREEN_LAST_ROW;
@@ -138,7 +175,7 @@ void v_changeTTY(){
 	clearScreen();
 	offset = 0;
 	print_header();
-//	printTicks();
+	//	printTicks();
 	for (i = TTY_SCREEN_SSTART; i < SCREEN_SIZE; i++) {
 		main_screen.address[i] = screen->buffer[i];
 	}

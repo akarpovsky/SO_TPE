@@ -84,8 +84,8 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 		kprintf("s");
 		}
 	}
-
-	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, &args,
+	int argc;
+	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, args,
 				stack_start_address, new_task_priority, !isBackground);
 
 
@@ -108,7 +108,7 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 
 }
 
-Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char** argv, void * stack_start, int priority, int isFront){
+Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char* argv, void * stack_start, int priority, int isFront){
 	Task_t * new_proc = pop(&empty_tasks);
 
 	if(new_proc == NULL){
@@ -125,7 +125,7 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 		new_proc->linebuffer = parent->linebuffer;
 	} // Else, screen, keyboard and linebuffer had already been initialized in the init() kernel call.
 
-	CreateStackFrame(new_proc, process, stack_start);
+	CreateStackFrame(new_proc, process, stack_start, argc, argv);
 
 	new_proc->foreground = isFront;
 	strcpy(new_proc->name, name);
@@ -148,7 +148,7 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 	}
 	return new_proc;
 }
-void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
+void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start, int argc, char * argv){
 	new_proc->ss = stack_start;
 	new_proc->sp = stack_start - sizeof(STACK_FRAME)-1;
 	((STACK_FRAME *) new_proc->sp )->EIP = p;
@@ -156,8 +156,8 @@ void CreateStackFrame( Task_t * new_proc, PROCESS p, void * stack_start){
 	((STACK_FRAME *) new_proc->sp )->EBP = 0;
 	((STACK_FRAME *) new_proc->sp )->EFLAGS = 0;
 	((STACK_FRAME *) new_proc->sp )->fin_retaddr = cleaner;
-	((STACK_FRAME *) new_proc->sp )->argc = 0;
-	((STACK_FRAME *) new_proc->sp )->argv = 0;
+	((STACK_FRAME *) new_proc->sp )->argc = argc;
+	((STACK_FRAME *) new_proc->sp )->argv = argv;
 	((STACK_FRAME *) new_proc->sp )->EAX = 0;
 	((STACK_FRAME *) new_proc->sp )->EBX = 0;
 	((STACK_FRAME *) new_proc->sp )->ECX = 0;
@@ -204,7 +204,7 @@ void SetupScheduler(){
 		}
 	}
 
-	CreateStackFrame(&null_process_task, null_process, null_stack_address);
+	CreateStackFrame(&null_process_task, null_process, null_stack_address, 0, NULL);
 
 //	tproc1 = CreateProcess("proc1", proc1, NULL, 1, 0, NULL,(void*) 0x201000, 0, true);
 //	tproc1->screen = &screens[0];
@@ -283,6 +283,47 @@ shellLine_t * getLineBuffer(Task_t * task)
 	return task->linebuffer;
 }
 
+Task_t * get_processes()
+{
+	return processes;
+}
+int terminate_task(int pid)
+{
+	pid--;
+	if(pid <0 || pid > MAX_PROCESSES -1 || streq(processes[pid].name, "Shell") || streq(processes[pid].name, null_process_task.name))
+	{
+		return EXIT_FAILURE;
+	}
+	switch(processes[pid].state){
+	case TaskReady:
+		remove_from_q(&ready_tasks[processes[pid].priority], &processes[pid]);
+		break;
+	case TaskSuspended:
+		remove_from_q(&suspended_tasks, &processes[pid]);
+		break;
+	case TaskDelaying:
+		remove_from_q(&delayed_tasks, &processes[pid]);
+		break;
+	case TaskWaiting:
+		remove_from_q(&waiting_tasks, &processes[pid]);
+		break;
+	case TaskTerminated:
+		return EXIT_FAILURE;
+		break;
+	case TaskEmpty:
+		return EXIT_FAILURE;
+		break;
+	}
+	add_to_queue(&terminated_tasks, &processes[pid]);
+	processes[pid].state = TaskTerminated;
+	if(foreground_tasks[processes[pid].tty_number-1] == &processes[pid])
+	{
+		foreground_tasks[processes[pid].tty_number-1] = processes[pid].parent;
+		unsuspend_task(processes[pid].parent);
+	}
+	return EXIT_SUCCESS;
+}
+
 void suspend_task(Task_t * t)
 {
 	atomize();
@@ -312,7 +353,9 @@ int getpid()
 	return current_task->pid;
 }
 
-void cleaner(int argc, char ** argv)
+
+
+void cleaner(int argc, char * argv)
 {
 
 	atomize();
@@ -326,29 +369,28 @@ void cleaner(int argc, char ** argv)
 	yield();
 }
 
-int null_process(int argc, char **argv){
+int null_process(int argc, char *argv){
 	Task_t * aux;
-	_Sti();
 	do
 	{
-//		kprintf("%x", current_task->sp);
-//			while(!empty(&terminated_tasks))
-//			{
-//				aux = pop(&terminated_tasks);
-//				aux->state = TaskEmpty;
-//				aux->priority = MAX_PRIORITIES;
-//				aux->atomic_level = false;
-//				free(aux->ss);
-//				aux->ss = 0;
-//				aux->sp = 0;
-//				aux->parent = NULL;
-//				aux->foreground = false;
-//				aux->ticks = 0;
-//				aux->tty_number = 0;
-//				aux->screen = NULL;
-//				aux->keyboard = NULL;
-//				aux->linebuffer = NULL;
-//			}
+	_Sti();
+			while(!empty(&terminated_tasks))
+			{
+				aux = pop(&terminated_tasks);
+				aux->state = TaskEmpty;
+				aux->priority = MAX_PRIORITIES;
+				aux->atomic_level = false;
+				free(aux->ss);
+				aux->ss = 0;
+				aux->sp = 0;
+				aux->parent = NULL;
+				aux->foreground = false;
+				aux->ticks = 0;
+				aux->tty_number = 0;
+				aux->screen = NULL;
+				aux->keyboard = NULL;
+				aux->linebuffer = NULL;
+			}
 	}while(true);
 
 	return 0;
@@ -356,7 +398,7 @@ int null_process(int argc, char **argv){
 
 //TODO: test processes
 
-int proc1(int argc, char **argv){
+int proc1(int argc, char *argv){
 	_Sti();
 	int i = 0, j=1;
 	while(1){
@@ -380,7 +422,7 @@ int proc1(int argc, char **argv){
 	return 0;
 }
 
-int proc2(int argc, char **argv){
+int proc2(int argc, char *argv){
 	_Sti();
 
 	int i = 0;
@@ -396,7 +438,7 @@ int proc2(int argc, char **argv){
 	return 0;
 }
 
-int proc3(int argc, char **argv){
+int proc3(int argc, char *argv){
 	//asm volatile ("hlt");
 	_Sti();
 		while(1){

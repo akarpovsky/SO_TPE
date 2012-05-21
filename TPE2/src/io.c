@@ -222,7 +222,7 @@ void kputu(unsigned int u) {
 	kputc(u % 10 + '0');
 }
 
-int kprintf(char *fmt, ...) {
+void kprintf(char *fmt, ...) {
 	//_Cli();
 	void *param = &fmt + 1;
 	char c;
@@ -293,7 +293,7 @@ void putx(int x){
 	putc(c);
 }
 
-int printf(char *fmt, ...)
+void printf(char *fmt, ...)
 {
 	//_Cli();
 	void *param = &fmt + 1;
@@ -337,13 +337,14 @@ int printf(char *fmt, ...)
 	//_Sti();
 }
 
-int printfcolor(char color, char *fmt, ...) {
+void printfcolor(char color, char *fmt, ...) {
 	//_Cli();
 	char color_aux = color_p;
 	color_p = color;
 	void *param = &fmt + 1;
 	char c;
 	while ((c = *fmt++) != 0) {
+
 		if (c != '%') {
 			putc(c);
 		} else {
@@ -379,7 +380,7 @@ int printfcolor(char color, char *fmt, ...) {
 	//_Sti();
 }
 
-int kprintfcolor(char color, char *fmt, ...) {
+void kprintfcolor(char color, char *fmt, ...) {
 	//_Cli();
 	char color_aux = color_p;
 	color_p = color;

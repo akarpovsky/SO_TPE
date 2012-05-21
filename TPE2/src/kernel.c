@@ -63,11 +63,13 @@ void printTicks() {
 }
 
 void changeTTY(int tty) {
+	atomize();
 	if (get_foreground_tty()->tty_number != tty+1) {
 		set_foreground_tty(tty);
 //		updateLeds();
 		v_changeTTY();
 	}
+	unatomize();
 }
 
 //XXX: Teclado
@@ -168,7 +170,7 @@ void print_header() {
 	color_p = color_aux;
 }
 
-int shellLoop(int argc, char ** argv) {
+int shellLoop(int argc, char * argv) {
 	while (1) {
 		shell();
 	}

@@ -159,6 +159,12 @@
 #define NULL (void *)0
 #endif /*_NULL_*/
 
+
+#ifndef _EXIT_STATUS_
+#define _EXIT_STATUS_
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
+#endif
 /* Mouse */
 
 typedef struct MOUSE_DATA{

@@ -20,7 +20,7 @@ void _out(unsigned char port, unsigned char c);
 void sysread(int fd, void * buffer, size_t count);
 void syswrite(int fd, void * buffer, size_t count);
 void syskernelwrite(int fd, void * buffer, size_t count);
-int kprintfcolor(char color, char *fmt, ...);
+void kprintfcolor(char color, char *fmt, ...);
 
 
 int getchar();
@@ -36,8 +36,8 @@ void kputs(char* str);
 void kputd(int d);
 void kputu(unsigned int u);
 void kputx(int x);
-int printf(char *fmt, ...);
-int kprintf(char *fmt, ...);
+void printf(char *fmt, ...);
+void kprintf(char *fmt, ...);
 void putx(int x);
 
 #endif

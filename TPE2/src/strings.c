@@ -29,3 +29,17 @@ int streq(char* s, char* t) {
     return FALSE;
 
 }
+
+int atoi (char * s)
+{
+	int i;
+	i=0;
+	while(*s)
+	{
+		i=(i<<3) + (i<<1) + (*s - '0');
+		s++;
+
+
+	}
+	return(i);
+}

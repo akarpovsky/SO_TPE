@@ -76,7 +76,7 @@ typedef struct stack_frame {
 	void * EFLAGS;
 	void * fin_retaddr;
 	int argc;
-	char** argv;
+	char* argv;
 } STACK_FRAME;
 
 struct task {
@@ -110,7 +110,7 @@ struct task {
 	TaskQueue_t 	send_queue;
 };
 
-typedef int (*PROCESS) (int argc, char **argv);
+typedef int (*PROCESS) (int argc, char *argv);
 
 void add_to_queue(TaskQueue_t * q, Task_t * t);
 Task_t *pop(TaskQueue_t * q);

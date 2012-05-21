@@ -32,7 +32,7 @@ static struct {
 		{"mouse", "Display information about the mouse usage", mouse},
 		{"shortcuts", "Display keyboard shorcuts", shortcuts},
 		{"top", "Display ongoing look at processor activity in real time.", top},
-		{"kill PIDn", "Kills the proces with PID = PIDn .", pkill},
+		{"kill", "Kills the proces with PID = PIDn .", pkill},
 		{"imprimeUnos", "Process that prints 1s forever", imprimeUnos},
 		{"invOpcode", "Tries to excecute an invalid Operation Code", invalidOpCode},
 		{"divideByZero", "Tries to perform a division by zero", divideByZero},
@@ -183,7 +183,7 @@ void clearCommand(command_t * command){
 	}
 }
 
-int divideByZero(int argc, char **argv){
+int divideByZero(int argc, char *argv){
 //	clearCommand(NULL);
 	erase_buffer();
 	int x = 1;
@@ -191,7 +191,7 @@ int divideByZero(int argc, char **argv){
 	int z = x / --y;
 }
 
-int clear_screen(int argc, char **argv){
+int clear_screen(int argc, char *argv){
 
 	ttyScreen_t * screen = getScreen(get_current_task());
 
@@ -204,16 +204,22 @@ int clear_screen(int argc, char **argv){
 
 }
 
-int invalidOpCode(int argc, char **argv){
+int invalidOpCode(int argc, char *argv){
 	_invop();
+	return EXIT_SUCCESS;
+
 }
 
-int echo(int argc, char **argv){
+int echo(int argc, char *argv){
+	printfcolor(COMMAND_COLOR, "%s\n", argv);
+	return EXIT_SUCCESS;
+
 }
 
-int mouse(int argc, char **argv){
+int mouse(int argc, char *argv){
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Mouse usage: \n\n");
+	printfcolor(ERROR_COLOR,"%s", commands[0].name);
 
 	printfcolor(ERROR_COLOR,"Left Click");
 	printfcolor(MARINE_COLOR,"\t\t => \t");
@@ -224,10 +230,12 @@ int mouse(int argc, char **argv){
 	printfcolor(COMMAND_COLOR,"Decrements the timer tick frecuency\n");
 
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
+	return EXIT_SUCCESS;
+
 
 }
 
-int shortcuts(int argc, char **argv){
+int shortcuts(int argc, char *argv){
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Keyboard shortcuts: \n\n");
 
@@ -256,11 +264,12 @@ int shortcuts(int argc, char **argv){
 	printfcolor(COMMAND_COLOR,"Change keyboard language (ES | EN)\n");
 
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
+	return EXIT_SUCCESS;
 }
 
 
 
-int help(int argc, char **argv){
+int help(int argc, char *argv){
     int i;
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR,"Available commands: \n\n");
@@ -283,21 +292,51 @@ int help(int argc, char **argv){
     }
 
 	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
-}
-
-int top(int argc, char **argv){
+	return EXIT_SUCCESS;
 
 }
 
-int pkill(int argc, char **argv){
-
+int top(int argc, char *argv){
+	Task_t* processes = get_processes();
+	int i;
+	printfcolor(MARINE_COLOR,"********************************************************************************\n");
+	printfcolor(COMMAND_COLOR, "PID\t\t\tName\t\t\tStatus\n\n");
+	for(i = 0; i<MAX_PROCESSES; i++)
+	{
+		if(processes[i].state != TaskEmpty)
+		{
+			printfcolor(((processes[i].state == TaskReady)?COMMAND_COLOR:
+					(processes[i].state == TaskTerminated)?ERROR_COLOR:MARINE_COLOR),
+					"%d\t\t\t%s\t\t\t%s\n", processes[i].pid, processes[i].name,
+					((processes[i].state == TaskReady)?"Ready":
+							(processes[i].state == TaskTerminated)?"Terminated":"Suspended"));
+		}
+	}
+	printfcolor(MARINE_COLOR,"\n********************************************************************************\n");
+	return EXIT_SUCCESS;
 }
 
-int imprimeUnos(int argc, char **argv){
+int pkill(int argc, char *argv){
+	atomize();
+	int pid = atoi(argv);
+	if(terminate_task(pid) == EXIT_SUCCESS)
+	{
+		printfcolor(COMMAND_COLOR, "PID: %d has been successfully killed.\n", pid);
+	}
+	else
+	{
+		printfcolor(ERROR_COLOR, "PID: %d could not be killed.\n", pid);
+	}
+	unatomize();
+	return EXIT_SUCCESS;
+}
+
+int imprimeUnos(int argc, char *argv){
 
 	_Sti();
 	while(1)
 	{
 		printf("1");
 	}
+	return EXIT_SUCCESS;
 }
