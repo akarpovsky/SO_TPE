@@ -4,6 +4,8 @@
 #define NUM_COMMANDS 10
 #define LINEBUF_LEN 10
 
+extern size_t my_offset;
+
 typedef struct command_t {
 	char name[LINEBUF_LEN];
 	char args[LINEBUF_LEN - 2];
@@ -47,6 +49,7 @@ void shell(void){
 	command_t  *a = (command_t *) my_malloc(sizeof(command_t));
 
 	printf("BrunOS tty%d:~$ ", c_t->tty_number);
+
 	while( (c=getc()) != '\n' ){
 		switch(c){
 		case '\b':
@@ -76,9 +79,9 @@ void shell(void){
 
 	run_command(a);
 	lineBuffer->pos=0;
-	clearCommand(a);
-	erase_buffer();
-	free(a);
+//	clearCommand(a);
+//	erase_buffer();
+//	free(a);
 
 }
 
@@ -292,4 +295,9 @@ int pkill(int argc, char **argv){
 
 int imprimeUnos(int argc, char **argv){
 
+	_Sti();
+	while(1)
+	{
+		printf("1");
+	}
 }

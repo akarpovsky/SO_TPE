@@ -2,6 +2,7 @@
 #include "../../include/structs.h"
 #include "../../include/keyboard.h"
 
+extern size_t my_offset;
 struct key_t * key;
 int i=0;
 
@@ -76,7 +77,6 @@ unsigned char insertKey(unsigned char c) {
 	Task_t * fg_tty = get_foreground_tty();
 	keyboard_t * keyboard = getKeyboard(fg_tty);
 
-
 	if(fg_tty->state == TaskSuspended)
 	{
 		unsuspend_task(fg_tty);
@@ -96,8 +96,11 @@ unsigned char getKey() {
 	Task_t * c_t = get_current_task();
 	keyboard_t * keyboard = getKeyboard(c_t);
 
-	suspend_task(c_t);
-	yield();
+	if(isEmptyBuffer()){
+		suspend_task(c_t);
+		yield();
+
+	}
 	int head = keyboard->head;
 	if (!isEmptyBuffer()) {
 		keyboard->buffer[keyboard->head];

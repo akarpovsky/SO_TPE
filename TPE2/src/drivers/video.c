@@ -99,21 +99,26 @@ void writeInVideo(char c){
 	move_cursor(screen->wpos / 2);
 }
 
+
+//FIXME: doesn't scroll good
 void scroll(){
 
 	ttyScreen_t * screen = (ttyScreen_t *) getScreen(get_current_task());
 
 	int i = 0;
-	for (i = TTY_SCREEN_RSTART; i < SCREEN_COLS - 1; i++) {
-		_memcpy(&main_screen.address[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
-				&main_screen.address[i * SCREEN_ROW_SIZE], SCREEN_ROW_SIZE);
-		_memcpy(
-				&screen->buffer[i * SCREEN_ROW_SIZE
-						+ SCREEN_ROW_SIZE],
-				&screen->buffer[i * SCREEN_ROW_SIZE],
-				SCREEN_ROW_SIZE);
-	}
+	for (i = TTY_SCREEN_RSTART * SCREEN_ROW_SIZE; i < SCREEN_LAST_ROW; i++) {
+		main_screen.address[i] =
+				main_screen.address[i + SCREEN_ROW_SIZE];
+		screen->buffer[i] =
+				screen->buffer[i + SCREEN_ROW_SIZE];
 
+//		_memcpy(&main_screen.address[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
+//				&main_screen.address[i * SCREEN_ROW_SIZE],
+//				SCREEN_ROW_SIZE);
+//		_memcpy(&screen->buffer[i * SCREEN_ROW_SIZE + SCREEN_ROW_SIZE],
+//				&screen->buffer[i * SCREEN_ROW_SIZE],
+//				SCREEN_ROW_SIZE);
+	}
 	screen->wpos = SCREEN_LAST_ROW;
 	while (screen->wpos < SCREEN_SIZE) {
 		main_screen.address[screen->wpos] = 0;

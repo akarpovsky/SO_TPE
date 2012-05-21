@@ -17,13 +17,13 @@ struct screen_t main_screen = {
 
 struct ttyScreen_t screens[TTY_NUMBER] = {{
     TTY_SCREEN_SSTART
-}/*,{
-    TTY_SCREEN_SSTART
 },{
     TTY_SCREEN_SSTART
 },{
     TTY_SCREEN_SSTART
-}*/} ;
+},{
+    TTY_SCREEN_SSTART
+}} ;
 
 struct keyboard_t keyboards[TTY_NUMBER] = {{
     0,
@@ -37,19 +37,7 @@ struct keyboard_t keyboards[TTY_NUMBER] = {{
     FALSE,
     FALSE,
     ENGLISH
-}/*,{
-    0,
-    0,
-    FALSE,
-    FALSE,
-    FALSE,
-    FALSE,
-    FALSE,
-    FALSE,
-    FALSE,
-    FALSE,
-    ENGLISH
-}/*,{
+},{
     0,
     0,
     FALSE,
@@ -73,21 +61,33 @@ struct keyboard_t keyboards[TTY_NUMBER] = {{
     FALSE,
     FALSE,
     ENGLISH
-}*/} ;
+},{
+    0,
+    0,
+    FALSE,
+    FALSE,
+    FALSE,
+    FALSE,
+    FALSE,
+    FALSE,
+    FALSE,
+    FALSE,
+    ENGLISH
+}} ;
 
 struct shellLine_t shellLine[TTY_NUMBER] = {{
 	0,
 	S_BUFFER_SIZE
-}/*,{
-	0,
-	S_BUFFER_SIZE
-}/*,{
+},{
 	0,
 	S_BUFFER_SIZE
 },{
 	0,
 	S_BUFFER_SIZE
-}*/};
+},{
+	0,
+	S_BUFFER_SIZE
+}};
 
 
 struct system_t system = {

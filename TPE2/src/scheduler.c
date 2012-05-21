@@ -4,7 +4,8 @@
  */
 #include "../include/scheduler.h"
 
-extern struct ttyScreen_t screens[TTY_NUMBER];
+extern size_t my_offset;
+int kk =0;
 
 Task_t processes[MAX_PROCESSES];
 Task_t * foreground_tasks[TTY_NUMBER];
@@ -27,7 +28,6 @@ bool printp2 = true;
 bool printp3 = true;
 
 void select_next(){
-
 
 	if(current_task != NULL){
 		if(current_task->atomic_level){
@@ -66,6 +66,48 @@ void select_next(){
 
 }
 
+void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBackground){
+
+	atomize();
+	Task_t * auxTask = NULL;
+	Task_t * c_t = get_current_task();
+	Task_t * fg_t = get_foreground_tty();
+
+	int new_task_priority = c_t->priority; // La prioridad del proceso shell serï¿½ = 1
+
+
+	void * stack_start_address = getFreePage(); // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
+
+	//TODO:
+	if(stack_start_address == NULL){
+		while(1){
+		kprintf("s");
+		}
+	}
+
+	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, &args,
+				stack_start_address, new_task_priority, !isBackground);
+
+
+
+	/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
+	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
+	 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
+	 */
+//	changePagePID(auxTask->pid, stack_start_address);
+	if(!isBackground)
+	{
+		unatomize();
+		suspend_task(auxTask->parent);
+		yield();
+		atomize();
+	}
+
+	unatomize();
+
+
+}
+
 Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, int argc, char** argv, void * stack_start, int priority, int isFront){
 	Task_t * new_proc = pop(&empty_tasks);
 
@@ -94,16 +136,14 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 	add_to_queue(&ready_tasks[priority], new_proc);
 
 
-	int i;
-	for(i = 0; i<TTY_NUMBER; i++)
-	{
-		if(foreground_tasks[i] == NULL && i+1 == tty)
-		{
-			foreground_tasks[i] = new_proc;
-		}
-		else if(foreground_tasks[i]->tty_number == tty)
-		{
-			foreground_tasks[i] = new_proc;
+	if (isFront) {
+		int i;
+		for (i = 0; i < TTY_NUMBER; i++) {
+			if (foreground_tasks[i] == NULL && i + 1 == tty) {
+				foreground_tasks[i] = new_proc;
+			} else if (foreground_tasks[i]->tty_number == tty) {
+				foreground_tasks[i] = new_proc;
+			}
 		}
 	}
 	return new_proc;
@@ -274,19 +314,24 @@ int getpid()
 
 void cleaner(int argc, char ** argv)
 {
+
+	atomize();
 	current_task->state = TaskTerminated;
 	if(current_task->foreground)
 	{
+		foreground_tasks[current_task->tty_number-1] = current_task->parent;
 		unsuspend_task(current_task->parent);
 	}
+	unatomize();
 	yield();
 }
 
 int null_process(int argc, char **argv){
 	Task_t * aux;
+	_Sti();
 	do
 	{
-		_Sti();
+//		kprintf("%x", current_task->sp);
 //			while(!empty(&terminated_tasks))
 //			{
 //				aux = pop(&terminated_tasks);
@@ -309,45 +354,6 @@ int null_process(int argc, char **argv){
 	return 0;
 }
 
-void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBackground){
-
-	atomize();
-	Task_t * auxTask = NULL;
-	Task_t * c_t = get_current_task();
-	Task_t * fg_t = get_foreground_tty();
-
-	int new_task_priority = c_t->priority; // La prioridad del proceso shell serï¿½ = 1
-
-
-	void * stack_start_address = getFreePage(); // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
-
-	//TODO:
-	if(stack_start_address == NULL){
-		while(1){
-		kprintf("s");
-		}
-	}
-	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, &args,
-				stack_start_address, new_task_priority, !isBackground);
-
-
-	/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
-	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
-	 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
-	 */
-//	changePagePID(auxTask->pid, stack_start_address);
-	if(!isBackground)
-	{
-		unatomize();
-		suspend_task(auxTask->parent);
-		yield();
-		atomize();
-	}
-
-	unatomize();
-
-
-}
 //TODO: test processes
 
 int proc1(int argc, char **argv){

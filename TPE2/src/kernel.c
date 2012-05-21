@@ -63,8 +63,6 @@ void printTicks() {
 }
 
 void changeTTY(int tty) {
-	kprintf("%d;", tty);
-	kprintf("%d;", get_foreground_tty()->tty_number);
 	if (get_foreground_tty()->tty_number != tty+1) {
 		set_foreground_tty(tty);
 //		updateLeds();
@@ -77,6 +75,7 @@ void changeTTY(int tty) {
 void int_21(unsigned char scancode) {
 	struct key_t * key = (struct key_t *) parseKey(scancode);
 
+//	kprintf("::%d::", key->keyType);
 	if (key->keyType == ALPHANUM_KEY) {
 		insertKey(key->ascii);
 	} else if (key->keyType == FUNCTION_KEY) {

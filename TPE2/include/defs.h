@@ -114,7 +114,7 @@
 
 /* TTYs */
 
-#define TTY_NUMBER	1
+#define TTY_NUMBER	4
 #define TTY_1		0
 #define TTY_2		1
 #define TTY_3		2
