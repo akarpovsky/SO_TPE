@@ -7,7 +7,9 @@
 #include "strings.h"
 #include "scheduler.h"
 #include "limits.h"
-#include "memorym.h"
+//#include "memorym.h"
+#include "memo.h"
+
 
 typedef struct command_t command_t;
 
@@ -28,8 +30,6 @@ int mouse(int argc, char **argv);
 int top(int argc, char **argv);
 int pkill(int argc, char **argv);
 int imprimeUnos(int argc, char **argv);
-void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBackground);
-
 
 void auto_complete(command_t * command);
 void clearCommand(command_t * command);

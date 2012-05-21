@@ -81,7 +81,6 @@ int addHeader(List list){
 void initHeader(mem_header * h){
 	int i;
 	if (h!=NULL && h->header!=NULL){
-		kprintf("%d: %x;", pages->NumEl, h->header);
 		for (i=0; i<MAX_HEADER_SIZE;i++){
 			h->header[i]=0;
 		}

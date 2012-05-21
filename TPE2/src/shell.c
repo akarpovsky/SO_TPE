@@ -44,7 +44,7 @@ void shell(void){
 	ttyScreen_t * screen = getScreen(c_t);
 	shellLine_t * lineBuffer = getLineBuffer(c_t);
 	char c;
-	command_t  *a = malloc(sizeof(command_t));
+	command_t  *a = (command_t *) my_malloc(sizeof(command_t));
 
 	printf("BrunOS tty%d:~$ ", c_t->tty_number);
 	while( (c=getc()) != '\n' ){
@@ -103,39 +103,6 @@ void parse_command(command_t * c) {
     sscanf(&lineBuffer->buffer[initpos], "%s %s", c->name, c->args);
 }
 
-void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBackground){
-
-	atomize();
-	Task_t * auxTask = NULL;
-	Task_t * c_t = get_current_task();
-	Task_t * fg_t = get_foreground_tty();
-
-	int new_task_priority = c_t->priority; // La prioridad del proceso shell serï¿½ = 1
-
-
-	void * stack_start_address = getFreePage()+MAX_PAGE_SIZE-1; // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
-
-	_debug();
-	//TODO:
-	if(stack_start_address == NULL){
-		while(1){
-		kprintf("s");
-		}
-	}
-	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, &args,
-				stack_start_address, new_task_priority, !isBackground);
-
-	/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
-	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
-	 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
-	 */
-//	changePagePID(auxTask->pid, stack_start_address);
-
-	unatomize();
-
-
-}
-
 int run_command(command_t * command){
 
 	int i;
@@ -154,6 +121,7 @@ int run_command(command_t * command){
 			if (streq(command->name, commands[i].name))
 			{
 				StartNewTask(commands[i].name, commands[i].task_function, command->args, isBackground);
+				return 1;
 			}
 	}
 	printfcolor(ERROR_COLOR ,"%s: command not found\n", command->name);
@@ -238,7 +206,6 @@ int invalidOpCode(int argc, char **argv){
 }
 
 int echo(int argc, char **argv){
-	//TODO: to do
 }
 
 int mouse(int argc, char **argv){

@@ -11,7 +11,6 @@ void * CR3 = (void *) MEMORY_START;
 DESCR_PAGE * gdt;
 
 
-
 void setup_DESCR_PAGE(DESCR_PAGE * item, void * address) {
 	item->address = address;
 	//absent(item);

@@ -134,7 +134,6 @@ void v_changeTTY(){
 	offset = 0;
 	print_header();
 //	printTicks();
-	kprintf("           ");
 	for (i = TTY_SCREEN_SSTART; i < SCREEN_SIZE; i++) {
 		main_screen.address[i] = screen->buffer[i];
 	}

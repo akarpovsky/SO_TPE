@@ -223,8 +223,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	_lidt(&idtr);
 
 
-	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
-			(void*)(kmmap.base_addr_low + kmmap.length_low));
+//	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
+//			(void*)(kmmap.base_addr_low + kmmap.length_low));
 
 	//TODO;
 
@@ -272,7 +272,7 @@ void init(void) {
 
 	for (i = 0; i < TTY_NUMBER; i++) {
 
-		void * stack_start_address = getFreePage() + MAX_PAGE_SIZE - 1; // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
+		void * stack_start_address = getFreePage(); // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
 
 		//TODO:
 		if(stack_start_address == NULL)
@@ -292,7 +292,7 @@ void init(void) {
 		 * Luego de este cambio la p�gina ser� accesible por y solo por el proceso que acabamos de crear.
 		 */
 
-		changePagePID(auxShell->pid, stack_start_address);
+//		changePagePID(auxShell->pid, stack_start_address);
 
 		/* Asigno una pantalla, un teclado y un linebuffer exclusivo para cada TTY */
 		auxShell->screen = &screens[i];

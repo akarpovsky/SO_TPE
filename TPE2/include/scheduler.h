@@ -10,7 +10,8 @@
 #include "proc.h"
 #include "structs.h"
 #include "io.h"
-#include "memorym.h"
+//#include "memorym.h"
+#include "memo.h"
 
 void select_next(void);
 Task_t * get_current_task();
@@ -26,6 +27,7 @@ void unatomize();
 void atomize();
 void yield();
 int null_process(int argc, char **argv);
+void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBackground);
 
 void suspend_task(Task_t * t);
 void unsuspend_task(Task_t *t);
