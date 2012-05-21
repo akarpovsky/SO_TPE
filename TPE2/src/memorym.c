@@ -70,7 +70,10 @@ int addHeader(List list){
 	list->NumEl = (list->NumEl) + 1;
 
 	initHeader(&(list->pLast->headerEl));
-	
+//	if (list->NumEl == 12111211) {
+//		_debug();
+//	}
+
 	return OK;
 
 }
@@ -78,11 +81,14 @@ int addHeader(List list){
 void initHeader(mem_header * h){
 	int i;
 	if (h!=NULL && h->header!=NULL){
-		for (i=0; i<MAX_HEADER_SIZE;i++)
+		kprintf("%d: %x;", pages->NumEl, h->header);
+		for (i=0; i<MAX_HEADER_SIZE;i++){
 			h->header[i]=0;
+		}
 		h->blocks_cont = MAX_HEADER_SIZE;
 
 	}
+
 	h->pid = FREE_PAGE;
 	
 }
@@ -101,13 +107,14 @@ void * malloc(int size){
 	int flag = NOT_FOUND;
 	mem_header * actual;
 	int bloques = getBlocks(size);
-	Task_t * proc = get_current_task();
+	//Task_t * proc = get_current_task();
 
 
 	if(size > 0 && size <= MAX_PAGE_SIZE){
 
 		/* Itero sobre el pages para ver si cuento con un segmento de memorio del tamaño solicitado */	
 		for (i = 0; i < pages->NumEl && flag == NOT_FOUND; i++){	
+
 
 			if(GET_HEADER(i).blocks_cont >= bloques &&
 				(GET_HEADER(i).pid == FREE_PAGE || GET_HEADER(i).pid == getpid())){
@@ -161,15 +168,15 @@ void * malloc(int size){
 				pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
 				presentPageNumber(pag);
 				
-				for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
-					if(proc->pages[t] == pag){
-						HAVE_PAGE = 1;
-					}
-				}
-
-				if(!HAVE_PAGE && t < PAGES_MAX){
-					proc->pages[t] = pag;
-				}
+//				for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
+//					if(proc->pages[t] == pag){
+//						HAVE_PAGE = 1;
+//					}
+//				}
+//
+//				if(!HAVE_PAGE && t < PAGES_MAX){
+//					proc->pages[t] = pag;
+//				}
 
 				//corregirlo contando cuantos bloques recorrio
 				for(k=0, ans=pages->first_page + (i * MAX_PAGE_SIZE); k<j ; k++){
@@ -185,7 +192,9 @@ void * malloc(int size){
 
 		if(flag == NOT_FOUND && pages->NumEl < pages->max_pages){
 			
+
 			addHeader(pages);
+
 			actual = &(GET_HEADER(i));
 
 			
@@ -198,15 +207,15 @@ void * malloc(int size){
 
 			pag = (((int)(pages->first_page)) + (i * MAX_PAGE_SIZE)) / MAX_PAGE_SIZE;
 			presentPageNumber(pag);
-			for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
-				if(proc->pages[t] == pag){
-					HAVE_PAGE = 1;
-				}
-			}
-
-			if(!HAVE_PAGE && t < PAGES_MAX){
-				proc->pages[t] = pag;
-			}
+//			for(t=0; t < PAGES_MAX && !HAVE_PAGE && proc->pages[t] != -1; t++){
+//				if(proc->pages[t] == pag){
+//					HAVE_PAGE = 1;
+//				}
+//			}
+//
+//			if(!HAVE_PAGE && t < PAGES_MAX){
+//				proc->pages[t] = pag;
+//			}
 
 		}
 
@@ -368,23 +377,23 @@ void free(void* p){
 
 				absentPageNumber(pag);
 
-				for(t = 0; t < PAGES_MAX && proc->pages[t]!= pag; t++){
-					;
-				}
-
-				if(proc->pages[t] == pag){
-
-					// por si es el ultimo elemento del vector
-					proc->pages[t] = -1;
-
-					for( ; t < PAGES_MAX - 1 && proc->pages[t+1] != -1; t++){
-
-						proc->pages[t] = proc->pages[t+1];
-					}
-					if(t + 1 < PAGES_MAX){
-						proc->pages[t + 1] = -1; 
-					}
-				}
+//				for(t = 0; t < PAGES_MAX && proc->pages[t]!= pag; t++){
+//					;
+//				}
+//
+//				if(proc->pages[t] == pag){
+//
+//					// por si es el ultimo elemento del vector
+//					proc->pages[t] = -1;
+//
+//					for( ; t < PAGES_MAX - 1 && proc->pages[t+1] != -1; t++){
+//
+//						proc->pages[t] = proc->pages[t+1];
+//					}
+//					if(t + 1 < PAGES_MAX){
+//						proc->pages[t + 1] = -1;
+//					}
+//				}
 			}
 			
 		}

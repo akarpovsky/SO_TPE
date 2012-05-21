@@ -1,6 +1,6 @@
 ###############################################################
 # how much memory the emulated machine will have
-megs: 512
+megs: 1024
 # filename of ROM images
 romimage: file=/usr/share/bochs/BIOS-bochs-latest
 

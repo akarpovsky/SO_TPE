@@ -102,7 +102,8 @@
 
 #define ALPHANUM_KEY	1
 #define FUNCTION_KEY	2
-#define HIDDEN_KEY	3
+#define HIDDEN_KEY		3
+#define TTY_KEY			4
 
 /* Booleans */
 #ifndef _BOOLEAN_DEF_
@@ -113,7 +114,7 @@
 
 /* TTYs */
 
-#define TTY_NUMBER	2
+#define TTY_NUMBER	1
 #define TTY_1		0
 #define TTY_2		1
 #define TTY_3		2

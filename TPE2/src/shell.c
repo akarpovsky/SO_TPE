@@ -1,23 +1,24 @@
 #include "../include/shell.h"
 
 
-extern struct shellLine_t shellLine;
-extern tty_t ttys[];
-
-int printing_command = FALSE;
-extern int printing_header;
-
 #define NUM_COMMANDS 10
-#define LINEBUF_LEN 100
+#define LINEBUF_LEN 10
 
-
-typedef void(*commandFnct)(void);
-
-static struct {
+typedef struct command_t {
 	char name[LINEBUF_LEN];
 	char args[LINEBUF_LEN - 2];
 
-} command;
+} command_t;
+
+typedef struct hola{
+	char name[20];
+
+} hola_t;
+
+
+int printing_command = FALSE;
+
+typedef void(*commandFnct)(void);
 
 static struct {
     char* name;
@@ -36,14 +37,15 @@ static struct {
 		{"clearScreen", "Erase all the content of the actual TTY", clear_screen}
 	};
 
-void shell(){
+void shell(void){
+
 
 	Task_t * c_t = get_current_task();
-
-	shellLine_t * lineBuffer = getLineBuffer(c_t);
 	ttyScreen_t * screen = getScreen(c_t);
-
+	shellLine_t * lineBuffer = getLineBuffer(c_t);
 	char c;
+	command_t  *a = malloc(sizeof(command_t));
+
 	printf("BrunOS tty%d:~$ ", c_t->tty_number);
 	while( (c=getc()) != '\n' ){
 		switch(c){
@@ -55,8 +57,8 @@ void shell(){
 			}
 			break;
 		case '\t':
-			parse_command();
-			auto_complete();
+			parse_command(a);
+			auto_complete(a);
 			break;
 		default:
 			if(lineBuffer->pos < lineBuffer->size-1){
@@ -70,13 +72,13 @@ void shell(){
 
 	putc('\n');
 
-	parse_command();
+	parse_command(a);
 
-
-	run_command();
+	run_command(a);
 	lineBuffer->pos=0;
-	clearCommand();
+	clearCommand(a);
 	erase_buffer();
+	free(a);
 
 }
 
@@ -90,7 +92,7 @@ void erase_buffer(){
 
 }
 
-void parse_command() {
+void parse_command(command_t * c) {
 
     shellLine_t * lineBuffer = getLineBuffer(get_current_task());
 
@@ -98,76 +100,83 @@ void parse_command() {
 
     /* Remover espacios en blanco */
     while ( (lineBuffer->buffer[initpos] == ' ') && (++initpos < LINEBUF_LEN - 1) );
-    sscanf(&lineBuffer->buffer[initpos], "%s %s", command.name, command.args);
+    sscanf(&lineBuffer->buffer[initpos], "%s %s", c->name, c->args);
 }
 
-void StartNewTask(char * name, PROCESS new_task_function){
+void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBackground){
 
-	_Sti();
+	atomize();
 	Task_t * auxTask = NULL;
 	Task_t * c_t = get_current_task();
 	Task_t * fg_t = get_foreground_tty();
 
 	int new_task_priority = c_t->priority; // La prioridad del proceso shell serï¿½ = 1
 
-	void * stack_start_address = getFreePage() + MAX_PAGE_SIZE-1; // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
 
-	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 0, NULL,
-				stack_start_address, new_task_priority, fg_t->pid==c_t->pid);
+	void * stack_start_address = getFreePage()+MAX_PAGE_SIZE-1; // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
+
+	_debug();
+	//TODO:
+	if(stack_start_address == NULL){
+		while(1){
+		kprintf("s");
+		}
+	}
+	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, &args,
+				stack_start_address, new_task_priority, !isBackground);
 
 	/* Cambio el PID de la pï¿½gina del stack que me devolviï¿½ getFreePage() ya que previo a la creaciï¿½n del
 	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
 	 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
 	 */
-	changePagePID(auxTask->pid, stack_start_address);
+//	changePagePID(auxTask->pid, stack_start_address);
 
-	_Sti();
+	unatomize();
 
 
 }
 
-int run_command(){
+int run_command(command_t * command){
 
 	int i;
-	if(streq(command.name, ""))
+	if(streq(command->name, ""))
 		return 0;
 
-	int len = strlen(command.name);
+	int len = strlen(command->name);
 
-	bool isBackground = false;
-	if(command.name[len] == '&')
-		isBackground = true;
+	bool isBackground = (command->name[len-1] == '&')? true:false;
+	if(isBackground)
+	{
+		command->name[len-1] = '\0';
+	}
 
 	for (i = 0; i < NUM_COMMANDS; i++) {
-	    if (streq(command.name, commands[i].name)) {
-	    	if(!isBackground)
-	    		StartNewTask(commands[i].name, commands[i].task_function);
-	    	else
-	    		printf("Is background willy!\n");
-		return 1;
-	    }
+			if (streq(command->name, commands[i].name))
+			{
+				StartNewTask(commands[i].name, commands[i].task_function, command->args, isBackground);
+			}
 	}
-	printfcolor(ERROR_COLOR ,"%s: command not found\n", command.name);
-	clearCommand();
+	printfcolor(ERROR_COLOR ,"%s: command not found\n", command->name);
+	clearCommand(command);
 	return 1;
 }
 
-void auto_complete(){
+void auto_complete(command_t *command){
 
 	Task_t * c_t = get_current_task();
 	ttyScreen_t * screen = getScreen(c_t);
 	shellLine_t * lineBuffer = getLineBuffer(c_t);
 
 	int i, j, size, lenght, eq = TRUE;
-	lenght = strlen(command.name);
+	lenght = strlen(command->name);
 	char * commName;
-	if (streq(command.name, ""))
+	if (streq(command->name, ""))
 		return;
 
 	for (i = 0; i < NUM_COMMANDS; i++) {
 		commName = commands[i].name;
 		for (j = 0; j < lenght && eq == TRUE; j++) {
-			if (command.name[j] != commName[j])
+			if (command->name[j] != commName[j])
 				eq = FALSE;
 			if (j == strlen(commName) - 1)
 				eq = FALSE;
@@ -190,21 +199,21 @@ void auto_complete(){
 		}
 		eq = !eq;
 	}
-	command.name[0] = 0;
+	command->name[0] = 0;
 
 }
 
-void clearCommand(){
+void clearCommand(command_t * command){
 	int i = 0;
 	for (i = 0; i < LINEBUF_LEN; i++)
 	{
-		command.name[i]=0;
-		command.args[i]=0;
+		command->name[i]=0;
+		command->args[i]=0;
 	}
 }
 
 int divideByZero(int argc, char **argv){
-	clearCommand();
+//	clearCommand(NULL);
 	erase_buffer();
 	int x = 1;
 	int y = 1;
@@ -229,9 +238,7 @@ int invalidOpCode(int argc, char **argv){
 }
 
 int echo(int argc, char **argv){
-	char * text = command.args;
-	printfcolor(COMMAND_COLOR,text);
-	printf("\n");
+	//TODO: to do
 }
 
 int mouse(int argc, char **argv){

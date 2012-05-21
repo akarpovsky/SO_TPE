@@ -1,48 +1,38 @@
-;*****************************************************
-; kstart.asm
-;
-;Punto de entrada de la imagen.
-;Header para multiboot.
-;******************************************************
+global loader                           ; making entry point visible to linker
 
+extern kmain                            ; kmain is defined in kmain.cpp
 
-%include "../include/grub.inc"
+; setting up the Multiboot header - see GRUB docs for details
+MODULEALIGN equ  1<<0                   ; align loaded modules on page boundaries
+MEMINFO     equ  1<<1                   ; provide memory map
+FLAGS       equ  MODULEALIGN | MEMINFO  ; this is the Multiboot 'flag' field
+MAGIC       equ    0x1BADB002           ; 'magic number' lets bootloader find the header
+CHECKSUM    equ -(MAGIC + FLAGS)        ; checksum required
 
-[BITS 32]
+section .text
 
-[global start]
-[extern kmain] ; en kernel.c
+align 4
+    dd MAGIC
+    dd FLAGS
+    dd CHECKSUM
 
-start:
+; reserve initial kernel stack space
+STACKSIZE equ 0x8000                    ; that's 16k.
 
-  call kmain
+loader:
+    mov  esp, stack + STACKSIZE         ; set up the stack
+    push eax                            ; Multiboot magic number
+    push ebx                            ; Multiboot info structure
 
-  jmp $ ; si retorna de kmain se detiene
+    call kmain                          ; call kernel proper
 
+    cli
+.hang:
+    hlt                                 ; halt machine should kernel return
+    jmp  .hang
 
-;**************************************************************
-; header para el GRUB. El orden de los datos estan especificados
-; en la Multiboot Specification.
-;**************************************************************
+section .bss
 
-; Definidos en link.ld
-EXTERN code, bss, end
-
-ALIGN 4
-mboot:
-	dd MULTIBOOT_HEADER_MAGIC  ; Numero que identifica al header
-				   ; debe ser 0x1BADB002
-	dd MULTIBOOT_HEADER_FLAGS  ; Los bits de 0-15 indican requerimientos
-				   ; de la imagen.
-				   ; Los bits 16-31 indican features opcionales
-	dd MULTIBOOT_CHECKSUM
-
-; Comienzo de Offsets 8-24 del header, son validos por estar seteado el flag 16.
-
-	dd mboot	; Dirección de comienzo del header.
-	dd code		; Direccion de comienzo del segmento text.
-	dd bss		; Direccion del final del segmento de datos. Implica que el
-			; Codigo y el dato deben estar consecutivos. ( lo cumple el formato
-			; a.out )
-	dd end		; Direccion del final del segmento bss.
-	dd start	; Punto de entrada de la imagen.
+align 4
+stack:
+    resb STACKSIZE                      ; reserve 16k stack on a doubleword boundary

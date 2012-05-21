@@ -3,7 +3,6 @@
 #include "../../include/keyboard.h"
 
 struct key_t * key;
-extern struct tty_t ttys[];
 int i=0;
 
 char e_lowercase[256] =
@@ -73,8 +72,10 @@ char s_capsuppercase[256] = { 0, 0xa7, '!', '"', '#', '$', '%', '&', '/', '(',
 		84, 85, '>' };
 
 unsigned char insertKey(unsigned char c) {
+
 	Task_t * fg_tty = get_foreground_tty();
 	keyboard_t * keyboard = getKeyboard(fg_tty);
+
 
 	if(fg_tty->state == TaskSuspended)
 	{
@@ -150,12 +151,12 @@ struct key_t * parseKey(unsigned char c) {
 	case NUMLOCK:
 		keyboard->num_state = !keyboard->num_state;
 		key->keyType = HIDDEN_KEY;
-		updateLeds();
+//		updateLeds();
 		break;
 	case SCROLLLOCK:
 		keyboard->scroll_state = !keyboard->scroll_state;
 		key->keyType = HIDDEN_KEY;
-		updateLeds();
+//		updateLeds();
 		break;
 	case LEFT_SHIFT_PRESSED:
 	case RIGHT_SHIFT_PRESSED:
@@ -171,7 +172,7 @@ struct key_t * parseKey(unsigned char c) {
 		break;
 	case CAPSLOCK:
 		keyboard->caps_state = !keyboard->caps_state;
-		updateLeds();
+//		updateLeds();
 		key->keyType = HIDDEN_KEY;
 		break;
 	case ESCAPED_KEY:
@@ -204,8 +205,7 @@ struct key_t * parseKey(unsigned char c) {
 	case F2:
 	case F3:
 	case F4:
-		key->keyType = FUNCTION_KEY;
-		changeTTY(c - 0x3b);
+		key->keyType = TTY_KEY;
 		break;
 	case DEAD_KEY:
 		if (keyboard->lang == SPANISH) {
@@ -308,8 +308,8 @@ void viewBuffer() {
 
 void updateLeds() {
 
-	Task_t * c_t = get_current_task();
-	keyboard_t * keyboard = getKeyboard(c_t);
+	Task_t * fg_t = get_foreground_tty();
+	keyboard_t * keyboard = getKeyboard(fg_t);
 
 	unsigned char leds = keyboard->scroll_state
 			| (keyboard->num_state * 2)

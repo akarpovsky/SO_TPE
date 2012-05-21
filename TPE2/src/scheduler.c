@@ -97,7 +97,11 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 	int i;
 	for(i = 0; i<TTY_NUMBER; i++)
 	{
-		if(foreground_tasks[i]->tty_number == tty || i == tty)
+		if(foreground_tasks[i] == NULL && i+1 == tty)
+		{
+			foreground_tasks[i] = new_proc;
+		}
+		else if(foreground_tasks[i]->tty_number == tty)
 		{
 			foreground_tasks[i] = new_proc;
 		}
@@ -136,6 +140,11 @@ void SetupScheduler(){
 		}
 	}
 
+	for(i=0; i<TTY_NUMBER; i++)
+	{
+		foreground_tasks[i] = NULL;
+	}
+
 
 	null_process_task.state = TaskNULL;
 	null_process_task.keyboard = NULL;
@@ -143,8 +152,17 @@ void SetupScheduler(){
 	null_process_task.linebuffer = NULL;
 	null_process_task.pid = 0;
 	strcpy(null_process_task.name, "Null Process");
-	void * null_stack_address = getFreePage() + MAX_PAGE_SIZE-1; // Ask for a free page to alocate the stack for the NULL task
+	void * null_stack_address = getFreePage()+MAX_PAGE_SIZE-1; // Ask for a free page to alocate the stack for the NULL task
 
+	//TODO:
+	if(null_stack_address == NULL)
+	{
+		while(1)
+		{
+		kprintf("n");
+
+		}
+	}
 
 	CreateStackFrame(&null_process_task, null_process, null_stack_address);
 
@@ -154,7 +172,9 @@ void SetupScheduler(){
 //	tproc2->screen = &screens[0];
 //	tproc3 = CreateProcess("proc1", proc3, NULL, 1, 0, NULL,(void*) 0x203000, 0, false);
 //	tproc3->screen = &screens[0];
-	changePagePID(null_process_task.pid, null_stack_address);
+//	changePagePID(null_process_task.pid, null_stack_address);
+
+	set_foreground_tty(0);
 
 }
 
@@ -259,28 +279,27 @@ void cleaner(int argc, char ** argv)
 }
 
 int null_process(int argc, char **argv){
-	_Sti();
 	Task_t * aux;
 	do
 	{
-			while(!empty(&terminated_tasks))
-			{
-				aux = pop(&terminated_tasks);
-				aux->state = TaskEmpty;
-				aux->priority = MAX_PRIORITIES;
-				aux->atomic_level = false;
-				free(aux->ss);
-				aux->ss = 0;
-				aux->sp = 0;
-				aux->parent = NULL;
-				aux->foreground = false;
-				aux->ticks = 0;
-				aux->tty_number = 0;
-				aux->screen = NULL;
-				aux->keyboard = NULL;
-				aux->linebuffer = NULL;
-			}
-
+		_Sti();
+//			while(!empty(&terminated_tasks))
+//			{
+//				aux = pop(&terminated_tasks);
+//				aux->state = TaskEmpty;
+//				aux->priority = MAX_PRIORITIES;
+//				aux->atomic_level = false;
+//				free(aux->ss);
+//				aux->ss = 0;
+//				aux->sp = 0;
+//				aux->parent = NULL;
+//				aux->foreground = false;
+//				aux->ticks = 0;
+//				aux->tty_number = 0;
+//				aux->screen = NULL;
+//				aux->keyboard = NULL;
+//				aux->linebuffer = NULL;
+//			}
 	}while(true);
 
 	return 0;

@@ -6,7 +6,7 @@
 #include "structs.h"
 #include "strings.h"
 #include "proc.h"
-#include "video.h"
+//#include "video.h"
 
 /********************************** 
 *

@@ -1,9 +1,6 @@
 #include "../include/io.h"
 
-extern struct tty_t ttys[];
-extern screen_t main_screen;
 extern char color_p;
-extern char * video;
 size_t offset = 0x0;
 char wbuffer[20]; /*buffer para escribir*/
 
@@ -180,9 +177,10 @@ void kputc(char c) {
 char getc() {
 	char c;
 	__read(STDIN, &c, 1);
-	while (c == EMPTY_CHAR) {
-		__read(STDIN, &c, 1);
-	}
+//	while (c == EMPTY_CHAR) {
+//		kprintf("c");
+//		__read(STDIN, &c, 1);
+//	}
 	return c;
 }
 

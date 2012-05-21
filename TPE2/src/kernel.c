@@ -59,13 +59,15 @@ void int_20() {
 }
 
 void printTicks() {
-	kprintf("           Ticks: ");
+	kprintf("            ");
 }
 
 void changeTTY(int tty) {
-	if (tty != actualTTY) {
-		actualTTY = tty;
-		updateLeds();
+	kprintf("%d;", tty);
+	kprintf("%d;", get_foreground_tty()->tty_number);
+	if (get_foreground_tty()->tty_number != tty+1) {
+		set_foreground_tty(tty);
+//		updateLeds();
 		v_changeTTY();
 	}
 }
@@ -78,8 +80,9 @@ void int_21(unsigned char scancode) {
 	if (key->keyType == ALPHANUM_KEY) {
 		insertKey(key->ascii);
 	} else if (key->keyType == FUNCTION_KEY) {
-
-		printf("Function key pressed\n");
+		//XXX: NOTHING TO DO HERE!
+	} else if (key->keyType == TTY_KEY){
+		changeTTY(scancode - 0x3B);
 	}
 }
 
@@ -168,7 +171,6 @@ void print_header() {
 
 int shellLoop(int argc, char ** argv) {
 	while (1) {
-		_Sti();
 		shell();
 	}
 	return 0;
@@ -185,6 +187,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 		return;
 	}
 
+	_Cli();
 	int maxlenght = 0;
 	for (memmap = (memory_map_t *) mbi->mmap_addr; (unsigned long) memmap
 			< mbi->mmap_addr + mbi->mmap_length; memmap
@@ -219,10 +222,9 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	_lidt(&idtr);
 
-	_Cli();
 
-	initpages(kmmap.base_addr_low + kmmap.length_low,
-			kmmap.base_addr_low + kmmap.length_low);
+	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
+			(void*)(kmmap.base_addr_low + kmmap.length_low));
 
 	//TODO;
 
@@ -233,7 +235,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	 * terminales.
 	 */
 	init();
-//		print_header();
+		print_header();
 	//
 	//
 //		printTicks();
@@ -256,9 +258,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	/* Habilitamos interrupciones y el scheduler empieza a jugar!*/
 	_Sti();
-	while (1)
-		;
-	//	_int_20_hand();
+	_int_20_hand();
+	while (1);
 }
 
 void init(void) {
@@ -273,6 +274,14 @@ void init(void) {
 
 		void * stack_start_address = getFreePage() + MAX_PAGE_SIZE - 1; // Me devuelve una nueva p�gina vac�a con el "PID de kernel"
 
+		//TODO:
+		if(stack_start_address == NULL)
+		{
+			while(1){
+			kprintf("a");
+
+			}
+		}
 
 		// If it is the first TTY, isFront = true
 		auxShell = CreateProcess("Shell", shellLoop, NULL, i + 1, 0, NULL,
@@ -302,6 +311,8 @@ void init(void) {
 
 
 	}
+
+	set_foreground_tty(0);
 
 }
 

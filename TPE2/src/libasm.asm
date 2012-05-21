@@ -9,7 +9,7 @@ GLOBAL	_excp_15_hand, _excp_16_hand, _excp_17_hand, _excp_18_hand, _excp_19_hand
 GLOBAL	_excp_20_hand, _excp_21_hand, _excp_22_hand, _excp_23_hand, _excp_24_hand
 GLOBAL	_excp_25_hand, _excp_26_hand, _excp_27_hand, _excp_28_hand, _excp_29_hand
 GLOBAL	_excp_30_hand, _invop
-
+GLOBAL	_lcr3, _fill_page1, _epag
 GLOBAL  _debug, _excp_0_hand
 EXTERN  int_20, int_21, int_74, int_80, int_80, debugger, exception_handler, getSSPointer, getSPPointer
 
@@ -387,6 +387,7 @@ _debug:
 vuelve:	mov     ax, 1
         cmp	ax, 0
 	jne	vuelve
+	sti
 	pop	ax
 	pop     bp
         retn
@@ -425,3 +426,37 @@ loop:
 	mov esp, ebp
 	pop ebp
 	ret
+
+
+	;;TODO: blah blah
+
+_epag:
+	mov eax, cr0
+	or eax, 80000000h
+	mov cr0, eax
+	ret
+
+	_lcr3:
+;mov eax, [esp+4]
+mov eax, 00200000h
+mov cr3, eax
+ret
+
+; Mapeo 1:1 de la primer pagina
+_fill_page1:
+
+mov eax, 0
+mov ebx, 0
+.fill_table:
+mov ecx, ebx
+cmp eax, 530
+jg .notpresent
+or ecx, 1
+.notpresent: mov [201000h+eax*4], ecx
+add ebx, 4096
+inc eax
+cmp eax, 1024
+je .end
+jmp .fill_table
+.end:
+ret

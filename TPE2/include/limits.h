@@ -42,6 +42,7 @@
 #define MAX_PROCESSES 		127//4096
 #define MAX_PRIORITIES 		   5
 
+
 /* Dimensiones de la pantalla */
 #define SCREEN_ROWS	80
 #define SCREEN_COLS	25
