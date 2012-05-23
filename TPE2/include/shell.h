@@ -13,7 +13,12 @@
 #define NUM_COMMANDS 12
 #define LINEBUF_LEN 10
 
-typedef struct command_t command_t;
+
+typedef struct command_t { 
+        char name[LINEBUF_LEN]; 
+        char args[LINEBUF_LEN - 2]; 
+ 
+} command_t;
 
 void shell();
 void parse_command(command_t * c);

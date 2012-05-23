@@ -3,18 +3,6 @@
 
 extern size_t my_offset;
 
-typedef struct command_t {
-	char name[LINEBUF_LEN];
-	char args[LINEBUF_LEN - 2];
-
-} command_t;
-
-typedef struct hola{
-	char name[20];
-
-} hola_t;
-
-
 int printing_command = FALSE;
 
 typedef void(*commandFnct)(void);
