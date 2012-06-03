@@ -77,13 +77,14 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 	int new_task_priority = (streq(name, "imprimeDos"))? 3: 2 ; // La prioridad del proceso shell serï¿½ = 1
 
 
-	void * stack_start_address = getFreePage()+4096-1; // Me devuelve una nueva pï¿½gina vacï¿½a con el "PID de kernel"
-	//TODO:
+	void * stack_start_address = getFreePage()+4096-1; // Me devuelve una nueva pagina vacia con el "PID de kernel"
+
 	if(stack_start_address == NULL){
 		while(1){
 		kprintf("s");
 		}
 	}
+
 	int argc;
 	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, args,
 				stack_start_address, new_task_priority, !isBackground);
@@ -94,7 +95,7 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 	 * proceso, éste no tenï¿½a ningï¿½n PID asignado y esa pï¿½gina contenï¿½a un PID invï¿½lido.
 	 * Luego de este cambio la pï¿½gina serï¿½ accesible por y solo por el proceso que acabamos de crear.
 	 */
-//	changePagePID(auxTask->pid, stack_start_address);
+	changePagePID(auxTask->pid, stack_start_address);
 	if(!isBackground)
 	{
 		unatomize();
@@ -205,14 +206,6 @@ void SetupScheduler(){
 
 	CreateStackFrame(&null_process_task, null_process, null_stack_address, 0, NULL);
 
-//	tproc1 = CreateProcess("proc1", proc1, NULL, 1, 0, NULL,(void*) 0x201000, 0, true);
-//	tproc1->screen = &screens[0];
-//	tproc2 = CreateProcess("proc1", proc2, NULL, 1, 0, NULL,(void*) 0x202000, 0, false);
-//	tproc2->screen = &screens[0];
-//	tproc3 = CreateProcess("proc1", proc3, NULL, 1, 0, NULL,(void*) 0x203000, 0, false);
-//	tproc3->screen = &screens[0];
-//	changePagePID(null_process_task.pid, null_stack_address);
-
 	set_foreground_tty(0);
 
 }
@@ -288,8 +281,11 @@ Task_t * get_processes()
 }
 int terminate_task(int pid)
 {
+	atomize();
+	printf("Trying to kill process with PID = %d\n", pid);
+
 	pid--;
-	if(pid <0 || pid > MAX_PROCESSES -1 || streq(processes[pid].name, "Shell") || streq(processes[pid].name, null_process_task.name))
+	if(pid < 0 || pid > MAX_PROCESSES -1 || streq(processes[pid].name, "Shell") || streq(processes[pid].name, null_process_task.name))
 	{
 		return EXIT_FAILURE;
 	}
@@ -320,6 +316,9 @@ int terminate_task(int pid)
 		foreground_tasks[processes[pid].tty_number-1] = processes[pid].parent;
 		unsuspend_task(processes[pid].parent);
 	}
+
+	unatomize();
+
 	return EXIT_SUCCESS;
 }
 

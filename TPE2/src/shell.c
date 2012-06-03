@@ -66,9 +66,7 @@ void shell(void){
 
 	run_command(a);
 	lineBuffer->pos=0;
-//	clearCommand(a);
 	erase_buffer();
-//	free(a);
 
 }
 
@@ -171,7 +169,6 @@ void clearCommand(command_t * command){
 }
 
 int divideByZero(int argc, char *argv){
-//	clearCommand(NULL);
 	erase_buffer();
 	int x = 1;
 	int y = 1;
@@ -287,14 +284,14 @@ int top(int argc, char *argv){
 	Task_t* processes = get_processes();
 	int i;
 	printfcolor(MARINE_COLOR,"********************************************************************************\n");
-	printfcolor(COMMAND_COLOR, "PID\t\t\tName\t\t\tStatus\t\tPriority\n\n");
+	printfcolor(COMMAND_COLOR, "PID\t\t\tName\t\t\t\tStatus\t\t\tPriority\n\n");
 	for(i = 0; i<MAX_PROCESSES; i++)
 	{
 		if(processes[i].state != TaskEmpty)
 		{
 			printfcolor(((processes[i].state == TaskReady)?COMMAND_COLOR:
 					(processes[i].state == TaskTerminated)?ERROR_COLOR:MARINE_COLOR),
-					"%d\t\t\t%s\t\t\t%s\t\t%d\n", processes[i].pid, processes[i].name,
+					"%d\t\t\t%s\t\t\t\t%s\t\t\t%d\n", processes[i].pid, processes[i].name,
 					((processes[i].state == TaskReady)?"Ready":
 							(processes[i].state == TaskTerminated)?"Terminated":"Suspended"), processes[i].priority);
 		}
@@ -341,13 +338,3 @@ int imprimeDos(int argc, char *argv){
 int pagefault(int argc, char * argv){
 	return pagefault(argc, argv);
 }
-
-//int mallocs(int argc, char * argv){
-//	int a = 0;
-//	while(1){
-//		malloc(100);
-//		a+=100;
-//		printf("a:%d--", a);
-//	}
-//	return a;
-//}

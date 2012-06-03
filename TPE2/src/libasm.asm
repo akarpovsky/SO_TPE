@@ -58,7 +58,6 @@ _lidt:				; Carga el IDTR
 
 
 _excp_00_hand:
-
     push ebx
     mov  ebx, 00h
     jmp isr_common_stub

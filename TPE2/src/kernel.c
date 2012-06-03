@@ -237,10 +237,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	 * terminales.
 	 */
 	init();
-		print_header();
-	//
-	//
-//		printTicks();
+	print_header();
 
 	/* Habilito interrupciones necesarias */
 

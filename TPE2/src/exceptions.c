@@ -2,62 +2,49 @@
 #include "../include/defs.h"
 #include "../include/exceptions.h"
 
-unsigned char *exception_messages[] =
-{
-    "Division By Zero",
-    "Debug",
-    "Non Maskable Interrupt",
-    "Breakpoint",
-    "Into Detected Overflow",
-    "Out of Bounds",
-    "Invalid Opcode",
-    "No Coprocessor",
+int nestexc = 0;
 
-    "Double Fault",
-    "Coprocessor Segment Overrun",
-    "Bad TSS",
-    "Segment Not Present",
-    "Stack Fault",
-    "General Protection Fault",
-    "Page Fault",
-    "Unknown Interrupt",
+unsigned char *exception_messages[] = { "Division By Zero", "Debug",
+		"Non Maskable Interrupt", "Breakpoint", "Into Detected Overflow",
+		"Out of Bounds", "Invalid Opcode", "No Coprocessor",
 
-    "Coprocessor Fault",
-    "Alignment Check",
-    "Machine Check",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
+		"Double Fault", "Coprocessor Segment Overrun", "Bad TSS",
+		"Segment Not Present", "Stack Fault", "General Protection Fault",
+		"Page Fault", "Unknown Interrupt",
 
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved"
-};
+		"Coprocessor Fault", "Alignment Check", "Machine Check", "Reserved",
+		"Reserved", "Reserved", "Reserved", "Reserved",
 
-void exception_handler(int exception_num)
-{
-    _Cli();
-    if (exception_num < 32)
-    {
-        printfcolor(ERROR_COLOR,"%s", exception_messages[exception_num]);
-        printfcolor(ERROR_COLOR," Exception!\n\tSystem failure, please reboot.\n");
-    }
+		"Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
+		"Reserved", "Reserved" };
 
-    if (exception_num == 13)
-       {
-    	int offset = 80*9;
-    	int r;
-    	char ticks_color = 0x0E;
-    	char * video = (char *) 0xb8000;
-       }
+void exception_handler(int exception_num) {
+	_Cli();
+	if (exception_num < 32) {
+		printfcolor(ERROR_COLOR, "%s exception!\n",
+				exception_messages[exception_num]);
+	}
 
-    _debug();
-    _Sti();
+	Task_t * exceptionProducer = (Task_t *) get_current_task();
+	char * exceptionProducerName = exceptionProducer->name;
+	printf("Exception producer %s\n", exceptionProducer->name);
+
+	if (nestexc > MAX_NESTED_EXCEPTIONS) {
+		printfcolor(ERROR_COLOR,
+				"PANIC: Exception could not be solved!\n\tSystem failure, please reboot.\n");
+		_debug();
+	}
+	nestexc++;
+
+	if (terminate_task(exceptionProducer->pid) == EXIT_SUCCESS) {
+		select_next();
+		printfcolor(COMMAND_COLOR, "Failure tolerant module: Process \"%s\" has been killed.\n", exceptionProducerName);
+	}else{
+		printfcolor(ERROR_COLOR,
+				"PANIC 2: Exception could not be solved!\n\tSystem failure, please reboot.\n");
+		_debug();
+	}
+
+	nestexc--;
+	_Sti();
 }
