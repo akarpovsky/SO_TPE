@@ -1,0 +1,5 @@
+timeout 1
+default 0
+
+title BrunOS rc
+kernel /boot/kernel.bin

@@ -1,0 +1,5 @@
+timeout 30
+default 0
+
+title CasKarOS
+kernel /boot/kernel.bin
