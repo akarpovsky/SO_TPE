@@ -228,17 +228,18 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
 			(void*)(kmmap.base_addr_low + kmmap.length_low));
 
-	check_drive(0);
-	char ans[1024] = "HARA BARA";
+//	check_drive(0);
 
-	_disk_write(ATA0, ans, 1, 1);
+	_disk_write(ATA0, "PROBANDO", 1, 1);
 //	_disk_write(int ata, char * msg, int numreads, unsigned int sector);
 //	int _disk_read(int ata, char * ans, int numreads, unsigned int sector);
 
 	char msg[2048];
 	_disk_read(ATA0, msg, 1,1);
-	kprintf("Estoy leyendo: -%c-", a[0]);
+	kprintf("Estoy leyendo: -%s-", msg);
+
 	_debug();
+
 	SetupScheduler();
 
 	/* Funci�n init(): Inicializa el SO para poder empezar a ejecutar con normalidad.

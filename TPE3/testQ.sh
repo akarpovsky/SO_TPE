@@ -1,2 +1,3 @@
 ./arma
-qemu -boot d -cdrom ./BrunOS.iso -hda ./disk.img
+qemu -boot d -cdrom ./BrunOS.iso -hda './disk.img'
+ 
