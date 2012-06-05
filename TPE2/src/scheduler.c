@@ -283,7 +283,6 @@ int terminate_task(int pid)
 {
 	atomize();
 	printf("Trying to kill process with PID = %d\n", pid);
-
 	pid--;
 	if(pid < 0 || pid > MAX_PROCESSES -1 || streq(processes[pid].name, "Shell") || streq(processes[pid].name, null_process_task.name))
 	{
@@ -311,6 +310,7 @@ int terminate_task(int pid)
 	}
 	add_to_queue(&terminated_tasks, &processes[pid]);
 	processes[pid].state = TaskTerminated;
+
 	if(foreground_tasks[processes[pid].tty_number-1] == &processes[pid])
 	{
 		foreground_tasks[processes[pid].tty_number-1] = processes[pid].parent;
@@ -318,7 +318,6 @@ int terminate_task(int pid)
 	}
 
 	unatomize();
-
 	return EXIT_SUCCESS;
 }
 
@@ -374,6 +373,7 @@ int null_process(int argc, char *argv){
 	_Sti();
 			while(!empty(&terminated_tasks))
 			{
+
 				aux = pop(&terminated_tasks);
 				aux->state = TaskEmpty;
 				aux->priority = MAX_PRIORITIES;
@@ -391,61 +391,5 @@ int null_process(int argc, char *argv){
 			}
 	}while(true);
 
-	return 0;
-}
-
-//TODO: test processes
-
-int proc1(int argc, char *argv){
-	_Sti();
-	int i = 0, j=1;
-	while(1){
-		if(printp1){
-			printf("Corriendo 1\n");
-			_sleep();
-			if(tproc2->state != TaskSuspended)
-			{
-				suspend_task(tproc2);
-			}
-			else
-			{
-				unsuspend_task(tproc2);
-
-			}
-			printp1 = false;
-			printp2 = true;
-			printp3 = true;
-		}
-	}
-	return 0;
-}
-
-int proc2(int argc, char *argv){
-	_Sti();
-
-	int i = 0;
-		while(1){
-			if(printp2){
-				printf("\n\n\n\tCorriendo 2\n\n\n\n");
-				_sleep();
-				printp2 = false;
-				printp3 = true;
-				printp1 = true;
-			}
-		}
-	return 0;
-}
-
-int proc3(int argc, char *argv){
-	//asm volatile ("hlt");
-	_Sti();
-		while(1){
-			if(printp3){
-				printf("Corriendo 3\n");
-				_sleep();
-				printp3 = false;
-				printp2 = true;
-				printp1 = true;
-			}		}
 	return 0;
 }

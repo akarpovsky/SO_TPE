@@ -253,13 +253,10 @@ isr_common_stub:
 
 	cli
 	pushad
-
-
 	mov 	eax, ebx
 	push 	eax
 	call	exception_handler
 	pop	eax
-
 	jmp	EOI
 
 _int_20_hand:				; Handler de INT 20 ( Timer tick)
