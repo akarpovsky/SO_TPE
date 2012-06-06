@@ -65,6 +65,7 @@ void initpages(void * f, void * finMem) {
 
 	}
 
+
 	//gdt apunta a la primera tabla
 	// asi que ahora bindeo 1 a 1 las direcciones de toda la memoria
 	descriptor = 0x00000000;
@@ -88,6 +89,7 @@ void initpages(void * f, void * finMem) {
 	// La primera pagina despues de las tablas y los directorios
 	inicioUser = (void *)CR3 + ((cant_dir + 1) * MAX_PAGE_SIZE);
 	createHeadersList((void *)inicioUser,(void *)fin);
+
 	_set_cr();
 
 }

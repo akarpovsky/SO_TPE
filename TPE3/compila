@@ -29,4 +29,3 @@ echo ""
 tput sgr0
 
 cp ./kernel.bin ../isofiles/boot/
-objcopy --only-keep-debug kernel.bin kernel.sym

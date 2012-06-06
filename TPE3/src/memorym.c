@@ -5,6 +5,8 @@ List pages;
 
 void createHeadersList(void * inicio, void * fin)
 {
+
+
 	// CANTIDAD DE PAGINAS DISPONIBLES
 	int cantPages = ((int)fin - (int)inicio) / MAX_PAGE_SIZE;
 	// CANTIDAD DE PAGINAS QUE VOY A NECESITAR PARA LOS HEADERS
@@ -18,7 +20,9 @@ void createHeadersList(void * inicio, void * fin)
 
 	int pag = 0;
 
-	
+	kprintf("Head Pages: %d", cantHeadPages); // 1048559
+	_debug();
+
 	// Ahora tengo que prender las paginas que voy a necesitar para los headers
 	for( i = 0; i < cantHeadPages; i++){
 
@@ -28,10 +32,20 @@ void createHeadersList(void * inicio, void * fin)
 		pag = ((int)dir) / MAX_PAGE_SIZE;
 
 		presentPageNumber(pag);
+
+		/* USAR PARA DEBUGGEAR - DESCOMENTAR!! */
+
+//		if(i == 3){
+//			kprintf("A\n");
+//			_debug();
+//		}
+
+		/* FIN DEBUGGING !!!! */
+
+
 	}
 
 	// AQUI TERMINA EL PRENDIDO DE PAGINAS (PARA PAGINACION)
-	
 
 	((List)inicio)->NumEl = 0;
 	((List)inicio)->pFirst = NULL;

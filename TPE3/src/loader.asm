@@ -33,4 +33,4 @@ eokl	equ STACKSIZE + stack
 	section .bss
 	align 32
 	stack:
-	resb STACKSIZE		; reserve 16k stack on a quadword boundaryg
+	resb STACKSIZE		; reserve 16k stack on a quadword boundary

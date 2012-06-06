@@ -184,12 +184,13 @@ int shellLoop(int argc, char * argv) {
  *************************************************/
 
 kmain(multiboot_info_t * mbi, unsigned int magic) {
+	_Cli();
 	memory_map_t *memmap;
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
 		return;
 	}
 
-	_Cli();
+
 	int maxlenght = 0;
 	for (memmap = (memory_map_t *) mbi->mmap_addr; (unsigned long) memmap
 			< mbi->mmap_addr + mbi->mmap_length; memmap
@@ -224,21 +225,25 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	_lidt(&idtr);
 
-
 	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
 			(void*)(kmmap.base_addr_low + kmmap.length_low));
 
+	_debug();
+//	char msg[2048];
 //	check_drive(0);
 
-	_disk_write(ATA0, "PROBANDO", 1, 1);
-//	_disk_write(int ata, char * msg, int numreads, unsigned int sector);
-//	int _disk_read(int ata, char * ans, int numreads, unsigned int sector);
+//	_disk_write(ATA0, "PROBANDO", 1, 1);
 
-	char msg[2048];
-	_disk_read(ATA0, msg, 1,1);
-	kprintf("Estoy leyendo: -%s-", msg);
+//	char men[100] = "AAAAAAAAAAAAAAAAAAA";
+//	ata_write(ATA0,men,100,0,0);
 
-	_debug();
+//	kprintf("Estoy leyendo: -%s-\n", msg);
+//	_disk_read(ATA0, msg, 1,1);
+//	ata_read(ATA0,msg,2048,0,0);
+
+//	kprintf("Estoy leyendo: -%s-", msg);
+
+//	_debug();
 
 	SetupScheduler();
 
