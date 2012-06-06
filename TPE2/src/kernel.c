@@ -224,10 +224,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	_lidt(&idtr);
 
-
 	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
 			(void*)(kmmap.base_addr_low + kmmap.length_low));
-
 	//TODO;
 
 	SetupScheduler();

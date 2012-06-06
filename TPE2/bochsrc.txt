@@ -6,14 +6,14 @@ romimage: file=/usr/share/bochs/BIOS-bochs-latest
 
 # what disk images will be used
 #floppya: 1_44=/home/srv/622C.IMG, status=inserted
-#floppya: 1_44=./img/tpe.img, status=inserted
+floppya: 1_44=./tpe.img, status=inserted
 #floppyb: 1_44=floppyb.img, status=inserted
-ata0-slave: type=cdrom, path=./BrunOS.iso, status=inserted
+#ata0-slave: type=cdrom, path=./BrunOS.iso, status=inserted
 # hard disk
 #ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 #ata0-master: type=disk, path="./dos_2.img", mode=flat, cylinders=81, heads=16, spt=63
 # choose the boot disk.
-boot: cdrom
+boot: floppy
 
 #gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 #boot: disk

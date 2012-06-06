@@ -1,6 +1,6 @@
 #include "../include/kernel.h"
 
-#define MEMORY_START 402640896
+#define MEMORY_ADDRESS 402640896
 
 extern size_t offset;
 DESCR_INT idt[0xFF]; /* IDT */
@@ -230,21 +230,20 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	_lidt(&idtr);
 
-	initpages((void*) MEMORY_START,
-			(void*) MEMORY_START);
+	initpages((void*) MEMORY_ADDRESS,
+			(void*) MEMORY_ADDRESS);
 
+//	ata_checkDrive(ATA0);
+//	char msg[2048];
+//	char men[100] = "AAAAAAAAAAAAAAAAAAA";
+//	ata_write(ATA0,men,100,0,0);
+//	kprintf("Estoy leyendo: -%s-\n", msg);
+//	ata_read(ATA0,msg,10,0,0);
+//	kprintf("Estoy leyendo: -%s-\n", msg);
+//	ata_write(ATA0,"BBBBBBBBBBBB",100,0,3);
+//	ata_read(ATA0,msg,10,0,0);
+//	kprintf("Estoy leyendo: -%s-\n", msg);
 //	_debug();
-	char msg[2048];
-//	check_drive(0);
-	char men[100] = "AAAAAAAAAAAAAAAAAAA";
-	ata_write(ATA0,men,100,0,0);
-
-	kprintf("Estoy leyendo: -%s-\n", msg);
-	ata_read(ATA0,msg,2048,0,0);
-
-	kprintf("Estoy leyendo: -%s-", msg);
-
-	_debug();
 
 	SetupScheduler();
 
