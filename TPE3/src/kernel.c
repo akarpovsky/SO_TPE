@@ -189,13 +189,12 @@ int shellLoop(int argc, char * argv) {
  *************************************************/
 
 kmain(multiboot_info_t * mbi, unsigned int magic) {
+	_Cli();
 	memory_map_t *memmap;
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
 		return;
 	}
 
-
-	_Cli();
 	int maxlenght = 0;
 	for (memmap = (memory_map_t *) mbi->mmap_addr; (unsigned long) memmap
 			< mbi->mmap_addr + mbi->mmap_length; memmap
