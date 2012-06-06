@@ -1,4 +1,7 @@
 #include "../include/kernel.h"
+
+#define MEMORY_START 402640896
+
 extern size_t offset;
 DESCR_INT idt[0xFF]; /* IDT */
 IDTR idtr; /* IDTR */
@@ -178,19 +181,21 @@ int shellLoop(int argc, char * argv) {
 	return 0;
 }
 
+
+
 /**********************************************
  kmain()
  Punto de entrada de cóo C.
  *************************************************/
 
 kmain(multiboot_info_t * mbi, unsigned int magic) {
-	_Cli();
 	memory_map_t *memmap;
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
 		return;
 	}
 
 
+	_Cli();
 	int maxlenght = 0;
 	for (memmap = (memory_map_t *) mbi->mmap_addr; (unsigned long) memmap
 			< mbi->mmap_addr + mbi->mmap_length; memmap
@@ -225,25 +230,21 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	_lidt(&idtr);
 
-	initpages((void*)(kmmap.base_addr_low + kmmap.length_low),
-			(void*)(kmmap.base_addr_low + kmmap.length_low));
-
-	_debug();
-//	char msg[2048];
-//	check_drive(0);
-
-//	_disk_write(ATA0, "PROBANDO", 1, 1);
-
-//	char men[100] = "AAAAAAAAAAAAAAAAAAA";
-//	ata_write(ATA0,men,100,0,0);
-
-//	kprintf("Estoy leyendo: -%s-\n", msg);
-//	_disk_read(ATA0, msg, 1,1);
-//	ata_read(ATA0,msg,2048,0,0);
-
-//	kprintf("Estoy leyendo: -%s-", msg);
+	initpages((void*) MEMORY_START,
+			(void*) MEMORY_START);
 
 //	_debug();
+	char msg[2048];
+//	check_drive(0);
+	char men[100] = "AAAAAAAAAAAAAAAAAAA";
+	ata_write(ATA0,men,100,0,0);
+
+	kprintf("Estoy leyendo: -%s-\n", msg);
+	ata_read(ATA0,msg,2048,0,0);
+
+	kprintf("Estoy leyendo: -%s-", msg);
+
+	_debug();
 
 	SetupScheduler();
 
