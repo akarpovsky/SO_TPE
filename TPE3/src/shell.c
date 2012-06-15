@@ -349,15 +349,15 @@ int ls(int argc, char *argv) {
 	int i = 0;
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL) {
-		if(currentFile->state == ABSENT)
-			continue;
+		if (currentFile->state != ABSENT) {
 
-		if (currentFile->type == DIR_TYPE) {
-			printfcolor(DIR_COLOR, "%s ", currentFile->name);
-		} else if (currentFile->type == FILE_TYPE) {
-			printfcolor(FILE_COLOR, "%s ", currentFile->name);
-		} else if (currentFile->type == LINK_TYPE) {
-			printfcolor(LINK_COLOR, "%s ", currentFile->name);
+			if (currentFile->type == DIR_TYPE) {
+				printfcolor(DIR_COLOR, "%s ", currentFile->name);
+			} else if (currentFile->type == FILE_TYPE) {
+				printfcolor(FILE_COLOR, "%s ", currentFile->name);
+			} else if (currentFile->type == LINK_TYPE) {
+				printfcolor(LINK_COLOR, "%s ", currentFile->name);
+			}
 		}
 
 		free(currentFile);
@@ -449,7 +449,7 @@ int rm(int argc, char *argv) {
 	int i = 0;
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL && !found) {
-		if (currentFile->type == DIR_TYPE && streq(argv, currentFile->name)
+		if (currentFile->type == FILE_TYPE && streq(argv, currentFile->name)
 				== TRUE) {
 			found = TRUE;
 			break;
@@ -458,7 +458,7 @@ int rm(int argc, char *argv) {
 	}
 
 	if (found) {
-		fsRemove(cwd_inode,currentFile);
+		fsRemove(cwd_inode, currentFile);
 
 		free(currentFile);
 	} else {

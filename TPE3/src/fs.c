@@ -199,8 +199,7 @@ fileentry_t * fsGetFileentry(inode_t * cwd_inode, int i) {
 	int sector = (sizeof(fileentry_t) * i) / SECTOR_SIZE;
 	int offset = (i * sizeof(fileentry_t)) - (sector * SECTOR_SIZE);
 	ata_read(ATA0, ans, sizeof(fileentry_t), cwd_inode->sectors[sector], offset);
-	//	printf("inodeN: %d ; size: -%s- ; type: %d ; \n", ans->inode_number, ans->name, ans->type);
-
+	printf("GFE: %d inodeN: %d ; size: -%s- ; type: %d ; state %d ; pos %d \n", cwd_inode->inode_number, ans->inode_number, ans->name, ans->type, ans->state, ans->position);
 	return ans;
 }
 
@@ -235,8 +234,13 @@ int fsVersionCopy(inode_t * dir, fileentry_t * oldFile, fileentry_t * newFile,
 
 	int sector = (sizeof(fileentry_t) * newFile->position) / SECTOR_SIZE;
 	int offset = (newFile->position * sizeof(fileentry_t)) - (sector * SECTOR_SIZE);
-	ata_read(ATA0, newFile, sizeof(fileentry_t), dir->sectors[sector], offset);
+	ata_write(ATA0, newFile, sizeof(fileentry_t), dir->sectors[sector], offset);
+	printf("VC: inodeN: %d ; size: -%s- ; type: %d ; state %d ; pos %d \n", newFile->inode_number, newFile->name, newFile->type, newFile->state, newFile->position);
+	fileentry_t * ans = malloc(sizeof(fileentry_t));
 
+//	ata_read(ATA0, ans, sizeof(fileentry_t), dir->sectors[sector], offset);
+//	printf("VC: inodeN: %d ; size: -%s- ; type: %d ; state %d ; pos %d \n", ans->inode_number, ans->name, ans->type, ans->state, ans->position);
+	printf("dir: %d  old %d  new%d\n", dir->inode_number, oldVersion->inode_number, newVersion->inode_number);
 	updateInode(dir);
 	updateInode(oldVersion);
 	updateInode(newVersion);
