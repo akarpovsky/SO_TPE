@@ -36,6 +36,11 @@
 #define ERROR_COLOR 0x0C // Atributo de video. Letras rojas, fondo negro
 #define MARINE_COLOR 0x03 // Atributo de video. Letras color marino, fondo negro
 
+#define FILE_COLOR  0x07
+#define DIR_COLOR   0x03
+#define DELETED_FILE_COLOR 0x0C
+#define LINK_COLOR  0x0E
+
 /* Ubicacion de los PICs */
 
 #define PIC1		0x20		// Direccion base de IO para el PIC maestro
@@ -199,6 +204,7 @@ typedef struct {
   word  limit;
   dword base;
 } IDTR;
+//#define MAX_INODES		( (DISK_SIZE - (SUPERBLOCK_SECTORS*SECTOR_SIZE) ) / MAX_SECTORS)
 
 /* Short long types */
 
@@ -209,6 +215,29 @@ typedef unsigned long	 ulong;
 
 typedef uint size_t;
 typedef int	ssize_t;
+
+/* File system */
+#define MAX_FILENAME  	64
+#define MAX_FILE_SIZE	MAX_SECTORS*SECTOR_SIZE
+
+#define	MAGIC_NUMBER	9876543
+
+#define DISK_SIZE 		10485760
+#define SECTOR_SIZE		512
+#define	CANT_SECTORS	DISK_SIZE/SECTOR_SIZE
+
+#define MAX_SECTORS		8
+#define SUPERBLOCK_SECTORS		3
+#define MAX_INODES		20
+
+#define FIRST_SECTOR	SUPERBLOCK_SECTORS + 1
+
+#define OK							1
+#define NO_SPACE					2
+#define NOT_ENOUGH_SPACE_IN_DIR		3
+#define NO_FILENAME					4
+#define NOT_DIR						5
+#define FILE_ALREADY_EXISTS			6
 
 #endif
 

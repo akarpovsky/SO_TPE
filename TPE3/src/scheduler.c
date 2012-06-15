@@ -124,6 +124,7 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 		new_proc->screen = parent->screen;
 		new_proc->keyboard = parent->keyboard;
 		new_proc->linebuffer = parent->linebuffer;
+		new_proc->cwd 	= parent->cwd;
 	} // Else, screen, keyboard and linebuffer had already been initialized in the init() kernel call.
 
 	CreateStackFrame(new_proc, process, stack_start, argc, argv);

@@ -231,18 +231,7 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	initpages((void*) MEMORY_ADDRESS,
 			(void*) MEMORY_ADDRESS);
-
-//	ata_checkDrive(ATA0);
-//	char msg[2048];
-//	char men[100] = "AAAAAAAAAAAAAAAAAAA";
-//	ata_write(ATA0,men,100,0,0);
-//	kprintf("Estoy leyendo: -%s-\n", msg);
-//	ata_read(ATA0,msg,10,0,0);
-//	kprintf("Estoy leyendo: -%s-\n", msg);
-//	ata_write(ATA0,"BBBBBBBBBBBB",100,0,3);
-//	ata_read(ATA0,msg,10,0,0);
-//	kprintf("Estoy leyendo: -%s-\n", msg);
-//	_debug();
+	fsInit();
 
 	SetupScheduler();
 
@@ -312,6 +301,7 @@ void init(void) {
 		auxShell->screen = &screens[i];
 		auxShell->keyboard = &keyboards[i];
 		auxShell->linebuffer = &shellLine[i];
+		auxShell->cwd =	getRootInode();
 
 		/* Dejo el buffer de pantalla de la TTY listo para ser usado (limpio y con formato de
 		 * caracter blanco sobre fondo negro */
@@ -328,5 +318,11 @@ void init(void) {
 
 	set_foreground_tty(0);
 
+}
+
+void sleep(void){
+	int i = 100000000;
+		while(i--)
+			;
 }
 

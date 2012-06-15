@@ -10,7 +10,7 @@
 #include "memorym.h"
 //#include "memo.h"
 
-#define NUM_COMMANDS 12
+#define NUM_COMMANDS 13
 #define LINEBUF_LEN 10
 
 
@@ -40,6 +40,13 @@ int imprimeUnos(int argc, char *argv);
 int imprimeDos(int argc, char *argv);
 int pagefault(int argc, char * argv);
 int mallocs(int argc, char * argv);
+int cd(int argc, char * argv);
+int ls(int argc, char * argv);
+int rm(int argc, char * argv);
+int mv(int argc, char * argv);
+int mkdir(int argc, char * argv);
+int touch(int argc, char * argv);
+int cd(int argc, char * argv);
 
 void auto_complete(command_t * command);
 void clearCommand(command_t * command);

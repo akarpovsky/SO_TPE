@@ -9,7 +9,6 @@
 #define _KERNEL_H
 
 #include "video.h"
-#include "ata_disk.h"
 #include "shell.h"
 #include "devices.h"
 #include "kasm.h"
@@ -21,7 +20,7 @@
 #include "limits.h"
 #include "memorym.h"
 #include "auxMem.h"
-//#include "memo.h"
+#include "fs.h"
 
 #define OS_PID	0
 
@@ -63,5 +62,7 @@ size_t __kwrite(int fd, const void* buffer, size_t count);
 int shellLoop(int argc, char * argv);
 
 void init(void);
+
+void sleep(void);
 
 #endif

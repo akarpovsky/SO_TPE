@@ -22,10 +22,12 @@ char * strcpy(char* d, const char* s){
 
 int streq(char* s, char* t) {
 
-    for(; *s == *t; s++, t++)
-        if (*s == 0)
+    for(; *s == *t; s++, t++){
+        if (*s == 0 && *t == 0)
             return TRUE;
-            
+        else if( (*s == 0 && *t != 0)  || (*s != 0 && *t == 0))
+        	return FALSE;
+    }
     return FALSE;
 
 }

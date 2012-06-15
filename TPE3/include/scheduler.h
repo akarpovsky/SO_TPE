@@ -11,6 +11,7 @@
 #include "structs.h"
 #include "io.h"
 #include "memorym.h"
+#include "fs.h"
 //#include "memo.h"
 
 void select_next(void);

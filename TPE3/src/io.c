@@ -91,10 +91,6 @@ void syswrite(int fd, void * buffer, size_t count) {
 void syskernelwrite(int fd, void * buffer, size_t count) {
 
 			kwriteInVideo(*((char *) buffer));
-//			*(video+offset++) = *((char *) buffer++); // Print char to screen
-//			*(video+offset++) = WHITE_TXT; // Char format
-
-
 }
 
 int sscanf(char* str, char* fmt, ...) {
