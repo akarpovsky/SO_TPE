@@ -20,7 +20,12 @@ static struct {
 		"Show files in CWD", ls },
 		{ "mkdir", "Creates a new directory", mkdir }, { "touch",
 				"Creates a new empty file", touch }, { "cd",
-				"Change directory", cd }, { "rm", "Delete fileA", rm }
+				"Change directory", cd }, { "rm", "Delete fileA", rm }, {
+				"lsRemoved", "Show all files (including deleted)", lsRemoved },
+		{ "rmHard", "Remove the file the hard way", rmHard }, { "rmRec",
+				"Removes files and directories recursively", rmRecursive }, {
+				"vh", "Shows the version history of the file", vh }
+
 //		{"mv", "Move fileA to another place", mv},
 		//		{"cp", "Copy fileA to destination", cp},
 		};
@@ -33,7 +38,9 @@ void shell(void) {
 	char c;
 	command_t * a = (command_t *) malloc(sizeof(command_t));
 
-	printf("BrunOS tty%d:~$ ", c_t->tty_number);
+	char * current_dir = getcwd();
+	printf("BrunOS tty%d:%s~$ ", c_t->tty_number, current_dir);
+	free(current_dir);
 	while ((c = getc()) != '\n') {
 		switch (c) {
 		case '\b':
@@ -65,6 +72,32 @@ void shell(void) {
 	lineBuffer->pos = 0;
 	erase_buffer();
 
+}
+
+char * getcwd() {
+	inode_t * pinode = get_current_task()->cwd->parent;
+	fileentry_t * fe;
+	int len = 0;
+	char * ans;
+	if (pinode != NULL) {
+		int i = 0;
+		while ((fe = fsGetFileentry(pinode, i++)) != NULL) {
+			if (fe->inode_number == get_current_task()->cwd->inode_number)
+				break;
+			free(fe);
+		}
+
+		len = strlen(fe->name);
+		ans = (char *) malloc(len + 1);
+		strcpy(ans, fe->name);
+		free(fe);
+	} else {
+		len = 1;
+		ans = (char *) malloc(len + 1);
+		strcpy(ans, "/");
+	}
+
+	return ans;
 }
 
 void erase_buffer() {
@@ -349,6 +382,8 @@ int ls(int argc, char *argv) {
 	int i = 0;
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL) {
+
+		//		printf("En LS: -%s-, state: %d, inode: %d\n", currentFile->name, currentFile->state, currentFile->inode_number);
 		if (currentFile->state != ABSENT) {
 
 			if (currentFile->type == DIR_TYPE) {
@@ -358,6 +393,31 @@ int ls(int argc, char *argv) {
 			} else if (currentFile->type == LINK_TYPE) {
 				printfcolor(LINK_COLOR, "%s ", currentFile->name);
 			}
+		}
+
+		free(currentFile);
+	}
+
+	printf("\n");
+
+}
+
+int lsRemoved(int argc, char *argv) {
+	inode_t * cwd_inode = get_current_task()->cwd;
+	fileentry_t * currentFile = NULL;
+	int i = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
+			!= NULL) {
+
+		//		printf("En LS: -%s-, state: %d, inode: %d\n", currentFile->name, currentFile->state, currentFile->inode_number);
+		if (currentFile->state == ABSENT) {
+			printfcolor(ERROR_COLOR, "(%s) ", currentFile->name);
+		} else if (currentFile->type == DIR_TYPE) {
+			printfcolor(DIR_COLOR, "%s ", currentFile->name);
+		} else if (currentFile->type == FILE_TYPE) {
+			printfcolor(FILE_COLOR, "%s ", currentFile->name);
+		} else if (currentFile->type == LINK_TYPE) {
+			printfcolor(LINK_COLOR, "%s ", currentFile->name);
 		}
 
 		free(currentFile);
@@ -464,5 +524,112 @@ int rm(int argc, char *argv) {
 	} else {
 		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
 	}
+}
+
+int rmHard(int argc, char *argv) {
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	bool found = FALSE;
+	int i = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
+			!= NULL && !found) {
+		if (currentFile->type == FILE_TYPE && streq(argv, currentFile->name)
+				== TRUE) {
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+	if (found) {
+		fsRemoveHard(cwd_inode, currentFile);
+
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+	}
+}
+
+int rmRecursive(int argc, char *argv) {
+
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	bool found = FALSE;
+	int i = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
+			!= NULL && !found) {
+		if (streq(argv, currentFile->name) == TRUE) {
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+//	printf("CFI:%d--CFP:%d\n", currentFile->inode_number, getInodeByNumber(currentFile->inode_number)->parent->inode_number);
+//	printf("CFTy:%d\n", currentFile->type);
+//	printf("CWD: %d--CWDP: %d\n", cwd_inode->inode_number, (cwd_inode->parent == NULL) ? -1: cwd_inode->parent->inode_number);
+	if (found) {
+		if (!((currentFile->inode_number == cwd_inode->inode_number
+				&& currentFile->type == DIR_TYPE) || (currentFile->inode_number
+				== cwd_inode->parent->inode_number && currentFile->type
+				== DIR_TYPE))) {
+			printf("e!\n");
+			fsRecursiveRemoveHardWrapper(cwd_inode, currentFile);
+		} else {
+			printfcolor(ERROR_COLOR, "ERROR: You can't remove that.\n");
+		}
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+	}
+
+}
+
+int vh(int argc, char *argv) {
+
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	bool found = FALSE;
+	int i = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
+			!= NULL && !found) {
+		if (streq(argv, currentFile->name) == TRUE && currentFile->type
+				== FILE_TYPE) {
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+	if (found) {
+		if (!((currentFile->inode_number == cwd_inode->inode_number
+				&& currentFile->type == DIR_TYPE) || (currentFile->inode_number
+				== cwd_inode->parent->inode_number && currentFile->type
+				== DIR_TYPE))) {
+			inode_t * file = getInodeForEntry(currentFile);
+			int current_rev = file->rev_no;
+			printfcolor(
+					MARINE_COLOR,
+					"********************************************************************************\n");
+			printfcolor(COMMAND_COLOR, "Revision\t\t\tName\t\t\tSize");
+			do{
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t", file->rev_no);
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t", file->name);
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (int) file->size);
+			}while((file = fsGetPrevVersion(file)) != NULL);
+
+			printfcolor(
+					MARINE_COLOR,
+					"\n********************************************************************************\n");
+
+		} else {
+			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
+		}
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+	}
+
+	return EXIT_SUCCESS;
 }
 

@@ -208,7 +208,6 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	/* Borra la pantalla. */
 	k_clear_screen();
-
 	/* Ubico los PICs donde sea necesario */
 
 	setup_pics(0x20, 0x28);

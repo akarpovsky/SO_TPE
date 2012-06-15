@@ -217,7 +217,7 @@ typedef uint size_t;
 typedef int	ssize_t;
 
 /* File system */
-#define MAX_FILENAME  	64
+#define MAX_FILENAME  	16
 #define MAX_FILE_SIZE	MAX_SECTORS*SECTOR_SIZE
 
 #define	MAGIC_NUMBER	9876543
@@ -238,6 +238,8 @@ typedef int	ssize_t;
 #define NO_FILENAME					4
 #define NOT_DIR						5
 #define FILE_ALREADY_EXISTS			6
+
+#define FILE_SEPARATOR 				'/'
 
 #endif
 

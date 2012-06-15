@@ -35,6 +35,7 @@ struct inode_t{
 	int			count; // Number of references
 	type_t		type;
 	ushort		sectors[MAX_SECTORS];
+	char		name[MAX_FILENAME];
 	inode_t * 	next; // SVN
 	inode_t *	prev; // SVN
 	inode_t * 	parent;
@@ -68,6 +69,12 @@ inode_t * getFreeInode();
 int fsVersionCopy(inode_t * dir, fileentry_t * oldFile, fileentry_t * newFile,
 		inode_t * oldVersion, inode_t * newVersion);
 int fsRemove(inode_t * dir, fileentry_t * fileToRemove);
+int fsRemoveHard(inode_t * dir, fileentry_t * fileToRemove);
+void updateEntry(fileentry_t * entry, inode_t * dir);
+void cleanEntry(fileentry_t * entry, inode_t * dir);
+int fsRecursiveRemoveHardWrapper(inode_t * dir, fileentry_t * fileToRemove);
+inode_t * getInodeForEntry(fileentry_t * currentFile);
+inode_t * fsGetPrevVersion(inode_t * inode);
 
 
 #endif

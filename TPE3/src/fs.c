@@ -50,7 +50,7 @@ void fsinitInode(inode_t * inode, int i) {
 	inode->next = inode->prev = NULL;
 	inode->size = 0;
 	inode->rev_no = 0;
-
+	inode->name[0] = 0;
 }
 
 void fsSetup() {
@@ -83,6 +83,7 @@ int fsMkdir(char * name, inode_t * inode) {
 			return NO_SPACE;
 		}
 
+		strcpy(superblock.inodes[i].name, name);
 	}
 	superblock.inodes[i].type = DIR_TYPE;
 	superblock.inodes[i].count++;
@@ -131,6 +132,7 @@ int fsMkfile(char * name, inode_t * inode) {
 	}
 	superblock.inodes[i].type = FILE_TYPE;
 	superblock.inodes[i].count++;
+	strcpy(superblock.inodes[i].name, name);
 	superblock.inodes[i].parent = inode;
 
 	int ans;
@@ -159,27 +161,37 @@ int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
 
 	/* Check if the entry_name already exists */
 	int i = 0;
+	int dirtyPosition = 0;
 	fileentry_t * checkEntry;
 	while ((checkEntry = fsGetFileentry(dir, i++)) != NULL) {
+		if(checkEntry->state == DIRTY){
+			dirtyPosition = i;
+			continue;
+		}
 		int aux = streq(checkEntry->name, entry_name);
 		free(checkEntry);
 		if (aux == TRUE)
 			return FILE_ALREADY_EXISTS;
 	}
 
-	fe.position = i;
+	fe.position = ((dirtyPosition == 0) ? i-1 : dirtyPosition-1);
 	fe.inode_number = entry->inode_number;
 	fe.state = PRESENT;
 	fe.type = ((entry->count <= 1) ? entry->type : LINK_TYPE);
 	strcpy(fe.name, entry_name);
-
-	int free_sector = dir->size / SECTOR_SIZE;
-	int offset = dir->size - free_sector * SECTOR_SIZE;
-	dir->size += sizeof(fileentry_t);
-	ata_write(ATA0, &fe, sizeof(fe), dir->sectors[free_sector], offset);
+	if(dirtyPosition == 0){
+		dir->size += sizeof(fileentry_t);
+	}
+	updateEntry(&fe, dir);
 	updateInode(dir);
 	return OK;
 
+}
+
+void updateEntry(fileentry_t * entry, inode_t * inode){
+	int sector = (sizeof(fileentry_t) * entry->position) / SECTOR_SIZE;
+	int offset = (entry->position * sizeof(fileentry_t)) - (sector * SECTOR_SIZE);
+	ata_write(ATA0, entry, sizeof(fileentry_t), inode->sectors[sector], offset);
 }
 
 void updateInode(inode_t * inode) {
@@ -198,8 +210,8 @@ fileentry_t * fsGetFileentry(inode_t * cwd_inode, int i) {
 	fileentry_t * ans = (fileentry_t *) malloc(sizeof(fileentry_t));
 	int sector = (sizeof(fileentry_t) * i) / SECTOR_SIZE;
 	int offset = (i * sizeof(fileentry_t)) - (sector * SECTOR_SIZE);
+
 	ata_read(ATA0, ans, sizeof(fileentry_t), cwd_inode->sectors[sector], offset);
-	printf("GFE: %d inodeN: %d ; size: -%s- ; type: %d ; state %d ; pos %d \n", cwd_inode->inode_number, ans->inode_number, ans->name, ans->type, ans->state, ans->position);
 	return ans;
 }
 
@@ -220,7 +232,71 @@ int fsRemove(inode_t * dir, fileentry_t * fileToRemove) {
 	fsVersionCopy(dir, fileToRemove, &newFile, oldVersion, newVersion);
 }
 
-int fsVersionCopy(inode_t * dir, fileentry_t * oldFile, fileentry_t * newFile,
+
+
+int fsRemoveHard(inode_t * dir, fileentry_t * fileToRemove) {
+
+	/* First remove the entry
+	 * Then remove myself
+	 * Then remove my previous
+	 */
+
+	inode_t * inode = &superblock.inodes[fileToRemove->inode_number];
+	cleanEntry(fileToRemove, dir);
+	inode_t * prev;
+
+	while(inode != NULL){
+		prev = inode->prev;
+		fsinitInode(inode,inode->inode_number);
+		updateInode(inode);
+		inode = prev;
+	}
+
+}
+
+int fsRecursiveRemoveHard(inode_t * dir) {
+
+	fileentry_t * checkEntry;
+	int i = 0;
+	while ((checkEntry = fsGetFileentry(dir, i++)) != NULL) {
+		if((checkEntry->inode_number == dir->inode_number && checkEntry->type == DIR_TYPE) ||
+				(checkEntry->inode_number == dir->parent->inode_number && checkEntry->type == DIR_TYPE))
+			continue;
+
+		if(checkEntry->type == FILE_TYPE){
+			fsRemoveHard(dir,checkEntry);
+		} else if(checkEntry->type == LINK_TYPE){
+			cleanEntry(checkEntry, dir);
+		}else{
+			fsRecursiveRemoveHard(&superblock.inodes[checkEntry->inode_number]);
+			fsRemoveHard(dir,checkEntry);
+		}
+	}
+
+}
+
+int fsRecursiveRemoveHardWrapper(inode_t * dir, fileentry_t * fileToRemove){
+
+	if(fileToRemove->type == FILE_TYPE){
+		fsRemoveHard(dir,fileToRemove); // Remove myself cause i am a file
+		return OK;
+	}else if(fileToRemove->type == LINK_TYPE){
+		cleanEntry(fileToRemove, dir);
+		return OK;
+	}
+
+	fsRecursiveRemoveHard(&superblock.inodes[fileToRemove->inode_number]);
+	fsRemoveHard(dir, fileToRemove);
+}
+
+void cleanEntry(fileentry_t * entry, inode_t * dir){
+	entry->inode_number = 0;
+	entry->name[0] = 0;
+	entry->state = DIRTY;
+	updateEntry(entry,dir);
+}
+
+int fsVersionCopy(inode_t * dir, fileentry_t * oldEntry, fileentry_t * newEntry,
 		inode_t * oldVersion, inode_t * newVersion) {
 
 	newVersion->next = NULL;
@@ -228,22 +304,19 @@ int fsVersionCopy(inode_t * dir, fileentry_t * oldFile, fileentry_t * newFile,
 	oldVersion->next = newVersion;
 
 	newVersion->rev_no = 1 + oldVersion->rev_no;
-	newFile->inode_number = newVersion->inode_number;
-	newFile->position = oldFile->position;
-	newFile->type = oldFile->type;
+	strcpy(newVersion->name, oldVersion->name);
+	newEntry->inode_number = newVersion->inode_number;
+	newEntry->position = oldEntry->position;
+	newEntry->type = oldEntry->type;
 
-	int sector = (sizeof(fileentry_t) * newFile->position) / SECTOR_SIZE;
-	int offset = (newFile->position * sizeof(fileentry_t)) - (sector * SECTOR_SIZE);
-	ata_write(ATA0, newFile, sizeof(fileentry_t), dir->sectors[sector], offset);
-	printf("VC: inodeN: %d ; size: -%s- ; type: %d ; state %d ; pos %d \n", newFile->inode_number, newFile->name, newFile->type, newFile->state, newFile->position);
-	fileentry_t * ans = malloc(sizeof(fileentry_t));
-
-//	ata_read(ATA0, ans, sizeof(fileentry_t), dir->sectors[sector], offset);
-//	printf("VC: inodeN: %d ; size: -%s- ; type: %d ; state %d ; pos %d \n", ans->inode_number, ans->name, ans->type, ans->state, ans->position);
-	printf("dir: %d  old %d  new%d\n", dir->inode_number, oldVersion->inode_number, newVersion->inode_number);
+	updateEntry(newEntry,dir);
 	updateInode(dir);
 	updateInode(oldVersion);
 	updateInode(newVersion);
+}
+
+inode_t * getInodeForEntry(fileentry_t * currentFile){
+	return &superblock.inodes[currentFile->inode_number];
 }
 
 inode_t * getFreeInode() {
@@ -259,4 +332,9 @@ inode_t * getFreeInode() {
 
 	return &superblock.inodes[i];
 }
+
+inode_t * fsGetPrevVersion(inode_t * inode){
+	return inode->prev;
+}
+
 
