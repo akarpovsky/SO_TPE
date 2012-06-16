@@ -615,9 +615,9 @@ int vh(int argc, char *argv) {
 					"********************************************************************************\n");
 			printfcolor(WHITE_TXT, "Revision\t\t\tName\t\t\tSize\n");
 			do{
-				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
-				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t\t", file->name);
-				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (int) file->size);
+//				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
+//				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t\t", file->name);
+//				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (file == NULL) ? -1: file->prev->rev_no );
 			}while((file = fsGetPrevVersion(file)) != NULL);
 
 			printfcolor(
@@ -658,15 +658,14 @@ int revert(int argc, char *argv){
 				== cwd_inode->parent->inode_number && currentFile->type
 				== DIR_TYPE))) {
 			revision = getInodeForEntry(currentFile)->rev_no-1;
-			if(fsRevert(cwd_inode, currentFile, revision) == NO_VERSION){
-				printfcolor(ERROR_COLOR, "ERROR: N.\n");
-			}
+
+			fsRevert(cwd_inode, currentFile, revision);
 		} else {
-			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
+//			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
 		}
 		free(currentFile);
 	} else {
-		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+//		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
 	}
 
 	return EXIT_SUCCESS;

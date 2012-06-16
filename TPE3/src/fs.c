@@ -308,12 +308,12 @@ int fsVersionCopy(inode_t * dir, fileentry_t * oldEntry, fileentry_t * newEntry,
 	oldVersion->next = newVersion;
 	newVersion->parent = oldVersion->parent;
 
-	newVersion->rev_no = 1 + oldVersion->rev_no;
 	strcpy(newVersion->name, oldVersion->name);
 	newEntry->inode_number = newVersion->inode_number;
 	newEntry->position = oldEntry->position;
 	newEntry->type = oldEntry->type;
-
+	newVersion->rev_no = oldVersion->rev_no+1;
+	printf("ver -%d- %d", oldVersion->rev_no, newVersion->rev_no);
 	updateEntry(newEntry,dir);
 	updateInode(dir);
 	updateInode(oldVersion);
@@ -365,7 +365,7 @@ void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
 	char sector[SECTOR_SIZE];
 	int i = 0;
 	newVersion->size = oldVersion->size;
-	newVersion->rev_no = 1 + oldVersion->rev_no;
+	newVersion->rev_no = oldVersion->rev_no;
 	newVersion->status = oldVersion->status;
 	strcpy(newVersion->name, oldVersion->name);
 	for (i = 0; i < MAX_SECTORS; i++) {
@@ -375,7 +375,3 @@ void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
 	updateInode(newVersion);
 
 }
-
-
-
-
