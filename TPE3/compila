@@ -14,7 +14,6 @@ gcc -g -m32 -c  ../src/fs.c  -o fs.o -fno-builtin  -nostdlib -nostdinc
 gcc -g -m32 -c  ../src/strings.c  -o strings.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
 gcc -g -m32 -c  ../src/exceptions.c -o exceptions.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
 gcc -g -m32 -c  ../src/drivers/keyboard.c -o keyboard.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
-gcc -g -m32 -c  ../src/drivers/mouse.c -o mouse.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
 gcc -g -m32 -c  ../src/drivers/ata_disk.c -o ata_disk.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
 gcc -g -m32 -c  ../src/drivers/video.c -o video.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
 gcc -g -m32 -c	../src/auxMem.c -o auxMem.o -fno-builtin -fno-stack-protector -nostdlib -nostdinc
@@ -23,7 +22,7 @@ gcc -g -m32 -c 	../src/proc.c -o proc.o -fno-builtin  -fno-stack-protector -nost
 gcc -g -m32 -c 	../src/scheduler.c -o scheduler.o -fno-builtin  -fno-stack-protector -nostdlib -nostdinc
 gcc -g -m32 -c  ../src/memo.c -o memo.o -fno-builtin -fno-stack-protector -nostdlib -nostdinc
 
-ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o fs.o libc.o libasm.o io.o shell.o keyboard.o ata_disk.o mouse.o video.o exceptions.o strings.o proc.o scheduler.o auxMem.o paging.o memorym.o
+ld -m elf_i386 -T ../src/link.ld -o kernel.bin kernel.o kstart.o fs.o libc.o libasm.o io.o shell.o keyboard.o ata_disk.o video.o exceptions.o strings.o proc.o scheduler.o auxMem.o paging.o memorym.o
 echo "" 
 echo -e "\033[32m Yaaaahooooooooooooooooooooooooo !!!"
 echo ""

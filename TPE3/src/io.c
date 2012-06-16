@@ -78,7 +78,6 @@ void sysread(int fd, void * buffer, size_t count) {
 }
 
 void syswrite(int fd, void * buffer, size_t count) {
-	int i;
 	if (fd == STDOUT) {
 		ttyScreen_t * screen = (ttyScreen_t*) getScreen(get_current_task());
 

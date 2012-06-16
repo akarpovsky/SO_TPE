@@ -10,18 +10,18 @@ void fsInit() {
 	int check_number = 0;
 	ata_read(ATA0, &check_number, sizeof(check_number), 0, 0);
 
-	kprintf("Checking filesystem ...\n");
+//	kprintf("Checking filesystem ...\n");
 	if (check_number != MAGIC_NUMBER) {
-		kprintf("No filesystem found.\n");
+//		kprintf("No filesystem found.\n");
 		fsFormat();
 	}
 
-	kprintf("Loading filesystem ...\n");
+//	kprintf("Loading filesystem ...\n");
 	ata_read(ATA0, &superblock, sizeof(superblock_t), 0, 0);
 
-	kprintf("Redundancy check ...\n");
+//	kprintf("Redundancy check ...\n");
 
-	kprintf("Filesystem succesfully loaded.\n");
+//	kprintf("Filesystem succesfully loaded.\n");
 
 }
 
@@ -312,8 +312,10 @@ int fsVersionCopy(inode_t * dir, fileentry_t * oldEntry, fileentry_t * newEntry,
 	newEntry->inode_number = newVersion->inode_number;
 	newEntry->position = oldEntry->position;
 	newEntry->type = oldEntry->type;
-	newVersion->rev_no = oldVersion->rev_no+1;
-	printf("ver -%d- %d", oldVersion->rev_no, newVersion->rev_no);
+	printf("-%d- -%d-\n", oldVersion->rev_no, newVersion->rev_no);
+	int oldRevNo = oldVersion->rev_no;
+	oldVersion->next->rev_no = oldRevNo+1;
+	printf("-%d- -%d-\n", oldVersion->rev_no, newVersion->rev_no);
 	updateEntry(newEntry,dir);
 	updateInode(dir);
 	updateInode(oldVersion);
@@ -354,7 +356,9 @@ int fsRevert(inode_t * dir, fileentry_t * entry, int version){
 			newFile.state = oldVersion->status;
 			newFile.inode_number = newVersion->inode_number;
 			fsInodeCopy(newVersion, oldVersion);
+			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
 			fsVersionCopy(dir, entry, &newFile, current_version, newVersion);
+			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
 			return OK;
 		}
 	}
@@ -365,7 +369,6 @@ void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
 	char sector[SECTOR_SIZE];
 	int i = 0;
 	newVersion->size = oldVersion->size;
-	newVersion->rev_no = oldVersion->rev_no;
 	newVersion->status = oldVersion->status;
 	strcpy(newVersion->name, oldVersion->name);
 	for (i = 0; i < MAX_SECTORS; i++) {

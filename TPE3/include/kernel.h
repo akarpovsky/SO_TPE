@@ -21,6 +21,7 @@
 #include "memorym.h"
 #include "auxMem.h"
 #include "fs.h"
+#include "keyboard.h"
 
 #define OS_PID	0
 
@@ -58,6 +59,8 @@ size_t __write(int fd, const void* buffer, size_t count);
 size_t __read(int fd, void* buffer, size_t count);
 
 size_t __kwrite(int fd, const void* buffer, size_t count);
+
+void kmain(multiboot_info_t * mbi, unsigned int magic);
 
 int shellLoop(int argc, char * argv);
 

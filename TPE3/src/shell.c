@@ -615,9 +615,9 @@ int vh(int argc, char *argv) {
 					"********************************************************************************\n");
 			printfcolor(WHITE_TXT, "Revision\t\t\tName\t\t\tSize\n");
 			do{
-//				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
-//				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t\t", file->name);
-//				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (file == NULL) ? -1: file->prev->rev_no );
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t\t", file->name);
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (file == NULL) ? -1: file->prev->rev_no );
 			}while((file = fsGetPrevVersion(file)) != NULL);
 
 			printfcolor(
@@ -667,6 +667,7 @@ int revert(int argc, char *argv){
 	} else {
 //		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
 	}
+
 
 	return EXIT_SUCCESS;
 }

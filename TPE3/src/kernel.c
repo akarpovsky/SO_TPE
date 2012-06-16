@@ -95,7 +95,7 @@ void int_21(unsigned char scancode) {
 /* Atencion de Interrupcion de Mouse */
 void int_74(unsigned char new_byte) {
 
-	mouse_routine(new_byte);
+//	mouse_routine(new_byte);
 
 }
 
@@ -188,7 +188,7 @@ int shellLoop(int argc, char * argv) {
  Punto de entrada de cóo C.
  *************************************************/
 
-kmain(multiboot_info_t * mbi, unsigned int magic) {
+void kmain(multiboot_info_t * mbi, unsigned int magic) {
 	_Cli();
 	memory_map_t *memmap;
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
@@ -243,8 +243,8 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 
 	/* Habilito interrupciones necesarias */
 
-	_mascaraPIC1(0xF8);
-	_mascaraPIC2(0xEF);
+	_mascaraPIC1(0xFC);
+	_mascaraPIC2(0xFF);
 
 	/* Frecuencia inicial del Timer Tick */
 
@@ -253,9 +253,9 @@ kmain(multiboot_info_t * mbi, unsigned int magic) {
 	/* Puntero a funcion a ser llamada por las acciones
 	 del mouse */
 
-	mouseCallback callbck;
-	callbck = &mouseButtonAction;
-	mouseInitialize(callbck);
+//	mouseCallback callbck;
+//	callbck = &mouseButtonAction;
+//	mouseInitialize(callbck);
 
 
 	/* Habilitamos interrupciones y el scheduler empieza a jugar!*/
