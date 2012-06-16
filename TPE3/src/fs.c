@@ -50,6 +50,7 @@ void fsinitInode(inode_t * inode, int i) {
 	inode->next = inode->prev = NULL;
 	inode->size = 0;
 	inode->rev_no = 0;
+	inode->status = FREE;
 	inode->name[0] = 0;
 }
 
@@ -86,6 +87,7 @@ int fsMkdir(char * name, inode_t * inode) {
 		strcpy(superblock.inodes[i].name, name);
 	}
 	superblock.inodes[i].type = DIR_TYPE;
+	superblock.inodes[i].status = PRESENT;
 	superblock.inodes[i].count++;
 	superblock.inodes[i].parent = inode;
 
@@ -131,6 +133,7 @@ int fsMkfile(char * name, inode_t * inode) {
 
 	}
 	superblock.inodes[i].type = FILE_TYPE;
+	superblock.inodes[i].status = PRESENT;
 	superblock.inodes[i].count++;
 	strcpy(superblock.inodes[i].name, name);
 	superblock.inodes[i].parent = inode;
@@ -229,6 +232,7 @@ int fsRemove(inode_t * dir, fileentry_t * fileToRemove) {
 	fileentry_t newFile;
 	strcpy(newFile.name, fileToRemove->name);
 	newFile.state = ABSENT;
+	newVersion->status = ABSENT;
 	fsVersionCopy(dir, fileToRemove, &newFile, oldVersion, newVersion);
 }
 
@@ -302,6 +306,7 @@ int fsVersionCopy(inode_t * dir, fileentry_t * oldEntry, fileentry_t * newEntry,
 	newVersion->next = NULL;
 	newVersion->prev = oldVersion;
 	oldVersion->next = newVersion;
+	newVersion->parent = oldVersion->parent;
 
 	newVersion->rev_no = 1 + oldVersion->rev_no;
 	strcpy(newVersion->name, oldVersion->name);
@@ -336,5 +341,41 @@ inode_t * getFreeInode() {
 inode_t * fsGetPrevVersion(inode_t * inode){
 	return inode->prev;
 }
+
+int fsRevert(inode_t * dir, fileentry_t * entry, int version){
+
+	inode_t * current_version = getInodeForEntry(entry);
+	inode_t * oldVersion = current_version;
+	while((oldVersion = fsGetPrevVersion(oldVersion)) != NULL){
+		if(oldVersion->rev_no == version){
+			inode_t * newVersion = getFreeInode();
+			fileentry_t newFile;
+			strcpy(newFile.name, oldVersion->name);
+			newFile.state = oldVersion->status;
+			newFile.inode_number = newVersion->inode_number;
+			fsInodeCopy(newVersion, oldVersion);
+			fsVersionCopy(dir, entry, &newFile, current_version, newVersion);
+			return OK;
+		}
+	}
+	return NO_VERSION;
+}
+
+void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
+	char sector[SECTOR_SIZE];
+	int i = 0;
+	newVersion->size = oldVersion->size;
+	newVersion->rev_no = 1 + oldVersion->rev_no;
+	newVersion->status = oldVersion->status;
+	strcpy(newVersion->name, oldVersion->name);
+	for (i = 0; i < MAX_SECTORS; i++) {
+		ata_read(ATA0,sector,SECTOR_SIZE,oldVersion->sectors[i], 0);
+		ata_write(ATA0,sector,SECTOR_SIZE,newVersion->sectors[i], 0);
+	}
+	updateInode(newVersion);
+
+}
+
+
 
 

@@ -41,6 +41,7 @@ struct inode_t{
 	inode_t * 	parent;
 	size_t		size;
 	int			rev_no;
+	int			status;
 };
 
 struct superblock_t{
@@ -75,6 +76,8 @@ void cleanEntry(fileentry_t * entry, inode_t * dir);
 int fsRecursiveRemoveHardWrapper(inode_t * dir, fileentry_t * fileToRemove);
 inode_t * getInodeForEntry(fileentry_t * currentFile);
 inode_t * fsGetPrevVersion(inode_t * inode);
+int fsRevert(inode_t * inode, fileentry_t * entry, int version);
+void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion);
 
 
 #endif

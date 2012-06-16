@@ -16,7 +16,7 @@ int strlen(const char *str){
 char * strcpy(char* d, const char* s){
 	while(*s != '\0')
 		*(d++) = *(s++);
-	*(++d) = '\0';
+	*d = '\0';
 	return d;
 }
 

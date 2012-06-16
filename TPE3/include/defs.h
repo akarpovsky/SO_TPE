@@ -238,6 +238,7 @@ typedef int	ssize_t;
 #define NO_FILENAME					4
 #define NOT_DIR						5
 #define FILE_ALREADY_EXISTS			6
+#define NO_VERSION					7
 
 #define FILE_SEPARATOR 				'/'
 

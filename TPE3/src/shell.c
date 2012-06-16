@@ -24,7 +24,9 @@ static struct {
 				"lsRemoved", "Show all files (including deleted)", lsRemoved },
 		{ "rmHard", "Remove the file the hard way", rmHard }, { "rmRec",
 				"Removes files and directories recursively", rmRecursive }, {
-				"vh", "Shows the version history of the file", vh }
+				"vh", "Shows the version history of the file", vh },{
+						"revert", "Revert to a previous version", revert }
+
 
 //		{"mv", "Move fileA to another place", mv},
 		//		{"cp", "Copy fileA to destination", cp},
@@ -569,10 +571,10 @@ int rmRecursive(int argc, char *argv) {
 //	printf("CFTy:%d\n", currentFile->type);
 //	printf("CWD: %d--CWDP: %d\n", cwd_inode->inode_number, (cwd_inode->parent == NULL) ? -1: cwd_inode->parent->inode_number);
 	if (found) {
-		if (!((currentFile->inode_number == cwd_inode->inode_number
-				&& currentFile->type == DIR_TYPE) || (currentFile->inode_number
-				== cwd_inode->parent->inode_number && currentFile->type
-				== DIR_TYPE))) {
+		if (!(((currentFile->inode_number == cwd_inode->inode_number)
+				&& (currentFile->type == DIR_TYPE)) || ((currentFile->inode_number
+				== cwd_inode->parent->inode_number) && (currentFile->type
+				== DIR_TYPE)))) {
 			printf("e!\n");
 			fsRecursiveRemoveHardWrapper(cwd_inode, currentFile);
 		} else {
@@ -611,10 +613,10 @@ int vh(int argc, char *argv) {
 			printfcolor(
 					MARINE_COLOR,
 					"********************************************************************************\n");
-			printfcolor(COMMAND_COLOR, "Revision\t\t\tName\t\t\tSize");
+			printfcolor(WHITE_TXT, "Revision\t\t\tName\t\t\tSize\n");
 			do{
-				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t", file->rev_no);
-				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t", file->name);
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t\t", file->name);
 				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (int) file->size);
 			}while((file = fsGetPrevVersion(file)) != NULL);
 
@@ -622,6 +624,43 @@ int vh(int argc, char *argv) {
 					MARINE_COLOR,
 					"\n********************************************************************************\n");
 
+		} else {
+			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
+		}
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int revert(int argc, char *argv){
+
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	bool found = FALSE;
+	int i = 0;
+	int revision = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
+			!= NULL && !found) {
+		if (streq(argv, currentFile->name) == TRUE && currentFile->type
+				== FILE_TYPE) {
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+	if (found) {
+		if (!((currentFile->inode_number == cwd_inode->inode_number
+				&& currentFile->type == DIR_TYPE) || (currentFile->inode_number
+				== cwd_inode->parent->inode_number && currentFile->type
+				== DIR_TYPE))) {
+			revision = getInodeForEntry(currentFile)->rev_no-1;
+			if(fsRevert(cwd_inode, currentFile, revision) == NO_VERSION){
+				printfcolor(ERROR_COLOR, "ERROR: N.\n");
+			}
 		} else {
 			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
 		}

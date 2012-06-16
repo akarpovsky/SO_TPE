@@ -9,7 +9,7 @@
 #include "limits.h"
 #include "memorym.h"
 
-#define NUM_COMMANDS 16
+#define NUM_COMMANDS 17
 #define LINEBUF_LEN 10
 
 
@@ -50,6 +50,7 @@ int lsRemoved(int argc, char * argv);
 int rmHard(int argc, char * argv);
 int rmRecursive(int argc, char * argv);
 int vh(int argc, char *argv);
+int revert(int argc, char *argv);
 
 void auto_complete(command_t * command);
 void clearCommand(command_t * command);
