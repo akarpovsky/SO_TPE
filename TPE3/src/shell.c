@@ -11,9 +11,9 @@ static struct {
 	char* description;
 	PROCESS task_function;
 } commands[NUM_COMMANDS] = { { "help", "Display system commands", help }, {
-		"echo", "Prints string", echo }, { "shortcuts",
-		"Display keyboard shorcuts", shortcuts }, { "top",
-		"Display ongoing look at processor activity in real time.", top }, {
+		"echo", "Prints string", echo },
+//		{ "shortcuts","Display keyboard shorcuts", shortcuts },
+		{ "top","Display ongoing look at processor activity in real time.", top }, {
 		"kill", "Kills the proces with PID = PIDn .", pkill }, { "imprimeUnos",
 		"Process that prints 1s forever", imprimeUnos }, { "clearScreen",
 		"Erase all the content of the actual TTY", clear_screen }, { "ls",
@@ -25,11 +25,10 @@ static struct {
 		{ "rmHard", "Remove the file the hard way", rmHard }, { "rmRec",
 				"Removes files and directories recursively", rmRecursive }, {
 				"vh", "Shows the version history of the file", vh },{
-						"revert", "Revert to a previous version", revert }
+						"revert", "Revert to a previous version", revert },
+						{"cp", "Copy files", cp },
+						{"mv", "Move files", mv }
 
-
-//		{"mv", "Move fileA to another place", mv},
-		//		{"cp", "Copy fileA to destination", cp},
 		};
 
 void shell(void) {
@@ -228,63 +227,63 @@ int echo(int argc, char *argv) {
 
 }
 
-int mouse(int argc, char *argv) {
-	printfcolor(
-			MARINE_COLOR,
-			"********************************************************************************\n");
-	printfcolor(COMMAND_COLOR, "Mouse usage: \n\n");
-	printfcolor(ERROR_COLOR, "%s", commands[0].name);
+//int mouse(int argc, char *argv) {
+//	printfcolor(
+//			MARINE_COLOR,
+//			"********************************************************************************\n");
+//	printfcolor(COMMAND_COLOR, "Mouse usage: \n\n");
+//	printfcolor(ERROR_COLOR, "%s", commands[0].name);
+//
+//	printfcolor(ERROR_COLOR, "Left Click");
+//	printfcolor(MARINE_COLOR, "\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Increments the timer tick frecuency\n");
+//
+//	printfcolor(ERROR_COLOR, "Right Click");
+//	printfcolor(MARINE_COLOR, "\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Decrements the timer tick frecuency\n");
+//
+//	printfcolor(
+//			MARINE_COLOR,
+//			"\n********************************************************************************\n");
+//	return EXIT_SUCCESS;
+//
+//}
 
-	printfcolor(ERROR_COLOR, "Left Click");
-	printfcolor(MARINE_COLOR, "\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Increments the timer tick frecuency\n");
-
-	printfcolor(ERROR_COLOR, "Right Click");
-	printfcolor(MARINE_COLOR, "\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Decrements the timer tick frecuency\n");
-
-	printfcolor(
-			MARINE_COLOR,
-			"\n********************************************************************************\n");
-	return EXIT_SUCCESS;
-
-}
-
-int shortcuts(int argc, char *argv) {
-	printfcolor(
-			MARINE_COLOR,
-			"********************************************************************************\n");
-	printfcolor(COMMAND_COLOR, "Keyboard shortcuts: \n\n");
-
-	printfcolor(ERROR_COLOR, "F1");
-	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Goes to TTY #1\n");
-
-	printfcolor(ERROR_COLOR, "F2");
-	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Goes to TTY #2\n");
-
-	printfcolor(ERROR_COLOR, "F3");
-	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Goes to TTY #3\n");
-
-	printfcolor(ERROR_COLOR, "F4");
-	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Goes to TTY #4\n");
-
-	printfcolor(ERROR_COLOR, "text + TAB");
-	printfcolor(MARINE_COLOR, "\t\t => \t");
-	printfcolor(COMMAND_COLOR, "Autocomplete command\n");
-
-	printfcolor(ERROR_COLOR, "CTRL + SHIFT");
-	printfcolor(MARINE_COLOR, "\t => \t");
-	printfcolor(COMMAND_COLOR, "Change keyboard language (ES | EN)\n");
-
-	printfcolor(
-			MARINE_COLOR,
-			"\n********************************************************************************\n");
-	return EXIT_SUCCESS;
-}
+//int shortcuts(int argc, char *argv) {
+//	printfcolor(
+//			MARINE_COLOR,
+//			"********************************************************************************\n");
+//	printfcolor(COMMAND_COLOR, "Keyboard shortcuts: \n\n");
+//
+//	printfcolor(ERROR_COLOR, "F1");
+//	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Goes to TTY #1\n");
+//
+//	printfcolor(ERROR_COLOR, "F2");
+//	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Goes to TTY #2\n");
+//
+//	printfcolor(ERROR_COLOR, "F3");
+//	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Goes to TTY #3\n");
+//
+//	printfcolor(ERROR_COLOR, "F4");
+//	printfcolor(MARINE_COLOR, "\t\t\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Goes to TTY #4\n");
+//
+//	printfcolor(ERROR_COLOR, "text + TAB");
+//	printfcolor(MARINE_COLOR, "\t\t => \t");
+//	printfcolor(COMMAND_COLOR, "Autocomplete command\n");
+//
+//	printfcolor(ERROR_COLOR, "CTRL + SHIFT");
+//	printfcolor(MARINE_COLOR, "\t => \t");
+//	printfcolor(COMMAND_COLOR, "Change keyboard language (ES | EN)\n");
+//
+//	printfcolor(
+//			MARINE_COLOR,
+//			"\n********************************************************************************\n");
+//	return EXIT_SUCCESS;
+//}
 
 int help(int argc, char *argv) {
 	int i;
@@ -385,7 +384,7 @@ int ls(int argc, char *argv) {
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL) {
 
-		//		printf("En LS: -%s-, state: %d, inode: %d\n", currentFile->name, currentFile->state, currentFile->inode_number);
+//		printf("En LS: -%s-, state: %d, inode: %d, position: %d, type: %d\n", currentFile->name, currentFile->state, currentFile->inode_number, currentFile->position, currentFile->type);
 		if (currentFile->state != ABSENT) {
 
 			if (currentFile->type == DIR_TYPE) {
@@ -483,7 +482,7 @@ int cd(int argc, char *argv) {
 	while ((currentFile = (fileentry_t *) fsGetFileentry(*cwd_inode, i++))
 			!= NULL && !found) {
 		if (currentFile->type == DIR_TYPE && streq(argv, currentFile->name)
-				== TRUE) {
+				== TRUE && (currentFile->state == PRESENT)) {
 			found = TRUE;
 			break;
 		}
@@ -492,15 +491,17 @@ int cd(int argc, char *argv) {
 
 	if (found) { // Change the directory of the parent of current_task
 		inode_t * aux = (inode_t *) getInodeByNumber(currentFile->inode_number);
-		if (aux != NULL)
+		if (aux != NULL){
 			(*cwd_inode) = aux;
-		else {
+		} else {
 			printfcolor(ERROR_COLOR, "FATAL: Disk corruption.\n");
+			return EXIT_FAILURE;
 		}
 
 		free(currentFile);
 	} else {
 		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
 	}
 }
 
@@ -512,7 +513,7 @@ int rm(int argc, char *argv) {
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL && !found) {
 		if (currentFile->type == FILE_TYPE && streq(argv, currentFile->name)
-				== TRUE) {
+				== TRUE && (currentFile->state == PRESENT)) {
 			found = TRUE;
 			break;
 		}
@@ -525,6 +526,7 @@ int rm(int argc, char *argv) {
 		free(currentFile);
 	} else {
 		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
 	}
 }
 
@@ -536,7 +538,7 @@ int rmHard(int argc, char *argv) {
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL && !found) {
 		if (currentFile->type == FILE_TYPE && streq(argv, currentFile->name)
-				== TRUE) {
+				== TRUE ) {
 			found = TRUE;
 			break;
 		}
@@ -549,6 +551,7 @@ int rmHard(int argc, char *argv) {
 		free(currentFile);
 	} else {
 		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
 	}
 }
 
@@ -560,7 +563,7 @@ int rmRecursive(int argc, char *argv) {
 	int i = 0;
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL && !found) {
-		if (streq(argv, currentFile->name) == TRUE) {
+		if (streq(argv, currentFile->name) == TRUE && (currentFile->state == PRESENT)) {
 			found = TRUE;
 			break;
 		}
@@ -579,10 +582,12 @@ int rmRecursive(int argc, char *argv) {
 			fsRecursiveRemoveHardWrapper(cwd_inode, currentFile);
 		} else {
 			printfcolor(ERROR_COLOR, "ERROR: You can't remove that.\n");
+			return EXIT_FAILURE;
 		}
 		free(currentFile);
 	} else {
 		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
 	}
 
 }
@@ -626,10 +631,12 @@ int vh(int argc, char *argv) {
 
 		} else {
 			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
+			return EXIT_FAILURE;
 		}
 		free(currentFile);
 	} else {
 		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;
@@ -661,14 +668,102 @@ int revert(int argc, char *argv){
 
 			fsRevert(cwd_inode, currentFile, revision);
 		} else {
-//			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
+			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
+			return EXIT_FAILURE;
 		}
 		free(currentFile);
 	} else {
-//		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
 	}
 
 
 	return EXIT_SUCCESS;
 }
 
+int cp(int argc, char *argv){
+	char c;
+	int i = 0;
+	char param1[LINEBUF_LEN -2]; // File
+	char param2[LINEBUF_LEN -2]; // Dest
+	while((c=*argv++) != ' ' && c != '\0'){
+		param1[i++] = c;
+	}
+	i = 0;
+	while((c=*argv++) != ' ' && c != '\0'){
+		param2[i++] = c;
+	}
+
+	if(param1[0] == '\0' || param2[0] == '\0'){
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax: param1 = -%s-, param2=-%s-\n", param1, param2);
+		return EXIT_FAILURE;
+	}
+
+	// Prevent recursive calls
+	if(streq(param1, param2)){
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax for copy or recursive instruction attempt.\n");
+		return EXIT_FAILURE;
+	}
+
+	/* First search for the file/dir to copy */
+
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	bool found = FALSE;
+	int j = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
+			!= NULL && !found) {
+		if (streq(param1, currentFile->name) == TRUE && (currentFile->state == PRESENT) ) {
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+	if (found) {
+		/* Now search for the directory to copy the file */
+
+		cwd_inode = get_current_task()->parent->cwd;
+		fileentry_t * currentDirFile = NULL;
+		found = FALSE;
+		j = 0;
+		while ((currentDirFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
+				!= NULL && !found) {
+			if (streq(param2, currentDirFile->name) == TRUE && currentDirFile->type
+					== DIR_TYPE) {
+				found = TRUE;
+				break;
+			}
+			free(currentDirFile);
+		}
+		if (found) {
+			fsCopy(getInodeForEntry(currentDirFile), currentFile);
+			free(currentDirFile);
+		} else {
+			printfcolor(ERROR_COLOR, "ERROR: No such destination directory.\n");
+			return EXIT_FAILURE;
+		}
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+
+}
+
+int mv(int argc, char *argv){
+	cp(argc, argv);
+	char c;
+	int i = 0;
+	char param1[LINEBUF_LEN -2]; // File
+	char param2[LINEBUF_LEN -2]; // Dest
+	while((c=*argv++) != ' ' && c != '\0'){
+		param1[i++] = c;
+	}
+	rmRecursive(argc, param1);
+
+	return EXIT_SUCCESS;
+
+}

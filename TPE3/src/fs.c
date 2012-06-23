@@ -370,6 +370,7 @@ void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
 	int i = 0;
 	newVersion->size = oldVersion->size;
 	newVersion->status = oldVersion->status;
+	newVersion->type = oldVersion->type;
 	strcpy(newVersion->name, oldVersion->name);
 	for (i = 0; i < MAX_SECTORS; i++) {
 		ata_read(ATA0,sector,SECTOR_SIZE,oldVersion->sectors[i], 0);
@@ -377,4 +378,21 @@ void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
 	}
 	updateInode(newVersion);
 
+}
+
+void fsCopy(inode_t * dir, fileentry_t * entry){
+	inode_t * fileToCopy = getInodeForEntry(entry);
+	inode_t * duplicatedFile = getFreeInode();
+//	printf("En CP: -%s-, state: %d, inode: %d, position: %d, type: %d\n", entry->name, entry->state, entry->inode_number, entry->position, fileToCopy->type);
+	fsInodeCopy(duplicatedFile, fileToCopy);
+	fsAddEntry(dir, duplicatedFile, fileToCopy->name);
+}
+
+void fsMove(inode_t * dir, fileentry_t * entry){
+	inode_t * fileToCopy = getInodeForEntry(entry);
+	inode_t * duplicatedFile = getFreeInode();
+//	printf("En MV: -%s-, state: %d, inode: %d, position: %d, type: %d\n", entry->name, entry->state, entry->inode_number, entry->position, fileToCopy->type);
+	fsInodeCopy(duplicatedFile, fileToCopy);
+	fsAddEntry(dir, duplicatedFile, fileToCopy->name);
+	rmRecursive(1, dir->name);
 }

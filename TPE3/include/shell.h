@@ -9,7 +9,7 @@
 #include "limits.h"
 #include "memorym.h"
 
-#define NUM_COMMANDS 17
+#define NUM_COMMANDS 18
 #define LINEBUF_LEN 10
 
 
@@ -43,6 +43,7 @@ int cd(int argc, char * argv);
 int ls(int argc, char * argv);
 int rm(int argc, char * argv);
 int mv(int argc, char * argv);
+int cp(int argc, char * argv);
 int mkdir(int argc, char * argv);
 int touch(int argc, char * argv);
 int cd(int argc, char * argv);
