@@ -150,6 +150,7 @@ int fsMkfile(char * name, inode_t * inode) {
 }
 
 /* Adds the entry 'entry' to the directory 'dir' */
+
 int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
 	fileentry_t fe;
 
@@ -185,6 +186,7 @@ int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
 	if(dirtyPosition == 0){
 		dir->size += sizeof(fileentry_t);
 	}
+
 	updateEntry(&fe, dir);
 	updateInode(dir);
 	return OK;
@@ -233,7 +235,7 @@ int fsRemove(inode_t * dir, fileentry_t * fileToRemove) {
 	strcpy(newFile.name, fileToRemove->name);
 	newFile.state = ABSENT;
 	newVersion->status = ABSENT;
-	fsVersionCopy(dir, fileToRemove, &newFile, oldVersion, newVersion);
+	fsVersionCopy(dir, fileToRemove, &newFile, oldVersion, newVersion, oldVersion->name);
 }
 
 
@@ -301,14 +303,14 @@ void cleanEntry(fileentry_t * entry, inode_t * dir){
 }
 
 int fsVersionCopy(inode_t * dir, fileentry_t * oldEntry, fileentry_t * newEntry,
-		inode_t * oldVersion, inode_t * newVersion) {
+		inode_t * oldVersion, inode_t * newVersion, char * newFileName) {
 
 	newVersion->next = NULL;
 	newVersion->prev = oldVersion;
 	oldVersion->next = newVersion;
 	newVersion->parent = oldVersion->parent;
 
-	strcpy(newVersion->name, oldVersion->name);
+	strcpy(newVersion->name, newFileName);
 	newEntry->inode_number = newVersion->inode_number;
 	newEntry->position = oldEntry->position;
 	newEntry->type = oldEntry->type;
@@ -357,7 +359,7 @@ int fsRevert(inode_t * dir, fileentry_t * entry, int version){
 			newFile.inode_number = newVersion->inode_number;
 			fsInodeCopy(newVersion, oldVersion);
 			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
-			fsVersionCopy(dir, entry, &newFile, current_version, newVersion);
+			fsVersionCopy(dir, entry, &newFile, current_version, newVersion, oldVersion->name);
 			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
 			return OK;
 		}
@@ -371,6 +373,7 @@ void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion){
 	newVersion->size = oldVersion->size;
 	newVersion->status = oldVersion->status;
 	newVersion->type = oldVersion->type;
+
 	strcpy(newVersion->name, oldVersion->name);
 	for (i = 0; i < MAX_SECTORS; i++) {
 		ata_read(ATA0,sector,SECTOR_SIZE,oldVersion->sectors[i], 0);
@@ -388,11 +391,12 @@ void fsCopy(inode_t * dir, fileentry_t * entry){
 	fsAddEntry(dir, duplicatedFile, fileToCopy->name);
 }
 
-void fsMove(inode_t * dir, fileentry_t * entry){
-	inode_t * fileToCopy = getInodeForEntry(entry);
-	inode_t * duplicatedFile = getFreeInode();
-//	printf("En MV: -%s-, state: %d, inode: %d, position: %d, type: %d\n", entry->name, entry->state, entry->inode_number, entry->position, fileToCopy->type);
-	fsInodeCopy(duplicatedFile, fileToCopy);
-	fsAddEntry(dir, duplicatedFile, fileToCopy->name);
-	rmRecursive(1, dir->name);
+void fsRename(inode_t * dir, fileentry_t * entry, char * newFileName){
+	inode_t * fileToRename = getInodeForEntry(entry);
+	inode_t * newFileVersion = getFreeInode();
+	fileentry_t newFile;
+	strcpy(newFile.name, newFileName);
+	newFile.state = PRESENT;
+	newFileVersion->status = PRESENT;
+	fsVersionCopy(dir, entry, &newFile, fileToRename, newFileVersion, newFileName);
 }

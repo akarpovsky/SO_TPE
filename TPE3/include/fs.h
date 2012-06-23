@@ -68,7 +68,7 @@ int fsMkdir(char * name, inode_t * inode);
 inode_t * getInodeByNumber(int inode_number);
 inode_t * getFreeInode();
 int fsVersionCopy(inode_t * dir, fileentry_t * oldFile, fileentry_t * newFile,
-		inode_t * oldVersion, inode_t * newVersion);
+		inode_t * oldVersion, inode_t * newVersion, char * newFileName);
 int fsRemove(inode_t * dir, fileentry_t * fileToRemove);
 int fsRemoveHard(inode_t * dir, fileentry_t * fileToRemove);
 void updateEntry(fileentry_t * entry, inode_t * dir);

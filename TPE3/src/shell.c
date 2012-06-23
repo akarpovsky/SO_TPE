@@ -410,7 +410,7 @@ int lsRemoved(int argc, char *argv) {
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL) {
 
-		//		printf("En LS: -%s-, state: %d, inode: %d\n", currentFile->name, currentFile->state, currentFile->inode_number);
+//		printf("En LS: -%s-, state: %d, inode: %d\n", currentFile->name, currentFile->state, currentFile->inode_number);
 		if (currentFile->state == ABSENT) {
 			printfcolor(ERROR_COLOR, "(%s) ", currentFile->name);
 		} else if (currentFile->type == DIR_TYPE) {
@@ -695,7 +695,7 @@ int cp(int argc, char *argv){
 	}
 
 	if(param1[0] == '\0' || param2[0] == '\0'){
-		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax: param1 = -%s-, param2=-%s-\n", param1, param2);
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax for copy: param1 = -%s-, param2=-%s-\n", param1, param2);
 		return EXIT_FAILURE;
 	}
 
@@ -705,7 +705,7 @@ int cp(int argc, char *argv){
 		return EXIT_FAILURE;
 	}
 
-	/* First search for the file/dir to copy */
+	/* First search for the file to copy */
 
 	inode_t * cwd_inode = get_current_task()->parent->cwd;
 	fileentry_t * currentFile = NULL;
@@ -713,7 +713,7 @@ int cp(int argc, char *argv){
 	int j = 0;
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
 			!= NULL && !found) {
-		if (streq(param1, currentFile->name) == TRUE && (currentFile->state == PRESENT) ) {
+		if (streq(param1, currentFile->name) == TRUE && (currentFile->state == PRESENT) && currentFile->type == FILE_TYPE ) {
 			found = TRUE;
 			break;
 		}
@@ -752,9 +752,7 @@ int cp(int argc, char *argv){
 	return EXIT_SUCCESS;
 
 }
-
 int mv(int argc, char *argv){
-	cp(argc, argv);
 	char c;
 	int i = 0;
 	char param1[LINEBUF_LEN -2]; // File
@@ -762,7 +760,73 @@ int mv(int argc, char *argv){
 	while((c=*argv++) != ' ' && c != '\0'){
 		param1[i++] = c;
 	}
-	rmRecursive(argc, param1);
+	i = 0;
+	while((c=*argv++) != ' ' && c != '\0'){
+		param2[i++] = c;
+	}
+
+	if(param1[0] == '\0' || param2[0] == '\0'){
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax for copy: param1 = -%s-, param2=-%s-\n", param1, param2);
+		return EXIT_FAILURE;
+	}
+
+	// Prevent recursive calls
+	if(streq(param1, param2)){
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax for copy or recursive instruction attempt.\n");
+		return EXIT_FAILURE;
+	}
+
+	/* First search for the file to copy */
+
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	bool found = FALSE;
+	int j = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
+			!= NULL && !found) {
+		if (streq(param1, currentFile->name) == TRUE && (currentFile->state == PRESENT) && currentFile->type == FILE_TYPE ) {
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+	if (found) {
+		/* Now search for the directory to copy the file */
+
+		cwd_inode = get_current_task()->parent->cwd;
+		fileentry_t * currentDirFile = NULL;
+		found = FALSE;
+		j = 0;
+		while ((currentDirFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
+				!= NULL && !found) {
+			if (streq(param2, currentDirFile->name) == TRUE) {
+				found = TRUE;
+				break;
+			}
+			free(currentDirFile);
+		}
+		if (found) {
+			if(currentDirFile->type == DIR_TYPE){
+				fsCopy(getInodeForEntry(currentDirFile), currentFile);
+				rmRecursive(1, param1);
+				free(currentDirFile);
+				return EXIT_SUCCESS;
+			}else{
+				printfcolor(ERROR_COLOR, "ERROR: Filename already exists.\n");
+				free(currentDirFile);
+				return EXIT_FAILURE;
+			}
+		} else {
+			// Rename the file in the current directory
+			fsRename(cwd_inode, currentFile, param2);
+			return EXIT_SUCCESS;
+		}
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 
