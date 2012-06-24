@@ -249,7 +249,7 @@ int fsRemoveHard(inode_t * dir, fileentry_t * fileToRemove) {
 	 * Then remove my previous
 	 */
 
-	if(fileToRemove == LINK_TYPE){
+	if(fileToRemove->type == LINK_TYPE){
 		getInodeByNumber(fileToRemove->inode_number)->count--;
 		cleanEntry(fileToRemove, dir);
 		return EXIT_SUCCESS;
