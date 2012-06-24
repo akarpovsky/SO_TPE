@@ -78,7 +78,6 @@ void sysread(int fd, void * buffer, size_t count) {
 }
 
 void syswrite(int fd, void * buffer, size_t count) {
-	int i;
 	if (fd == STDOUT) {
 		ttyScreen_t * screen = (ttyScreen_t*) getScreen(get_current_task());
 
@@ -91,10 +90,6 @@ void syswrite(int fd, void * buffer, size_t count) {
 void syskernelwrite(int fd, void * buffer, size_t count) {
 
 			kwriteInVideo(*((char *) buffer));
-//			*(video+offset++) = *((char *) buffer++); // Print char to screen
-//			*(video+offset++) = WHITE_TXT; // Char format
-
-
 }
 
 int sscanf(char* str, char* fmt, ...) {

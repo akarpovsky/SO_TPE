@@ -53,6 +53,8 @@ void select_next(){
 		case TaskEmpty:
 			add_to_queue(&empty_tasks, current_task);
 			break;
+		default:
+			break;
 		}
 
 		current_task->next = NULL;
@@ -72,7 +74,6 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 	atomize();
 	Task_t * auxTask = NULL;
 	Task_t * c_t = get_current_task();
-	Task_t * fg_t = get_foreground_tty();
 
 	int new_task_priority = (streq(name, "imprimeDos"))? 3: 2 ; // La prioridad del proceso shell ser� = 1
 
@@ -85,7 +86,6 @@ void StartNewTask(char * name, PROCESS new_task_function, char * args, bool isBa
 		}
 	}
 
-	int argc;
 	auxTask = CreateProcess(name, new_task_function, c_t, c_t->tty_number, 1, args,
 				stack_start_address, new_task_priority, !isBackground);
 
@@ -124,6 +124,7 @@ Task_t * CreateProcess(char* name, PROCESS process, Task_t * parent, int tty, in
 		new_proc->screen = parent->screen;
 		new_proc->keyboard = parent->keyboard;
 		new_proc->linebuffer = parent->linebuffer;
+		new_proc->cwd 	= parent->cwd;
 	} // Else, screen, keyboard and linebuffer had already been initialized in the init() kernel call.
 
 	CreateStackFrame(new_proc, process, stack_start, argc, argv);
@@ -308,6 +309,7 @@ int terminate_task(int pid)
 	case TaskEmpty:
 		return EXIT_FAILURE;
 		break;
+	default: break;
 	}
 	add_to_queue(&terminated_tasks, &processes[pid]);
 	processes[pid].state = TaskTerminated;
@@ -398,7 +400,6 @@ int null_process(int argc, char *argv){
 
 int proc1(int argc, char *argv){
 	_Sti();
-	int i = 0, j=1;
 	while(1){
 		if(printp1){
 			printf("Corriendo 1\n");
@@ -422,8 +423,6 @@ int proc1(int argc, char *argv){
 
 int proc2(int argc, char *argv){
 	_Sti();
-
-	int i = 0;
 		while(1){
 			if(printp2){
 				printf("\n\n\n\tCorriendo 2\n\n\n\n");

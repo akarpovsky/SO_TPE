@@ -9,6 +9,7 @@
 #include "limits.h"
 #include "defs.h"
 #include "structs.h"
+#include "fs.h"
 
 typedef unsigned long Time_t;
 typedef unsigned Prio_t;
@@ -108,6 +109,7 @@ struct task {
 	void *			descriptor_table[STREAM_MAX];
 	registers_t		registers;
 	TaskQueue_t 	send_queue;
+	inode_t	*		cwd;
 };
 
 typedef int (*PROCESS) (int argc, char *argv);

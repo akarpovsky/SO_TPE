@@ -47,25 +47,25 @@ void mouse_routine(unsigned char new_byte );
  * y luego se envia el comando
  */
 
-static void mouseWrite(unsigned char data);
+void mouseWrite(unsigned char data);
 
 /*Función que espera que el mouse tenga información nueva antes
  * de leer de el
  */
 
-static unsigned char mouseRead(void);
+unsigned char mouseRead(void);
 
 /* Función que espera con un timeout hasta que el mouse
  * indique con el puerto de estado que esta listo para recibir
  * informaicón
  */
 
-static void waitForMouseToAccept( void );
+void waitForMouseToAccept( void );
 
 /*Función que espera que el Mouse tenga nueva información antes
  * de leer cual es esta.
  */
 
-static void waitForMouseToHaveInfo( void );
+void waitForMouseToHaveInfo( void );
 
 #endif /* MOUSE_H_ */

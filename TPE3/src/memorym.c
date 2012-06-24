@@ -42,9 +42,6 @@ void createHeadersList(void * inicio, void * fin)
 	((List)inicio)->first_page = inicio + MAX_PAGE_SIZE * cantHeadPages;
 	((List)inicio)->max_pages = cantPages - cantHeadPages;
 
-	int a = addHeader((List)inicio);
-	//addHeader((List)inicio);
-
 	pages = ((List)inicio);
 
 
@@ -94,11 +91,9 @@ void * malloc(int size){
 	int i=0;
 	int j=0;
 	int k=0; /* Indice de la menor posicion posible */
-	int t=0;
 	int aux;
 	int aux2;
 	int pag;
-	int HAVE_PAGE = 0;
 	int flag = NOT_FOUND;
 	mem_header * actual;
 	int bloques = getBlocks(size);
@@ -297,10 +292,7 @@ void free(void* p){
 	int dif;
 	int aux;
 	mem_header* actual;
-	Task_t * proc = get_current_task();
 	int pag;
-	int t;
-	int HAVE_PAGE = 0;
 
 	/* Calculo a que pagina debo moverme*/
 	i = getPageIndex(p);

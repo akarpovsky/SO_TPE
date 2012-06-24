@@ -16,16 +16,18 @@ int strlen(const char *str){
 char * strcpy(char* d, const char* s){
 	while(*s != '\0')
 		*(d++) = *(s++);
-	*(++d) = '\0';
+	*d = '\0';
 	return d;
 }
 
 int streq(char* s, char* t) {
 
-    for(; *s == *t; s++, t++)
-        if (*s == 0)
+    for(; *s == *t; s++, t++){
+        if (*s == 0 && *t == 0)
             return TRUE;
-            
+        else if( (*s == 0 && *t != 0)  || (*s != 0 && *t == 0))
+        	return FALSE;
+    }
     return FALSE;
 
 }
@@ -42,4 +44,13 @@ int atoi (char * s)
 
 	}
 	return(i);
+}
+
+char * strtok(char * s, char c){
+	while(*s++ != '\0'){
+		if(*s == c)
+			return s;
+	}
+
+	return NULL;
 }
