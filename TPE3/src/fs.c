@@ -152,7 +152,7 @@ int fsMkfile(char * name, inode_t * inode) {
 /* Adds the entry 'entry' to the directory 'dir' */
 
 int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
-	fileentry_t * fe;
+	fileentry_t fe;
 
 	if (dir == NULL || dir->type != DIR_TYPE || entry == NULL || entry_name
 			== NULL) {
