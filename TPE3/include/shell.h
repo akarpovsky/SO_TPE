@@ -9,7 +9,7 @@
 #include "limits.h"
 #include "memorym.h"
 
-#define NUM_COMMANDS 18
+#define NUM_COMMANDS 19
 #define LINEBUF_LEN 10
 
 
