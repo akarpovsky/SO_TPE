@@ -541,7 +541,7 @@ int rmHard(int argc, char *argv) {
 	if (found) {
 		if(fsRemoveHard(cwd_inode, currentFile) == EXIT_FAILURE)
 		{
-			printfcolor(ERROR_COLOR, "ERROR: The file is being linked");
+			printfcolor(ERROR_COLOR, "ERROR: The file is being linked.\n");
 		}
 
 		free(currentFile);
