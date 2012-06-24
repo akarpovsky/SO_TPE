@@ -896,7 +896,7 @@ int ln(int argc, char *argv){
 			free(currentDirFile);
 		}
 		if (!found) {
-			fsAddEntry(cwd_inode, getInodeByNumber(ino_no), param2);
+			fsAddLink(cwd_inode, getInodeByNumber(ino_no), param2);
 			free(currentDirFile);
 		} else {
 			printfcolor(ERROR_COLOR, "ERROR: Already exists a file with such name.\n");

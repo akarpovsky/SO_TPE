@@ -182,9 +182,8 @@ int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
 	fe.inode_number = entry->inode_number;
 	fe.state = PRESENT;
 	fe.type = ((entry->count <= 1) ? entry->type : LINK_TYPE);
-	entry->count++;
 	strcpy(fe.name, entry_name);
-	if(dirtyPosition == 0){
+	if(dirtyPosition == -1){
 		dir->size += sizeof(fileentry_t);
 	}
 
@@ -425,4 +424,12 @@ void fsRename(inode_t * dir, fileentry_t * entry, char * newFileName){
 	newFile.state = PRESENT;
 	newFileVersion->status = PRESENT;
 	fsVersionCopy(dir, entry, &newFile, fileToRename, newFileVersion, newFileName);
+}
+
+int fsAddLink(inode_t * dir, inode_t inode, char * name){
+	if(fsAddEntry(dir, inode, name) != OK){
+		return EXIT_FAILURE;
+	}
+	inode->count++;
+	return EXIT_SUCCESS;
 }
