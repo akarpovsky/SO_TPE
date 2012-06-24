@@ -152,9 +152,9 @@ int fsMkfile(char * name, inode_t * inode) {
 /* Adds the entry 'entry' to the directory 'dir' */
 
 int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
-	fileentry_t fe;
+	fileentry_t * fe;
 
-	if (dir->type != DIR_TYPE || dir == NULL || entry == NULL || entry_name
+	if (dir == NULL || dir->type != DIR_TYPE || entry == NULL || entry_name
 			== NULL) {
 		return ERROR;
 	}
@@ -165,7 +165,7 @@ int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
 
 	/* Check if the entry_name already exists */
 	int i = 0;
-	int dirtyPosition = 0;
+	int dirtyPosition = -1;
 	fileentry_t * checkEntry;
 	while ((checkEntry = fsGetFileentry(dir, i++)) != NULL) {
 		if(checkEntry->state == DIRTY){
@@ -178,10 +178,11 @@ int fsAddEntry(inode_t * dir, inode_t * entry, char * entry_name) {
 			return FILE_ALREADY_EXISTS;
 	}
 
-	fe.position = ((dirtyPosition == 0) ? i-1 : dirtyPosition-1);
+	fe.position = ((dirtyPosition == -1) ? i-1 : dirtyPosition-1);
 	fe.inode_number = entry->inode_number;
 	fe.state = PRESENT;
 	fe.type = ((entry->count <= 1) ? entry->type : LINK_TYPE);
+	entry->count++;
 	strcpy(fe.name, entry_name);
 	if(dirtyPosition == 0){
 		dir->size += sizeof(fileentry_t);
@@ -235,6 +236,7 @@ int fsRemove(inode_t * dir, fileentry_t * fileToRemove) {
 	strcpy(newFile.name, fileToRemove->name);
 	newFile.state = ABSENT;
 	newVersion->status = ABSENT;
+	newVersion->type = FILE_TYPE;
 	fsVersionCopy(dir, fileToRemove, &newFile, oldVersion, newVersion, oldVersion->name);
 }
 
@@ -247,7 +249,16 @@ int fsRemoveHard(inode_t * dir, fileentry_t * fileToRemove) {
 	 * Then remove my previous
 	 */
 
+	if(fileToRemove == LINK_TYPE){
+		getInodeByNumber(fileToRemove->inode_number)->count--;
+		cleanEntry(fileToRemove, dir);
+		return EXIT_SUCCESS;
+	}
 	inode_t * inode = &superblock.inodes[fileToRemove->inode_number];
+	if(inode->count >1)
+	{
+		return EXIT_FAILURE;
+	}
 	cleanEntry(fileToRemove, dir);
 	inode_t * prev;
 
@@ -258,6 +269,7 @@ int fsRemoveHard(inode_t * dir, fileentry_t * fileToRemove) {
 		inode = prev;
 	}
 
+	return EXIT_SUCCESS;
 }
 
 int fsRecursiveRemoveHard(inode_t * dir) {
@@ -269,30 +281,39 @@ int fsRecursiveRemoveHard(inode_t * dir) {
 				(checkEntry->inode_number == dir->parent->inode_number && checkEntry->type == DIR_TYPE))
 			continue;
 
-		if(checkEntry->type == FILE_TYPE){
-			fsRemoveHard(dir,checkEntry);
-		} else if(checkEntry->type == LINK_TYPE){
-			cleanEntry(checkEntry, dir);
+		if(checkEntry->type != DIR_TYPE){
+			if(fsRemoveHard(dir, checkEntry) == EXIT_FAILURE){
+				return EXIT_FAILURE;
+			} // Remove myself cause i am a file or a link
 		}else{
-			fsRecursiveRemoveHard(&superblock.inodes[checkEntry->inode_number]);
-			fsRemoveHard(dir,checkEntry);
+			if(fsRecursiveRemoveHard(&superblock.inodes[checkEntry->inode_number]) == EXIT_FAILURE){
+				return EXIT_FAILURE;
+			}
+			if(fsRemoveHard(dir, checkEntry) == EXIT_FAILURE){
+				return EXIT_FAILURE;
+			}
 		}
 	}
+
+	return EXIT_SUCCESS;
 
 }
 
 int fsRecursiveRemoveHardWrapper(inode_t * dir, fileentry_t * fileToRemove){
 
-	if(fileToRemove->type == FILE_TYPE){
-		fsRemoveHard(dir,fileToRemove); // Remove myself cause i am a file
-		return OK;
-	}else if(fileToRemove->type == LINK_TYPE){
-		cleanEntry(fileToRemove, dir);
+	if(fileToRemove->type != DIR_TYPE){
+		fsRemoveHard(dir,fileToRemove); // Remove myself cause i am a file or a link
 		return OK;
 	}
 
-	fsRecursiveRemoveHard(&superblock.inodes[fileToRemove->inode_number]);
-	fsRemoveHard(dir, fileToRemove);
+	if(fsRecursiveRemoveHard(&superblock.inodes[fileToRemove->inode_number]) == EXIT_FAILURE){
+		return EXIT_FAILURE;
+	}
+	if(fsRemoveHard(dir, fileToRemove) == EXIT_FAILURE){
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }
 
 void cleanEntry(fileentry_t * entry, inode_t * dir){
@@ -353,12 +374,17 @@ int fsRevert(inode_t * dir, fileentry_t * entry, int version){
 	while((oldVersion = fsGetPrevVersion(oldVersion)) != NULL){
 		if(oldVersion->rev_no == version){
 			inode_t * newVersion = getFreeInode();
+			if(current_version == newVersion){
+				printf("ANTES");
+				_debug();
+			}
 			fileentry_t newFile;
 			strcpy(newFile.name, oldVersion->name);
 			newFile.state = oldVersion->status;
 			newFile.inode_number = newVersion->inode_number;
 			fsInodeCopy(newVersion, oldVersion);
-			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
+			newVersion->rev_no++;
+			printf("!---%d- -%d-\n", current_version->rev_no, newVersion->rev_no);
 			fsVersionCopy(dir, entry, &newFile, current_version, newVersion, oldVersion->name);
 			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
 			return OK;

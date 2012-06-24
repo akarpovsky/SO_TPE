@@ -13,7 +13,7 @@ ata0-slave: type=cdrom, path=./BrunOS.iso, status=inserted
 
 # hard disk
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
-ata0-master: type=disk, mode=flat, translation=auto, path="./disk0.img", cylinders=20, heads=16, spt=63, biosdetect=auto, model="Disk 0"
+ata0-master: type=disk, mode=flat, translation=auto, path="./c.img", cylinders=20, heads=16, spt=63, biosdetect=auto, model="Disk 0"
 
 ata1: enabled=0
 ata2: enabled=0

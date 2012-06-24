@@ -16,6 +16,8 @@
 typedef struct command_t { 
         char name[LINEBUF_LEN]; 
         char args[LINEBUF_LEN - 2]; 
+        int argc;
+        char * argv[];
  
 } command_t;
 
@@ -52,6 +54,7 @@ int rmHard(int argc, char * argv);
 int rmRecursive(int argc, char * argv);
 int vh(int argc, char *argv);
 int revert(int argc, char *argv);
+int ln(int argc, char *argv);
 
 void auto_complete(command_t * command);
 void clearCommand(command_t * command);

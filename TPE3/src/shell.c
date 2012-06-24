@@ -27,7 +27,9 @@ static struct {
 				"vh", "Shows the version history of the file", vh },{
 						"revert", "Revert to a previous version", revert },
 						{"cp", "Copy files", cp },
-						{"mv", "Move files", mv }
+						{"mv", "Move files", mv },
+						{"ln", "Make a soft-link to a file", ln
+						}
 
 		};
 
@@ -546,7 +548,10 @@ int rmHard(int argc, char *argv) {
 	}
 
 	if (found) {
-		fsRemoveHard(cwd_inode, currentFile);
+		if(fsRemoveHard(cwd_inode, currentFile) == EXIT_FAILURE)
+		{
+			printfcolor(ERROR_COLOR, "ERROR: The file is being linked");
+		}
 
 		free(currentFile);
 	} else {
@@ -618,11 +623,12 @@ int vh(int argc, char *argv) {
 			printfcolor(
 					MARINE_COLOR,
 					"********************************************************************************\n");
-			printfcolor(WHITE_TXT, "Revision\t\t\tName\t\t\tSize\n");
+			printfcolor(WHITE_TXT, "Revision\t\t\tName\t\t\tSize\t\t\tStatus\n");
 			do{
 				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
 				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\t\t\t\t", file->name);
-				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\n", (file == NULL) ? -1: file->prev->rev_no );
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t", (file == NULL) ? -1: file->size );
+				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\n", (file->status == ABSENT) ? "Absent": "Present" );
 			}while((file = fsGetPrevVersion(file)) != NULL);
 
 			printfcolor(
@@ -830,4 +836,77 @@ int mv(int argc, char *argv){
 
 	return EXIT_SUCCESS;
 
+}
+
+int ln(int argc, char *argv){
+	char c;
+	int i = 0;
+	char param1[LINEBUF_LEN -2]; // File
+	char param2[LINEBUF_LEN -2]; // Dest
+	while((c=*argv++) != ' ' && c != '\0'){
+		param1[i++] = c;
+	}
+	i = 0;
+	while((c=*argv++) != ' ' && c != '\0'){
+		param2[i++] = c;
+	}
+
+	if(param1[0] == '\0' || param2[0] == '\0'){
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax for copy: param1 = -%s-, param2=-%s-\n", param1, param2);
+		return EXIT_FAILURE;
+	}
+
+	// Prevent recursive calls
+	if(streq(param1, param2)){
+		printfcolor(ERROR_COLOR, "ERROR: Incorrect syntax for copy or recursive instruction attempt.\n");
+		return EXIT_FAILURE;
+	}
+
+	/* First search for the file to copy */
+
+	inode_t * cwd_inode = get_current_task()->parent->cwd;
+	fileentry_t * currentFile = NULL;
+	int ino_no = 0;
+	bool found = FALSE;
+	int j = 0;
+	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
+			!= NULL && !found) {
+		if (streq(param1, currentFile->name) == TRUE && (currentFile->state == PRESENT)) {
+			ino_no = currentFile->inode_number;
+			found = TRUE;
+			break;
+		}
+		free(currentFile);
+	}
+
+	if (found) {
+		/* Now search for the directory to copy the file */
+
+		cwd_inode = get_current_task()->parent->cwd;
+		fileentry_t * currentDirFile = NULL;
+		found = FALSE;
+		j = 0;
+		while ((currentDirFile = (fileentry_t *) fsGetFileentry(cwd_inode, j++))
+				!= NULL && !found) {
+			if (streq(param2, currentDirFile->name) == TRUE && currentDirFile->type
+					== DIR_TYPE) {
+				found = TRUE;
+				break;
+			}
+			free(currentDirFile);
+		}
+		if (!found) {
+			fsAddEntry(cwd_inode, getInodeByNumber(ino_no), param2);
+			free(currentDirFile);
+		} else {
+			printfcolor(ERROR_COLOR, "ERROR: Already exists a file with such name.\n");
+			return EXIT_FAILURE;
+		}
+		free(currentFile);
+	} else {
+		printfcolor(ERROR_COLOR, "ERROR: No such file or directory.\n");
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }

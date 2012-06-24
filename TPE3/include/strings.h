@@ -6,6 +6,7 @@ int strlen(const char *str);
 int strcmp(char * str1, char * str2 );
 int streq(char * str1, char * str2 );
 char * strcpy(char* d, const char* s);
+char * strtok(char * s, char c);
 int atoi(char* s);
 
 #endif
