@@ -289,9 +289,9 @@ int echo(int argc, char *argv) {
 
 int help(int argc, char *argv) {
 	int i;
-	printfcolor(
-			MARINE_COLOR,
-			"********************************************************************************\n");
+//	printfcolor(
+//			MARINE_COLOR,
+//			"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR, "Available commands: \n\n");
 	int len = 0;
 	for (i = 0; i < NUM_COMMANDS; i++) {
@@ -310,9 +310,9 @@ int help(int argc, char *argv) {
 		printfcolor(COMMAND_COLOR, "%s\n", commands[i].description);
 	}
 
-	printfcolor(
-			MARINE_COLOR,
-			"\n********************************************************************************\n");
+//	printfcolor(
+//			MARINE_COLOR,
+//			"\n********************************************************************************\n");
 	return EXIT_SUCCESS;
 
 }
@@ -320,9 +320,9 @@ int help(int argc, char *argv) {
 int top(int argc, char *argv) {
 	Task_t* processes = get_processes();
 	int i;
-	printfcolor(
-			MARINE_COLOR,
-			"********************************************************************************\n");
+//	printfcolor(
+//			MARINE_COLOR,
+//			"********************************************************************************\n");
 	printfcolor(COMMAND_COLOR, "PID\t\t\tName\t\t\t\tStatus\t\t\tPriority\n\n");
 	for (i = 0; i < MAX_PROCESSES; i++) {
 		if (processes[i].state != TaskEmpty) {
@@ -338,9 +338,9 @@ int top(int argc, char *argv) {
 									: "Suspended"), processes[i].priority);
 		}
 	}
-	printfcolor(
-			MARINE_COLOR,
-			"\n********************************************************************************\n");
+//	printfcolor(
+//			MARINE_COLOR,
+//			"\n********************************************************************************\n");
 	return EXIT_SUCCESS;
 }
 
@@ -620,9 +620,9 @@ int vh(int argc, char *argv) {
 				== DIR_TYPE))) {
 			inode_t * file = getInodeForEntry(currentFile);
 			int current_rev = file->rev_no;
-			printfcolor(
-					MARINE_COLOR,
-					"********************************************************************************\n");
+//			printfcolor(
+//					MARINE_COLOR,
+//					"********************************************************************************\n");
 			printfcolor(WHITE_TXT, "Revision\t\t\tName\t\t\tSize\t\t\tStatus\n");
 			do{
 				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%d\t\t\t\t\t", file->rev_no);
@@ -631,9 +631,9 @@ int vh(int argc, char *argv) {
 				printfcolor((file->rev_no == current_rev) ? COMMAND_COLOR : ERROR_COLOR, "%s\n", (file->status == ABSENT) ? "Absent": "Present" );
 			}while((file = fsGetPrevVersion(file)) != NULL);
 
-			printfcolor(
-					MARINE_COLOR,
-					"\n********************************************************************************\n");
+//			printfcolor(
+//					MARINE_COLOR,
+//					"\n********************************************************************************\n");
 
 		} else {
 			printfcolor(ERROR_COLOR, "ERROR: That file does not have version history.\n");
