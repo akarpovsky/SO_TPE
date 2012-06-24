@@ -334,10 +334,10 @@ int fsVersionCopy(inode_t * dir, fileentry_t * oldEntry, fileentry_t * newEntry,
 	newEntry->inode_number = newVersion->inode_number;
 	newEntry->position = oldEntry->position;
 	newEntry->type = oldEntry->type;
-	printf("-%d- -%d-\n", oldVersion->rev_no, newVersion->rev_no);
+//	printf("-%d- -%d-\n", oldVersion->rev_no, newVersion->rev_no);
 	int oldRevNo = oldVersion->rev_no;
 	oldVersion->next->rev_no = oldRevNo+1;
-	printf("-%d- -%d-\n", oldVersion->rev_no, newVersion->rev_no);
+//	printf("-%d- -%d-\n", oldVersion->rev_no, newVersion->rev_no);
 	updateEntry(newEntry,dir);
 	updateInode(dir);
 	updateInode(oldVersion);
@@ -383,9 +383,9 @@ int fsRevert(inode_t * dir, fileentry_t * entry, int version){
 			newFile.inode_number = newVersion->inode_number;
 			fsInodeCopy(newVersion, oldVersion);
 			newVersion->rev_no++;
-			printf("!---%d- -%d-\n", current_version->rev_no, newVersion->rev_no);
+//			printf("!---%d- -%d-\n", current_version->rev_no, newVersion->rev_no);
 			fsVersionCopy(dir, entry, &newFile, current_version, newVersion, oldVersion->name);
-			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
+//			printf("%d- -%d-\n", current_version->rev_no, newVersion->prev->rev_no);
 			return OK;
 		}
 	}
@@ -423,6 +423,7 @@ void fsRename(inode_t * dir, fileentry_t * entry, char * newFileName){
 	strcpy(newFile.name, newFileName);
 	newFile.state = PRESENT;
 	newFileVersion->status = PRESENT;
+	newFileVersion->type = FILE_TYPE;
 	fsVersionCopy(dir, entry, &newFile, fileToRename, newFileVersion, newFileName);
 }
 

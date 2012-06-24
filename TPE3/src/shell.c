@@ -366,15 +366,6 @@ int imprimeUnos(int argc, char *argv) {
 	return EXIT_SUCCESS;
 }
 
-int imprimeDos(int argc, char *argv) {
-
-	_Sti();
-	while (1) {
-		printf("2");
-	}
-	return EXIT_SUCCESS;
-}
-
 int pagefault(int argc, char * argv) {
 	return pagefault(argc, argv);
 }
@@ -583,7 +574,6 @@ int rmRecursive(int argc, char *argv) {
 				&& (currentFile->type == DIR_TYPE)) || ((currentFile->inode_number
 				== cwd_inode->parent->inode_number) && (currentFile->type
 				== DIR_TYPE)))) {
-			printf("e!\n");
 			fsRecursiveRemoveHardWrapper(cwd_inode, currentFile);
 		} else {
 			printfcolor(ERROR_COLOR, "ERROR: You can't remove that.\n");
@@ -650,14 +640,30 @@ int vh(int argc, char *argv) {
 
 int revert(int argc, char *argv){
 
+	char c;
+	int i = 0;
+	char param1[LINEBUF_LEN -2]; // File
+	char param2[LINEBUF_LEN -2]; // Version number
+	while((c=*argv++) != ' ' && c != '\0'){
+		param1[i++] = c;
+	}
+	i = 0;
+	while((c=*argv++) != ' ' && c != '\0'){
+		param2[i++] = c;
+	}
+
+	if(param1[0] == '\0' || param2[0] == '\0'){
+		return EXIT_FAILURE;
+	}
+
 	inode_t * cwd_inode = get_current_task()->parent->cwd;
 	fileentry_t * currentFile = NULL;
 	bool found = FALSE;
-	int i = 0;
-	int revision = 0;
+	int revision = atoi(param2);
+	i = 0;
 	while ((currentFile = (fileentry_t *) fsGetFileentry(cwd_inode, i++))
 			!= NULL && !found) {
-		if (streq(argv, currentFile->name) == TRUE && currentFile->type
+		if (streq(param1, currentFile->name) == TRUE && currentFile->type
 				== FILE_TYPE) {
 			found = TRUE;
 			break;
@@ -670,7 +676,6 @@ int revert(int argc, char *argv){
 				&& currentFile->type == DIR_TYPE) || (currentFile->inode_number
 				== cwd_inode->parent->inode_number && currentFile->type
 				== DIR_TYPE))) {
-			revision = getInodeForEntry(currentFile)->rev_no-1;
 
 			fsRevert(cwd_inode, currentFile, revision);
 		} else {
