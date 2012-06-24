@@ -426,7 +426,7 @@ void fsRename(inode_t * dir, fileentry_t * entry, char * newFileName){
 	fsVersionCopy(dir, entry, &newFile, fileToRename, newFileVersion, newFileName);
 }
 
-int fsAddLink(inode_t * dir, inode_t inode, char * name){
+int fsAddLink(inode_t * dir, inode_t * inode, char * name){
 	if(fsAddEntry(dir, inode, name) != OK){
 		return EXIT_FAILURE;
 	}
