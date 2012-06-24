@@ -79,6 +79,7 @@ inode_t * fsGetPrevVersion(inode_t * inode);
 int fsRevert(inode_t * inode, fileentry_t * entry, int version);
 void fsInodeCopy(inode_t * newVersion, inode_t * oldVersion);
 void fsCopy(inode_t * dir, fileentry_t * entry);
+int fsAddLink(inode_t * dir, inode_t * inode, char * name);
 
 
 #endif
